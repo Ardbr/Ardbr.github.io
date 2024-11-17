@@ -3610,7 +3610,7 @@ figure.highlight pre .javascript .function {
   display: none;
 }
 #page-header.not-top-img #nav {
-  background: rgba(255,255,255,0.8);
+  background: rgba(255,255,255,0.7);
   -webkit-box-shadow: 0 5px 6px -5px rgba(133,133,133,0.6);
   box-shadow: 0 5px 6px -5px rgba(133,133,133,0.6);
 }
@@ -3968,6 +3968,201 @@ figure.highlight pre .javascript .function {
 }
 #nav .site-page:not(.child):hover:after {
   width: 100%;
+}
+#nav #music-bar {
+  -webkit-box-flex: 2;
+  -moz-box-flex: 2;
+  -o-box-flex: 2;
+  box-flex: 2;
+  -webkit-flex: 2;
+  -ms-flex: 2;
+  flex: 2;
+  background-color: rgba(3,3,3,0.8);
+  overflow: hidden;
+  height: 48px;
+  display: -webkit-box;
+  display: -moz-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: box;
+  display: flex;
+}
+@media screen and (max-width: 1024px) {
+  #nav #music-bar {
+    display: none;
+  }
+}
+#nav #music-bar #music-cover-container {
+  width: 52px;
+  height: 100%;
+  display: -webkit-inline-box;
+  display: -moz-inline-box;
+  display: -webkit-inline-flex;
+  display: -ms-inline-flexbox;
+  display: inline-box;
+  display: inline-flex;
+  vertical-align: top;
+  -webkit-box-align: center;
+  -moz-box-align: center;
+  -o-box-align: center;
+  -ms-flex-align: center;
+  -webkit-align-items: center;
+  align-items: center;
+}
+#nav #music-bar #music-cover-container #music-cover {
+  display: inline-block;
+  width: 44px;
+  height: 44px;
+  margin: 0 4px 0 4px;
+  background-image: url("/img/云烟成雨-cover.webp");
+  background-size: contain;
+  background-repeat: no-repeat;
+  border-radius: 8px;
+}
+#nav #music-bar #music-button-container {
+  display: inline-block;
+  vertical-align: top;
+  background-color: #035403;
+  width: 120px;
+  height: 100%;
+}
+#nav #music-bar #music-button-container #music-button-container-top {
+  height: 26px;
+  width: 100%;
+  background-color: #72066b;
+  display: -webkit-box;
+  display: -moz-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: box;
+  display: flex;
+  -ms-flex-line-pack: center;
+  -webkit-align-content: center;
+  align-content: center;
+  -webkit-box-pack: center;
+  -moz-box-pack: center;
+  -o-box-pack: center;
+  -ms-flex-pack: center;
+  -webkit-justify-content: center;
+  justify-content: center;
+}
+#nav #music-bar #music-button-container #music-button-container-top .music-icon {
+  background-color: #aea7a7;
+  width: 24px;
+  height: 24px;
+  font-size: 24px;
+  line-height: 24px;
+  margin: auto 2px;
+  top: 0;
+}
+#nav #music-bar #music-button-container #music-button-container-top .music-icon:hover {
+  color: #1fb3a1;
+  cursor: pointer;
+}
+#nav #music-bar #music-button-container #music-button-container-bottom {
+  height: 22px;
+  width: 100%;
+  background-color: #524c02;
+  position: relative;
+}
+#nav #music-bar #music-button-container #music-button-container-bottom #music-progressBar {
+  position: absolute;
+  bottom: 3px;
+  left: 50%;
+  -webkit-transform: translateX(-50%);
+  -moz-transform: translateX(-50%);
+  -o-transform: translateX(-50%);
+  -ms-transform: translateX(-50%);
+  transform: translateX(-50%);
+  height: 4px;
+  width: 110px;
+  background-color: #232323;
+  border-radius: 2.5px;
+}
+#nav #music-bar #music-button-container #music-button-container-bottom #music-progressBar #music-currentProgress {
+  display: block;
+  width: 2px;
+  height: 100%;
+  background-color: #f00;
+  border-radius: 2px;
+  -webkit-transition: 0.3s ease;
+  -moz-transition: 0.3s ease;
+  -o-transition: 0.3s ease;
+  -ms-transition: 0.3s ease;
+  transition: 0.3s ease;
+}
+#nav #music-bar #music-button-container #music-button-container-bottom #music-progressBar #music-dot {
+  display: block;
+  position: absolute;
+  width: 6px;
+  height: 6px;
+  border-radius: 3px;
+  background-color: #ea9708;
+  bottom: -1px;
+  left: -3px;
+  z-index: 999;
+  -webkit-transition: 0.3s ease;
+  -moz-transition: 0.3s ease;
+  -o-transition: 0.3s ease;
+  -ms-transition: 0.3s ease;
+  transition: 0.3s ease;
+}
+#nav #music-bar #music-button-container #music-button-container-bottom #music-progressBar:hover {
+  cursor: pointer;
+}
+#nav #music-bar #music-button-container #music-button-container-bottom #music-progressBar:hover #music-dot {
+  -webkit-box-shadow: 0 0 1px 5px rgba(0,0,0,0.5);
+  box-shadow: 0 0 1px 5px rgba(0,0,0,0.5); /* 添加阴影 */
+}
+#nav #music-bar #music-button-container #music-button-container-bottom #music-progressText {
+  position: absolute;
+  top: -1px;
+  right: 4px;
+  display: block;
+  width: 80px;
+  height: 16px;
+  line-height: 16px;
+  font-size: 12px;
+  color: #000;
+  text-align: right;
+}
+#nav #music-bar #music-name-container {
+  display: inline-block;
+  background-color: #7f0000;
+  position: relative;
+  width: 100px;
+  height: 100%;
+  overflow: hidden;
+  line-height: 48px;
+}
+#nav #music-bar #music-name-container #music-name {
+  display: inline;
+  height: 48px;
+  line-height: 48px;
+  font: 20px "wawati";
+}
+#nav #music-bar #music-lyric-container {
+  display: inline-block;
+  background-color: #99d2a8;
+  position: relative;
+  width: 200px;
+  height: 100%;
+  -webkit-box-flex: 1;
+  -moz-box-flex: 1;
+  -o-box-flex: 1;
+  -ms-box-flex: 1;
+  box-flex: 1;
+  -webkit-flex-grow: 1;
+  flex-grow: 1;
+  overflow: hidden;
+  line-height: 48px;
+  text-align: center;
+}
+#nav #music-bar #music-lyric-container #music-lyric {
+  display: inline;
+  height: 48px;
+  line-height: 48px;
+  font: 20px "wawati";
 }
 #pagination .pagination {
   margin-top: 20px;
