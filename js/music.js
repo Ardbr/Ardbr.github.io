@@ -4,15 +4,76 @@ class MusicPlayer {
         this.musicMode = 1
         this.current = 0
 
-        this.musicList = ["/music/云烟成雨-房东的猫.flac", "/music/使一颗心免于哀伤-Chevy.flac"]
-        this.coverList = ["/img/云烟成雨-cover.webp", "/img/使一颗心免于哀伤-cover.jpg"]
-        this.lyricList = ["/lyrics/云烟成雨.lrc", "/lyrics/使一颗心免于哀伤.lrc"]
+        this.musicList = ["/music/云烟成雨 - 房东的猫.flac", "/music/使一颗心免于哀伤 - HOYO-MiX,Chevy,知更鸟.flac", "/music/单向箭头 - 双笙 (陈元汐).mp3"]
+        this.coverList = ["/img/云烟成雨-cover.webp", "/img/使一颗心免于哀伤-cover.jpg", "/img/单向箭头-cover.webp"]
+        this.lyricList = ["/lyrics/云烟成雨.lrc", "/lyrics/使一颗心免于哀伤.lrc", "/lyrics/单向箭头.lrc"]
 
         this.lrcInfo = ""
         this.lyricIndex = 0
         this.lyricLoad = false
 
         this.audio = new Audio()
+        this.cachedAudioBlobs = []
+        this.cachedLyrics = []
+    }
+
+    checkScroll = () => {
+        const $musicNameContainerEle = document.getElementById('music-name-container')
+        const $musicNameEle = document.getElementById('music-name')
+        console.log($musicNameContainerEle.offsetWidth, $musicNameEle.offsetWidth)
+        if ($musicNameContainerEle.offsetWidth < $musicNameEle.offsetWidth) {
+            $musicNameEle.classList.add('scroll')
+        }
+        else {
+            $musicNameEle.classList.remove('scroll')
+        }
+    }
+
+    // preload music
+    preloadMusicAndLyric = () => {
+        this.musicList.forEach((url, index) => {
+
+            const requestMusic = new XMLHttpRequest()
+            requestMusic.open("GET", url, true)
+            requestMusic.responseType = "blob"
+            requestMusic.onload = () => {
+                if (requestMusic.status === 200) {
+                    this.cachedAudioBlobs[index] = requestMusic.response
+                    console.log(`Loaded ${url}`)
+                }
+                else {
+                    console.log("request error: ", requestMusic.status)
+                }
+            }
+    
+            requestMusic.onerror = () => {
+                console.error(`Failed to load ${url}`)
+            }
+
+            requestMusic.send()
+        })
+
+        this.lyricList.forEach((url, index) => {
+
+            const requestLyric = new XMLHttpRequest()
+            requestLyric.open("GET", url, true)
+            requestLyric.responseType = 'text'
+            requestLyric.onload = () => {
+                if (requestLyric.status === 200) {
+                    this.cachedLyrics[index] = window.parseLyric(requestLyric.responseText)
+                    console.log(`Loaded ${url}`)
+                }
+                else {
+                    console.log("request error: ", requestLyric.status)
+                }
+            }
+    
+            requestLyric.onerror = () => {
+                console.error(`Failed to load ${url}`)
+            }
+
+            requestLyric.send()
+        })
     }
 
     // format date(00:00)
@@ -45,37 +106,27 @@ class MusicPlayer {
 
     // load music and play
     loadMusicAndPlay = (id) => {
+        
         let music = this.musicList[id]
         let cover = this.coverList[id]
-        let lyric = this.lyricList[id]
-        this.lyricLoad = false
         
-        let requestMusic = new XMLHttpRequest()
-        requestMusic.open("GET", music, true)
-        requestMusic.responseType = "blob"
-        requestMusic.onload = () => {
-            if (requestMusic.status == 200) {
-                this.audio.src = URL.createObjectURL(requestMusic.response)
-                this.audio.load()
-                this.audio.play().catch(error => {
-                    console.error('Playback failed:', error)
-                })
-            }
-            else {
-                console.log("Audio file could not be loaded, status: ", requestMusic.status)
-            }
+        if (this.cachedAudioBlobs[id]) {
+            this.audio.src = URL.createObjectURL(this.cachedAudioBlobs[id])
+            this.audio.load()
+            this.audio.play().catch(error => {
+                console.error('Playback failed:', error)
+            })
         }
-        requestMusic.onerror = function() {
-            console.error('Request failed')
+        else {
+            console.log("Audio not preload yet.")
         }
-        requestMusic.send()
 
         // update the cover
-        let $musicCoverEle = document.getElementById("music-cover")
+        let $musicCoverEle = document.getElementById('music-cover')
         $musicCoverEle.style.backgroundImage = `url(${cover})`
 
         // update the status
-        let $musicPlayOrPauseEle = document.getElementById("music-playOrPause")
+        let $musicPlayOrPauseEle = document.getElementById('music-playOrPause')
         $musicPlayOrPauseEle.className = "music-icon iconfont icon-zanting"
 
         // update the name
@@ -83,22 +134,16 @@ class MusicPlayer {
         $musicNameEle.innerText = music.replace('/music/', '').replace('.flac', '').replace('.mp3', '').replace('.ogg', '')
         
         // get lyric content
-        let requestLyric = new XMLHttpRequest()
-        requestLyric.open("GET", lyric, true)
-        requestLyric.responseType = 'text'
-        requestLyric.onload = () => {
-            if (requestLyric.status == 200) {
-                this.lrcInfo = window.parseLyric(requestLyric.responseText)
-                this.lyricLoad = true
-            }
-            else {
-                console.log("lyric file could not be loaded, status: ", requestLyric.status)
-            }
+        if (this.cachedLyrics[id]) {
+            this.lrcInfo = this.cachedLyrics[id]
         }
-        requestLyric.onerror = function() {
-            console.error('Request failed')
+        else {
+            console.log("Lyric not preload yet.")
         }
-        requestLyric.send()
+
+        musicPlayer.lyricIndex = 0
+
+        this.checkScroll()
     }
 
     handleMusicProgressBar = (event) => {
@@ -126,15 +171,8 @@ class MusicPlayer {
                 this.firstPlay = false
             }
             else {
-                let $playOrPauseEle = document.getElementById('music-playOrPause')
-                if (this.audio.paused) {
-                    $playOrPauseEle.className = "music-icon iconfont icon-zanting"
-                    this.audio.play()
-                }
-                else {
-                    $playOrPauseEle.className = "music-icon iconfont icon-bofang"
-                    this.audio.pause()
-                }
+                if (this.audio.paused) this.audio.play()
+                else this.audio.pause()
             }
         }
     }
@@ -180,36 +218,38 @@ class MusicPlayer {
 document.addEventListener('DOMContentLoaded', () => {
 
     musicPlayer = new MusicPlayer()
-        
-    let $musicProgressTextEle, $musicCurrentProgressEle, $musicDotEle, $musicLyricEle
+
+    let $musicProgressTextEle, $musicCurrentProgressEle, $musicDotEle, $musicLyricEle, $playOrPauseEle
 
     // event need to rebind after Pjax overload
     const refreshMusicFn = () => {
 
         // used in refreshMusicFn
         let $prevEle = document.getElementById('music-prev'),    // previous music
-            $playOrPauseEle = document.getElementById('music-playOrPause'), // play or pause
             $nextEle = document.getElementById('music-next'),   // next music
             $musicModeEle = document.getElementById('music-mode'), // switch the play mode
             $musicNameEle = document.getElementById('music-name'),
-            $musicProgressBarEle = document.getElementById('music-progressBar')
+            $musicProgressBarEle = document.getElementById('music-progressBar'),
             $musicCoverEle = document.getElementById('music-cover')
 
         // used in unRefreshMusicFn
+        $playOrPauseEle = document.getElementById('music-playOrPause'), // play or pause
         $musicProgressTextEle = document.getElementById('music-progressText')
         $musicCurrentProgressEle = document.getElementById('music-currentProgress')
         $musicDotEle = document.getElementById('music-dot')
         $musicLyricEle = document.getElementById('music-lyric')
 
-        if (musicPlayer.lyricLoad)
+        console.log(musicPlayer.firstPlay)
+        if (!musicPlayer.firstPlay) {
             $musicNameEle.innerText = musicPlayer.musicList[musicPlayer.current].replace('/music/', '').replace('.flac', '').replace('.mp3', '').replace('.ogg', '')
-        
-        // get current audio status and update the icon
-        if (musicPlayer.audio.paused) $playOrPauseEle.className = "music-icon iconfont icon-bofang"
-        else $playOrPauseEle.className = "music-icon iconfont icon-zanting"
+            
+            if (musicPlayer.audio.paused) $playOrPauseEle.className = "music-icon iconfont icon-bofang"
+            else $playOrPauseEle.className = "music-icon iconfont icon-zanting"
+            // cover
+            $musicCoverEle.style.backgroundImage = `url(${musicPlayer.coverList[musicPlayer.current]})`
+        }
 
-        // cover
-        $musicCoverEle.style.backgroundImage = `url(${musicPlayer.coverList[musicPlayer.current]})`
+        musicPlayer.checkScroll()
 
         // register all the event
         btf.addEventListenerPjax($prevEle, "click", musicPlayer.handlePrev)
@@ -221,6 +261,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // event do not need to rebind
     const unRefreshMusicFn = () => {
+        
+        musicPlayer.preloadMusicAndLyric()
 
         // monitor whether current music has finished
         musicPlayer.audio.addEventListener('ended', function () {
@@ -236,12 +278,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 $musicProgressTextEle.innerText = musicPlayer.getFormattingTime(currentTime) + " / " + musicPlayer.getFormattingTime(totalTime)
                 
                 // current progressbar
-                let width = Math.floor(currentTime / totalTime * 110)// 得到播放时间与总时长的比值
+                let width = Math.floor(currentTime / totalTime * 110)
                 $musicCurrentProgressEle.style.width = width + "px"
                 $musicDotEle.style.left = (width - 2.5) + "px"
             }
-
-            if (musicPlayer.lyricLoad == false) return 0
 
             let index = musicPlayer.lyricIndex
             nextIndex = index + 1 == musicPlayer.lrcInfo.lrc.length ? index : index + 1
@@ -255,11 +295,34 @@ document.addEventListener('DOMContentLoaded', () => {
         })
 
         musicPlayer.audio.addEventListener('loadedmetadata', function () {
-            musicPlayer.lyricIndex = 0
+            
         })
+
+        musicPlayer.audio.addEventListener('play', () => {
+            $playOrPauseEle.className = "music-icon iconfont icon-zanting"
+        });
+
+        musicPlayer.audio.addEventListener('pause', () => {
+            $playOrPauseEle.className = "music-icon iconfont icon-bofang"
+        });
     }
 
     btf.addGlobalFn('pjaxComplete', refreshMusicFn, 'refreshMusicFn')
     refreshMusicFn()
     unRefreshMusicFn()
+})
+
+window.addEventListener('resize', () => {
+    const $musicNameContainerEle = document.getElementById('music-name-container')
+    const $musicNameEle = document.getElementById('music-name')
+    console.log($musicNameContainerEle.offsetWidth, $musicNameEle.offsetWidth)
+    const checkScroll = () => {
+        if ($musicNameContainerEle.offsetWidth < $musicNameEle.offsetWidth) {
+            $musicNameEle.classList.add('scroll')
+        }
+        else {
+            $musicNameEle.classList.remove('scroll')
+        }
+    }
+    checkScroll()
 })

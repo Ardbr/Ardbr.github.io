@@ -443,6 +443,13 @@ canvas:not(#ribbon-canvas),
   -ms-animation: donate_effcet 0.3s 0.1s ease both;
   animation: donate_effcet 0.3s 0.1s ease both;
 }
+.scroll {
+  -webkit-animation: scroll linear 6s infinite;
+  -moz-animation: scroll linear 6s infinite;
+  -o-animation: scroll linear 6s infinite;
+  -ms-animation: scroll linear 6s infinite;
+  animation: scroll linear 6s infinite;
+}
 @-moz-keyframes scroll-down-effect {
   0% {
     opacity: 0.4;
@@ -1321,6 +1328,70 @@ canvas:not(#ribbon-canvas),
     -o-transform: translateX(0);
     -ms-transform: translateX(0);
     transform: translateX(0);
+  }
+}
+@-moz-keyframes scroll {
+  0% {
+    -webkit-transform: translateX(100%);
+    -moz-transform: translateX(100%);
+    -o-transform: translateX(100%);
+    -ms-transform: translateX(100%);
+    transform: translateX(100%);
+  }
+  100% {
+    -webkit-transform: translateX(-100%);
+    -moz-transform: translateX(-100%);
+    -o-transform: translateX(-100%);
+    -ms-transform: translateX(-100%);
+    transform: translateX(-100%);
+  }
+}
+@-webkit-keyframes scroll {
+  0% {
+    -webkit-transform: translateX(100%);
+    -moz-transform: translateX(100%);
+    -o-transform: translateX(100%);
+    -ms-transform: translateX(100%);
+    transform: translateX(100%);
+  }
+  100% {
+    -webkit-transform: translateX(-100%);
+    -moz-transform: translateX(-100%);
+    -o-transform: translateX(-100%);
+    -ms-transform: translateX(-100%);
+    transform: translateX(-100%);
+  }
+}
+@-o-keyframes scroll {
+  0% {
+    -webkit-transform: translateX(100%);
+    -moz-transform: translateX(100%);
+    -o-transform: translateX(100%);
+    -ms-transform: translateX(100%);
+    transform: translateX(100%);
+  }
+  100% {
+    -webkit-transform: translateX(-100%);
+    -moz-transform: translateX(-100%);
+    -o-transform: translateX(-100%);
+    -ms-transform: translateX(-100%);
+    transform: translateX(-100%);
+  }
+}
+@keyframes scroll {
+  0% {
+    -webkit-transform: translateX(100%);
+    -moz-transform: translateX(100%);
+    -o-transform: translateX(100%);
+    -ms-transform: translateX(100%);
+    transform: translateX(100%);
+  }
+  100% {
+    -webkit-transform: translateX(-100%);
+    -moz-transform: translateX(-100%);
+    -o-transform: translateX(-100%);
+    -ms-transform: translateX(-100%);
+    transform: translateX(-100%);
   }
 }
 :root {
@@ -3977,7 +4048,7 @@ figure.highlight pre .javascript .function {
   -webkit-flex: 2;
   -ms-flex: 2;
   flex: 2;
-  background-color: rgba(3,3,3,0.8);
+  background-color: rgba(255,255,255,0.6);
   overflow: hidden;
   height: 48px;
   display: -webkit-box;
@@ -3986,6 +4057,10 @@ figure.highlight pre .javascript .function {
   display: -ms-flexbox;
   display: box;
   display: flex;
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+  border-radius: 8px;
 }
 @media screen and (max-width: 1024px) {
   #nav #music-bar {
@@ -4022,14 +4097,12 @@ figure.highlight pre .javascript .function {
 #nav #music-bar #music-button-container {
   display: inline-block;
   vertical-align: top;
-  background-color: #035403;
   width: 120px;
   height: 100%;
 }
 #nav #music-bar #music-button-container #music-button-container-top {
   height: 26px;
   width: 100%;
-  background-color: #72066b;
   display: -webkit-box;
   display: -moz-box;
   display: -webkit-flex;
@@ -4047,7 +4120,6 @@ figure.highlight pre .javascript .function {
   justify-content: center;
 }
 #nav #music-bar #music-button-container #music-button-container-top .music-icon {
-  background-color: #aea7a7;
   width: 24px;
   height: 24px;
   font-size: 24px;
@@ -4062,7 +4134,6 @@ figure.highlight pre .javascript .function {
 #nav #music-bar #music-button-container #music-button-container-bottom {
   height: 22px;
   width: 100%;
-  background-color: #524c02;
   position: relative;
 }
 #nav #music-bar #music-button-container #music-button-container-bottom #music-progressBar {
@@ -4076,14 +4147,13 @@ figure.highlight pre .javascript .function {
   transform: translateX(-50%);
   height: 4px;
   width: 110px;
-  background-color: #232323;
+  background-color: rgba(35,35,35,0.8);
   border-radius: 2.5px;
 }
 #nav #music-bar #music-button-container #music-button-container-bottom #music-progressBar #music-currentProgress {
   display: block;
   width: 2px;
   height: 100%;
-  background-color: #f00;
   border-radius: 2px;
   -webkit-transition: 0.3s ease;
   -moz-transition: 0.3s ease;
@@ -4111,8 +4181,8 @@ figure.highlight pre .javascript .function {
   cursor: pointer;
 }
 #nav #music-bar #music-button-container #music-button-container-bottom #music-progressBar:hover #music-dot {
-  -webkit-box-shadow: 0 0 1px 5px rgba(0,0,0,0.5);
-  box-shadow: 0 0 1px 5px rgba(0,0,0,0.5); /* 添加阴影 */
+  -webkit-box-shadow: 0 0 1px 5px rgba(23,22,22,0.5);
+  box-shadow: 0 0 1px 5px rgba(23,22,22,0.5); /* 添加阴影 */
 }
 #nav #music-bar #music-button-container #music-button-container-bottom #music-progressText {
   position: absolute;
@@ -4128,22 +4198,37 @@ figure.highlight pre .javascript .function {
 }
 #nav #music-bar #music-name-container {
   display: inline-block;
-  background-color: #7f0000;
   position: relative;
-  width: 100px;
+  width: 120px;
   height: 100%;
   overflow: hidden;
   line-height: 48px;
+  white-space: nowrap;
+  text-align: center;
+}
+#nav #music-bar #music-name-container:before {
+  content: "";
+  display: inline-block;
+  position: absolute;
+  width: 2px;
+  height: 70%;
+  top: 50%;
+  -webkit-transform: translateY(-50%);
+  -moz-transform: translateY(-50%);
+  -o-transform: translateY(-50%);
+  -ms-transform: translateY(-50%);
+  transform: translateY(-50%);
+  left: 0;
+  background-color: rgba(139,139,139,0.6);
 }
 #nav #music-bar #music-name-container #music-name {
-  display: inline;
-  height: 48px;
+  display: inline-block;
+  height: 24px;
   line-height: 48px;
   font: 20px "wawati";
 }
 #nav #music-bar #music-lyric-container {
   display: inline-block;
-  background-color: #99d2a8;
   position: relative;
   width: 200px;
   height: 100%;
@@ -4157,9 +4242,25 @@ figure.highlight pre .javascript .function {
   overflow: hidden;
   line-height: 48px;
   text-align: center;
+  white-space: nowrap;
+}
+#nav #music-bar #music-lyric-container:before {
+  content: "";
+  display: inline-block;
+  position: absolute;
+  width: 2px;
+  height: 70%;
+  top: 50%;
+  -webkit-transform: translateY(-50%);
+  -moz-transform: translateY(-50%);
+  -o-transform: translateY(-50%);
+  -ms-transform: translateY(-50%);
+  transform: translateY(-50%);
+  left: 0;
+  background-color: rgba(139,139,139,0.6);
 }
 #nav #music-bar #music-lyric-container #music-lyric {
-  display: inline;
+  display: inline-block;
   height: 48px;
   line-height: 48px;
   font: 20px "wawati";
