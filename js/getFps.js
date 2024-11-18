@@ -2,15 +2,14 @@ document.addEventListener('DOMContentLoaded', () => {
     
     let frameCount = 0;
     let lastTime = performance.now();
-    
+    $leftsizeFpsTextEle = document.getElementById('leftside-fps-text')
 
     function updateFPS() {
         const currentTime = performance.now();
         frameCount++;
-
         // print the frameCount every second
         if (currentTime - lastTime >= 1000) {
-            console.log(frameCount)
+            $leftsizeFpsTextEle.innerText = `FPS: ${frameCount}`
             frameCount = 0; // reset
             lastTime = currentTime; // update
         }
@@ -19,5 +18,5 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // begin
-    // requestAnimationFrame(updateFPS);
+    requestAnimationFrame(updateFPS);
 })

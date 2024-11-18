@@ -4,7 +4,7 @@ class MusicPlayer {
         this.musicMode = 1
         this.current = 0
 
-        this.musicList = ["/music/云烟成雨 - 房东的猫.flac", "/music/使一颗心免于哀伤 - HOYO-MiX,Chevy,知更鸟.flac", "/music/单向箭头 - 双笙 (陈元汐).mp3"]
+        this.musicList = ["/music/云烟成雨 - 房东的猫.mp3", "/music/使一颗心免于哀伤 - HOYO-MiX,Chevy,知更鸟.mp3", "/music/单向箭头 - 双笙 (陈元汐).mp3"]
         this.coverList = ["/img/云烟成雨-cover.webp", "/img/使一颗心免于哀伤-cover.jpg", "/img/单向箭头-cover.webp"]
         this.lyricList = ["/lyrics/云烟成雨.lrc", "/lyrics/使一颗心免于哀伤.lrc", "/lyrics/单向箭头.lrc"]
 

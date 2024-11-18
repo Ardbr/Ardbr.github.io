@@ -444,11 +444,11 @@ canvas:not(#ribbon-canvas),
   animation: donate_effcet 0.3s 0.1s ease both;
 }
 .scroll {
-  -webkit-animation: scroll linear 6s infinite;
-  -moz-animation: scroll linear 6s infinite;
-  -o-animation: scroll linear 6s infinite;
-  -ms-animation: scroll linear 6s infinite;
-  animation: scroll linear 6s infinite;
+  -webkit-animation: scroll linear 8s infinite;
+  -moz-animation: scroll linear 8s infinite;
+  -o-animation: scroll linear 8s infinite;
+  -ms-animation: scroll linear 8s infinite;
+  animation: scroll linear 8s infinite;
 }
 @-moz-keyframes scroll-down-effect {
   0% {
@@ -4263,6 +4263,23 @@ figure.highlight pre .javascript .function {
   display: inline-block;
   height: 48px;
   line-height: 48px;
+  font: 20px "wawati";
+}
+#leftside-fps {
+  position: fixed; /* 固定定位 */
+  left: 8px; /* 距离左边0 */
+  bottom: 8px; /* 距离底部0 */
+  width: 100px;
+  height: 40px;
+  background-color: rgba(255,255,255,0.8);
+  border-radius: 6px;
+  text-align: center;
+  line-height: 40px;
+}
+#leftside-fps #leftside-fps-text {
+  display: inline-block;
+  width: 100%;
+  height: 24px;
   font: 20px "wawati";
 }
 #pagination .pagination {
