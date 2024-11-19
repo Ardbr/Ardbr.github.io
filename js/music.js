@@ -15,6 +15,7 @@ class MusicPlayer {
         this.audio = new Audio()
         this.cachedAudioBlobs = []
         this.cachedLyrics = []
+        this.cachedLoad = []
     }
 
     checkScroll = () => {
@@ -32,13 +33,14 @@ class MusicPlayer {
     // preload music
     preloadMusicAndLyric = () => {
         this.musicList.forEach((url, index) => {
-
+            this.cachedLoad[index] = 0
             const requestMusic = new XMLHttpRequest()
             requestMusic.open("GET", url, true)
             requestMusic.responseType = "blob"
             requestMusic.onload = () => {
                 if (requestMusic.status === 200) {
                     this.cachedAudioBlobs[index] = requestMusic.response
+                    this.cachedLoad[index] += 1
                     console.log(`Loaded ${url}`)
                 }
                 else {
@@ -61,6 +63,7 @@ class MusicPlayer {
             requestLyric.onload = () => {
                 if (requestLyric.status === 200) {
                     this.cachedLyrics[index] = window.parseLyric(requestLyric.responseText)
+                    this.cachedLoad[index] += 1
                     console.log(`Loaded ${url}`)
                 }
                 else {
@@ -163,12 +166,16 @@ class MusicPlayer {
 
     // play or pause
     handlePlayOrPause = () => {
-
         if (this.musicList.length > 0) {
             // if first play after open the website, we need to load and then play
             if (this.firstPlay) {
-                this.loadMusicAndPlay(this.current)
-                this.firstPlay = false
+                if (this.cachedLoad[this.current] != 2) {
+                    btf.snackbarShow("音乐加载中，请稍后～～")
+                }
+                else {
+                    this.loadMusicAndPlay(this.current)
+                    this.firstPlay = false
+                }
             }
             else {
                 if (this.audio.paused) this.audio.play()
@@ -179,21 +186,32 @@ class MusicPlayer {
 
     // previous music
     handlePrev = () => {
-        this.firstPlay = false
-        if (this.musicList.length > 0){
 
+        if (this.musicList.length > 0){
             this.current = this.current == 0 ? this.musicList.length - 1 : this.current - 1
-            this.loadMusicAndPlay(this.current)
+            if (this.cachedLoad[this.current] != 2) {
+                btf.snackbarShow("音乐加载中，请稍后～～")
+            }
+            else {
+                this.firstPlay = false
+                this.loadMusicAndPlay(this.current)
+            }
         }
     }
 
     // next music
     handleNext = () => {
-        this.firstPlay = false
+
         if (this.musicList.length > 0) {
 
             this.current = this.current == this.musicList.length - 1 ? 0 : this.current + 1
-            this.loadMusicAndPlay(this.current)
+            if (this.cachedLoad[this.current] == 2) {
+                btf.snackbarShow("音乐加载中，请稍后～～")
+            }
+            else {
+                this.firstPlay = false
+                this.loadMusicAndPlay(this.current)
+            }
         }
     }
 

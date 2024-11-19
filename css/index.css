@@ -4266,9 +4266,9 @@ figure.highlight pre .javascript .function {
   font: 20px "wawati";
 }
 #leftside-fps {
-  position: fixed; /* 固定定位 */
-  left: 8px; /* 距离左边0 */
-  bottom: 8px; /* 距离底部0 */
+  position: fixed;
+  left: 8px;
+  bottom: 8px;
   width: 100px;
   height: 40px;
   background-color: rgba(255,255,255,0.8);
@@ -4923,10 +4923,17 @@ figure.highlight pre .javascript .function {
   margin: 0 0 20px;
 }
 .snackbar-container.snackbar-css {
-  border-radius: 5px;
+  border-radius: 6px;
   opacity: 0.85 !important;
   -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=85)" !important;
   filter: alpha(opacity=85) !important;
+  background-color: #deffdd !important;
+  -webkit-box-shadow: 0 0 5px 5px #c1cabf;
+  box-shadow: 0 0 5px 5px #c1cabf;
+}
+.snackbar-container p {
+  color: #000 !important;
+  font: 20px "wawati" !important;
 }
 .abc-music-sheet {
   margin: 0 0 20px;
