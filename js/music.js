@@ -205,7 +205,7 @@ class MusicPlayer {
         if (this.musicList.length > 0) {
 
             this.current = this.current == this.musicList.length - 1 ? 0 : this.current + 1
-            if (this.cachedLoad[this.current] == 2) {
+            if (this.cachedLoad[this.current] != 2) {
                 btf.snackbarShow("音乐加载中，请稍后～～")
             }
             else {
@@ -257,15 +257,21 @@ document.addEventListener('DOMContentLoaded', () => {
         $musicDotEle = document.getElementById('music-dot')
         $musicLyricEle = document.getElementById('music-lyric')
 
-        console.log(musicPlayer.firstPlay)
         if (!musicPlayer.firstPlay) {
             $musicNameEle.innerText = musicPlayer.musicList[musicPlayer.current].replace('/music/', '').replace('.flac', '').replace('.mp3', '').replace('.ogg', '')
             
+            // update play or pause button
             if (musicPlayer.audio.paused) $playOrPauseEle.className = "music-icon iconfont icon-bofang"
             else $playOrPauseEle.className = "music-icon iconfont icon-zanting"
-            // cover
+            
+            // update cover
             $musicCoverEle.style.backgroundImage = `url(${musicPlayer.coverList[musicPlayer.current]})`
         }
+
+        // update music mode button
+        if (musicPlayer.musicMode == 1) $musicModeEle.className = "music-icon iconfont icon-liebiaoxunhuan"
+        else if (musicPlayer.musicMode == 2) $musicModeEle.className = "music-icon iconfont icon-danquxunhuan"
+        else $musicModeEle.className = "music-icon iconfont icon-suijibofang"
 
         musicPlayer.checkScroll()
 
