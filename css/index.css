@@ -3236,48 +3236,37 @@ figure.highlight pre .javascript .function {
   flex-direction: column;
 }
 .card-countdown {
+  background-image: url("/img/2025NewYear.png") !important;
+  background-size: contain !important;
+  background-repeat: no-repeat !important;
+  background-position: center !important;
   background-color: #9b0909 !important;
-  position: relative;
   padding: 0 0 !important;
+  position: relative;
   color: #fff;
-}
-.card-countdown .countdown-image {
-  background-image: url("/img/2025NewYear.png");
-  background-size: contain;
-  background-repeat: no-repeat;
-  background-position: center;
-  width: 100%;
-  height: 100%;
-  position: absolute;
-  z-index: -1;
 }
 .card-countdown .countdown-mask {
   background-color: rgba(0,0,0,0.3);
-  width: 100%;
-  height: 100%;
-  position: absolute;
-  z-index: -1;
 }
-.card-countdown .text-container {
-  z-index: 999;
+.card-countdown .countdown-mask .text-container {
   text-align: center;
-  margin: 20px 24px;
+  padding: 10px 24px;
 }
-.card-countdown .text-container p {
+.card-countdown .countdown-mask .text-container p {
   text-align: left;
   font-size: 1.2em;
 }
-.card-countdown .text-container .countdown-number {
+.card-countdown .countdown-mask .text-container .countdown-number {
   font: 80px 'wawati';
 }
-.card-countdown .text-container .countdown-unit {
+.card-countdown .countdown-mask .text-container .countdown-unit {
   font-size: 1.2em;
 }
-.card-countdown .current-time-container {
-  margin: 20px 24px;
+.card-countdown .countdown-mask .current-time-container {
+  padding: 10px 24px;
   text-align: right;
 }
-.card-countdown .current-time-container .current-time {
+.card-countdown .countdown-mask .current-time-container .current-time {
   font-size: 1em;
 }
 @-moz-keyframes more-btn-move {
