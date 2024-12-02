@@ -234,11 +234,33 @@ class MusicPlayer {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-
     musicPlayer = new MusicPlayer()
-
     let $musicProgressTextEle, $musicCurrentProgressEle, $musicDotEle, $musicLyricEle, $playOrPauseEle
 
+    const updateProgressBar = () => {
+        let currentTime = musicPlayer.audio.currentTime
+            let totalTime = musicPlayer.audio.duration
+            
+            if (!isNaN(totalTime) && isFinite(totalTime)) {
+                $musicProgressTextEle.innerText = musicPlayer.getFormattingTime(currentTime) + " / " + musicPlayer.getFormattingTime(totalTime)
+                
+                // current progressbar
+                let width = Math.floor(currentTime / totalTime * 110)
+                $musicCurrentProgressEle.style.width = width + "px"
+                $musicDotEle.style.left = (width - 2.5) + "px"
+            }
+
+            let index = musicPlayer.lyricIndex
+            nextIndex = index + 1 == musicPlayer.lrcInfo.lrc.length ? index : index + 1
+            if (currentTime * 1000 < musicPlayer.lrcInfo.lrc[nextIndex].timeMs) {
+                $musicLyricEle.innerText = musicPlayer.lrcInfo.lrc[index].lyric
+            }
+            else {
+                musicPlayer.lyricIndex = nextIndex
+                $musicLyricEle.innerText = musicPlayer.lrcInfo.lrc[musicPlayer.lyricIndex].lyric
+            }
+    }
+    
     // event need to rebind after Pjax overload
     const refreshMusicFn = () => {
 
@@ -266,6 +288,8 @@ document.addEventListener('DOMContentLoaded', () => {
             
             // update cover
             $musicCoverEle.style.backgroundImage = `url(${musicPlayer.coverList[musicPlayer.current]})`
+
+            updateProgressBar()
         }
 
         // update music mode button
@@ -295,27 +319,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // update progress bar and lyric
         musicPlayer.audio.addEventListener('timeupdate', function (){
-            let currentTime = musicPlayer.audio.currentTime
-            let totalTime = musicPlayer.audio.duration
-            
-            if (!isNaN(totalTime) && isFinite(totalTime)) {
-                $musicProgressTextEle.innerText = musicPlayer.getFormattingTime(currentTime) + " / " + musicPlayer.getFormattingTime(totalTime)
-                
-                // current progressbar
-                let width = Math.floor(currentTime / totalTime * 110)
-                $musicCurrentProgressEle.style.width = width + "px"
-                $musicDotEle.style.left = (width - 2.5) + "px"
-            }
-
-            let index = musicPlayer.lyricIndex
-            nextIndex = index + 1 == musicPlayer.lrcInfo.lrc.length ? index : index + 1
-            if (currentTime * 1000 < musicPlayer.lrcInfo.lrc[nextIndex].timeMs) {
-                $musicLyricEle.innerText = musicPlayer.lrcInfo.lrc[index].lyric
-            }
-            else {
-                musicPlayer.lyricIndex = nextIndex
-                $musicLyricEle.innerText = musicPlayer.lrcInfo.lrc[musicPlayer.lyricIndex].lyric
-            }
+            updateProgressBar()
         })
 
         musicPlayer.audio.addEventListener('loadedmetadata', function () {
