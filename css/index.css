@@ -3154,6 +3154,9 @@ figure.highlight pre .javascript .function {
 #aside-content .card-announcement .item-headline i {
   color: #f00;
 }
+#aside-content .card-announcement .announcement_content {
+  font: 24px "wawati";
+}
 .avatar-img {
   overflow: hidden;
   margin: 0 auto;
@@ -4188,6 +4191,7 @@ figure.highlight pre .javascript .function {
   display: block;
   width: 2px;
   height: 100%;
+  background-color: #1fb3a1;
   border-radius: 2px;
   -webkit-transition: 0.3s ease;
   -moz-transition: 0.3s ease;
@@ -4201,7 +4205,7 @@ figure.highlight pre .javascript .function {
   width: 6px;
   height: 6px;
   border-radius: 3px;
-  background-color: #ea9708;
+  background-color: #1fb3a1;
   bottom: -1px;
   left: -3px;
   z-index: 999;
