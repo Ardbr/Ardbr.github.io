@@ -1,0 +1,596 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>minimind-Ch03 GQA 模块 | creat's HomePage</title><meta name="author" content="creat"><meta name="copyright" content="creat"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="[{&quot;url&quot;:&quot;&#x2F;img&#x2F;minimind&#x2F;architecture.png&quot;,&quot;alt&quot;:&quot;model architecture&quot;}]      在这一部分，我们将要对 GQA（Grouped Query Attention）分组查询注意力模块进行详细的介绍。 作为前置知识，还是有必要先对 Attention 进行说明。 Attention 核心直觉 Attention 的本质是">
+<meta property="og:type" content="article">
+<meta property="og:title" content="minimind-Ch03 GQA 模块">
+<meta property="og:url" content="https://ardbr.github.io/2026/01/21/projects/minimind/minimind-Ch03-GQA-%E6%A8%A1%E5%9D%97/index.html">
+<meta property="og:site_name" content="creat&#39;s HomePage">
+<meta property="og:description" content="[{&quot;url&quot;:&quot;&#x2F;img&#x2F;minimind&#x2F;architecture.png&quot;,&quot;alt&quot;:&quot;model architecture&quot;}]      在这一部分，我们将要对 GQA（Grouped Query Attention）分组查询注意力模块进行详细的介绍。 作为前置知识，还是有必要先对 Attention 进行说明。 Attention 核心直觉 Attention 的本质是">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://ardbr.github.io/img/avatar.gif">
+<meta property="article:published_time" content="2026-01-21T13:45:00.000Z">
+<meta property="article:modified_time" content="2026-02-09T15:20:44.977Z">
+<meta property="article:author" content="creat">
+<meta property="article:tag" content="LLM">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://ardbr.github.io/img/avatar.gif"><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="https://ardbr.github.io/2026/01/21/projects/minimind/minimind-Ch03-GQA-%E6%A8%A1%E5%9D%97/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/node-snackbar/dist/snackbar.min.css" media="print" onload="this.media='all'"><script>
+    (() => {
+      
+    const saveToLocal = {
+      set: (key, value, ttl) => {
+        if (!ttl) return
+        const expiry = Date.now() + ttl * 86400000
+        localStorage.setItem(key, JSON.stringify({ value, expiry }))
+      },
+      get: key => {
+        const itemStr = localStorage.getItem(key)
+        if (!itemStr) return undefined
+        const { value, expiry } = JSON.parse(itemStr)
+        if (Date.now() > expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return value
+      }
+    }
+
+    window.btf = {
+      saveToLocal,
+      getScript: (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        Object.entries(attr).forEach(([key, val]) => script.setAttribute(key, val))
+        script.onload = script.onreadystatechange = () => {
+          if (!script.readyState || /loaded|complete/.test(script.readyState)) resolve()
+        }
+        script.onerror = reject
+        document.head.appendChild(script)
+      }),
+      getCSS: (url, id) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onload = link.onreadystatechange = () => {
+          if (!link.readyState || /loaded|complete/.test(link.readyState)) resolve()
+        }
+        link.onerror = reject
+        document.head.appendChild(link)
+      }),
+      addGlobalFn: (key, fn, name = false, parent = window) => {
+        if (!true && key.startsWith('pjax')) return
+        const globalFn = parent.globalFn || {}
+        globalFn[key] = globalFn[key] || {}
+        globalFn[key][name || Object.keys(globalFn[key]).length] = fn
+        parent.globalFn = globalFn
+      }
+    }
+  
+      
+      const activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      const activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+
+      btf.activateDarkMode = activateDarkMode
+      btf.activateLightMode = activateLightMode
+
+      const theme = saveToLocal.get('theme')
+    
+          theme === 'dark' ? activateDarkMode() : theme === 'light' ? activateLightMode() : null
+        
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        document.documentElement.classList.toggle('hide-aside', asideStatus === 'hide')
+      }
+    
+      
+    const detectApple = () => {
+      if (/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)) {
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+  
+    })()
+  </script><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"/search.xml","preload":true,"top_n_per_article":10,"unescape":false,"languages":{"hits_empty":"未找到符合您查询的内容：${query}","hits_stats":"共找到 ${hits} 篇文章"}},
+  translate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":200,"highlightFullpage":false,"highlightMacStyle":"mac"},
+  copy: {
+    success: '复制成功',
+    error: '复制失败',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'null',
+  Snackbar: {"chs_to_cht":"已切换为繁体中文","cht_to_chs":"已切换为简体中文","day_to_night":"已切换为深色模式","night_to_day":"已切换为浅色模式","bgLight":"#49b1f5","bgDark":"#1f1f1f","position":"top-center"},
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid/dist/infinitegrid.min.js',
+    buttonText: '加载更多'
+  },
+  isPhotoFigcaption: false,
+  islazyload: true,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'minimind-Ch03 GQA 模块',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  isShuoshuo: false
+}</script><link rel="stylesheet" href="/css/font.css"><link rel="stylesheet" href="/css/cursor.css"><link rel="stylesheet" href="/css/custom.css"><link rel="stylesheet" href="//at.alicdn.com/t/c/font_4746832_eb25gdpzci6.css"><meta name="generator" content="Hexo 7.3.0"></head><body><div id="web_bg" style="background-image: url(/img/background.png);"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img text-center"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/img/avatar.gif" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="site-data text-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">36</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">8</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">5</div></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 主页</span></a></div><div class="menus_item"><a class="site-page" href="/categories"><i class="fa-fw fas fa-book"></i><span> 学习资料</span></a></div><div class="menus_item"><a class="site-page" href="/link"><i class="fa-fw fas fa-globe"></i><span> 常用网站</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header"><nav id="nav"><span id="blog-info"><a class="nav-site-title" href="/"><img class="site-icon" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/img/favicon.png" alt="Logo"><span class="site-name">creat's HomePage</span></a><a class="nav-page-title" href="/"><span class="site-name">minimind-Ch03 GQA 模块</span></a></span><div id="music-bar"><div id="music-cover-container"><div id="music-cover"></div></div><div id="music-button-container"><div id="music-button-container-top"><span class="music-icon iconfont icon-shangyishou" id="music-prev"></span><span class="music-icon iconfont icon-bofang" id="music-playOrPause"></span><span class="music-icon iconfont icon-xiayishou" id="music-next"></span><span class="music-icon iconfont icon-liebiaoxunhuan" id="music-mode"></span></div><div id="music-button-container-bottom"><div id="music-progressBar"><span id="music-currentProgress"></span><span id="music-dot"></span></div><span id="music-progressText">00:00 / 00:00</span></div></div><div id="music-name-container"><span id="music-name"></span></div><div id="music-lyric-container"><span id="music-lyric"></span></div></div><div id="menus"><div id="toggle-menu"><span class="site-page"></span><i class="fas fa-bars fa-fw"></i></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 主页</span></a></div><div class="menus_item"><a class="site-page" href="/categories"><i class="fa-fw fas fa-book"></i><span> 学习资料</span></a></div><div class="menus_item"><a class="site-page" href="/link"><i class="fa-fw fas fa-globe"></i><span> 常用网站</span></a></div></div><div id="search-button"><span class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> 搜索</span></span></div></div></nav><div id="post-info"><h1 class="post-title">minimind-Ch03 GQA 模块</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2026-01-21T13:45:00.000Z" title="发表于 2026-01-21 21:45:00">2026-01-21</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2026-02-09T15:20:44.977Z" title="更新于 2026-02-09 23:20:44">2026-02-09</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/project/">project</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/project/minimind/">minimind</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-wordcount"><i class="far fa-file-word fa-fw post-meta-icon"></i><span class="post-meta-label">总字数:</span><span class="word-count">4.1k</span><span class="post-meta-separator">|</span><i class="far fa-clock fa-fw post-meta-icon"></i><span class="post-meta-label">阅读时长:</span><span>16分钟</span></span><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title=""><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">浏览量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="container post-content" id="article-container"><div class="gallery-container" data-type="data" data-button="">
+      <div class="gallery-items">[{"url":"/img/minimind/architecture.png","alt":"model architecture"}]</div>
+    </div>
+<p>在这一部分，我们将要对 <strong>GQA（Grouped Query
+Attention）分组查询注意力</strong>模块进行详细的介绍。</p>
+<p>作为前置知识，还是有必要先对 Attention 进行说明。</p>
+<h2 id="attention">Attention</h2>
+<h3 id="核心直觉">核心直觉</h3>
+<p>Attention 的本质是一个<strong>“软寻址”（Soft
+Addressing）或“内容查询”</strong>的过程，能够通过算法，让你注意到为了完成这个任务，应该注意的地方。Attention
+通过 <span class="math inline">\(Q, K, V\)</span>
+三个向量来实现这一点。</p>
+<div class="note success flat"><p>举一个🌰——想象你在图书馆找资料（或者在 SQL 数据库里查询）：</p>
+<ul>
+<li>Query (Q): 你手里的问题（比如“深度学习的历史”）。</li>
+<li>Key (K): 图书馆里每本书书脊上的标签（分类号或书名）。</li>
+<li>Value (V): 书里的具体内容。</li>
+</ul>
+</div>
+<p>注意力机制的过程： <div class="timeline "><div class='timeline-item'><div class='timeline-item-title'><div class='item-circle'><p>匹配 (Matching)</p>
+</div></div><div class='timeline-item-content'><p>拿你的 Query 去和所有的 Key 进行对比（计算相似度）。</p>
+</div></div><div class='timeline-item'><div class='timeline-item-title'><div class='item-circle'><p>权重 (Weighting)</p>
+</div></div><div class='timeline-item-content'><p>越相似的 Key，给的关注度（权重）越高。</p>
+</div></div><div class='timeline-item'><div class='timeline-item-title'><div class='item-circle'><p>聚合 (Aggregation)</p>
+</div></div><div class='timeline-item-content'><p>根据权重，把对应的 Value 加权求和，提取出来。</p>
+</div></div></div></p>
+<p>在神经网络中，<span class="math inline">\(Q、K、V\)</span>
+都是向量（Vectors），其形状均为 <span class="math inline">\(N \times
+d_k\)</span>，其中 <span class="math inline">\(N\)</span> 表示 token
+的数量，<span class="math inline">\(d_k\)</span> 表示的是每一个 token
+被编码成的向量的维度。</p>
+<h3 id="数学本质">数学本质</h3>
+<p>Attention 的数学公式为 <span class="math display">\[
+\begin{equation}    \label{eq:attention}
+\text{Attetion}(Q, K, V) = \text{Softmax}(\frac{QK^T}{\sqrt{d_k}})V
+\end{equation}
+\]</span></p>
+<h4 id="qkt相似度计算"><span
+class="math inline">\(QK^T\)</span>（相似度计算）</h4>
+<p>这里使用的点积，因为点积能够衡量两个向量的相似度（几何夹角）。由上面的形状说明，我们可以得知，这里计算出的矩阵的大小为
+<span class="math inline">\(N \times N\)</span>，也就是每一个 token
+<span class="math inline">\(i\)</span> 与其他 token <span
+class="math inline">\(j\)</span>（也包括自身）的相似度。</p>
+<div class="note danger flat"><p>注意，这里生成的矩阵的大小为 <span class="math inline">\(N \times
+N\)</span>，行和列都是 tokens 序列的长度。其中每一行代表我们要查询的
+token（<span class="math inline">\(Q\)</span>），每一列代表其他 tokens
+的键（<span
+class="math inline">\(K\)</span>）。区分行和列是非常重要的，因为后续在进行因果推断训练的时候，我们需要用掩码去掩盖后面的
+token，禁止模型去“提前看”后续的 tokens。因此，这个矩阵 <span
+class="math inline">\(QK^T\)</span>
+的<mark class="hl-label red"><strong>上三角矩阵</strong></mark>应该被置为
+<span class="math inline">\(-\infty\)</span>，来确保经过 <span
+class="math inline">\(\text{Softmax}\)</span> 之后，其概率值为 0。</p>
+</div>
+<h4 id="sqrtd_k缩放因子"><span
+class="math inline">\(\sqrt{d_k}\)</span>（缩放因子）</h4>
+<p>假设 <span class="math inline">\(Q\)</span> 和 <span
+class="math inline">\(K\)</span> 的元素服从均值为 0、方差为 1
+的分布，点积后的数值方差会变成 <span
+class="math inline">\(d_k\)</span>（维度越大，点积结果数值越大，因为
+<span class="math inline">\(QK^T\)</span> 运算并没有任何的平均化操作）。
+如果不缩放，数值过大，经过 <span
+class="math inline">\(\text{Softmax}\)</span>
+后会落入“饱和区”（梯度几乎为 0），导致梯度消失，模型难以训练。 除以
+<span class="math inline">\(\sqrt{d_k}\)</span> 将方差拉回
+1，保证梯度流稳定。</p>
+<div class="note warning flat"><p>所谓的“饱和区，也就是输入过大或者太小，这个时候函数变化趋势已经很平缓了，因此梯度很小，模型难以训练。</p>
+</div>
+<img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/img/minimind/image-3.png" class="" title="50% softmax">
+<h4 id="textsoftmax归一化"><span
+class="math inline">\(\text{Softmax}\)</span>（归一化）</h4>
+<p>将分数转化为概率分布（和为
+1），这决定了模型要把多少“注意力”分配给当前的位置。</p>
+<h4 id="times-v加权求和"><span class="math inline">\(\times
+V\)</span>（加权求和）</h4>
+<p>我们前面计算出了当前查询的 token 对于其他每一个 token
+的关注比例。比如，“I love you” 计算出 “I” 这个 token 对于 “I” 的概率为
+0.32，对于 “love” 的概率为 0.16，对于 “you” 的概率为
+0.52。那么，最终计算出的值是所有 <span class="math inline">\(V\)</span>
+的加权混合值，即 <span class="math display">\[
+V = 0.32V_{\text{I}} + 0.16V_{\text{love}} + 0.52V_{\text{you}}
+\]</span></p>
+<h3 id="家族变体self-cross-causal">家族变体：Self, Cross, Causal</h3>
+<h4 id="self-attention-自注意力">Self-Attention (自注意力)</h4>
+<p><span class="math inline">\(Q, K, V\)</span> 都来自同一个输入源 <span
+class="math inline">\(X\)</span>，即 <span class="math inline">\(Q =
+XW_q, \quad K = XW_k, \quad V = XW_v\)</span>。如果 <span
+class="math inline">\(X\)</span> 的形状为 <span class="math inline">\(B
+\times N \times d_k\)</span>，其中 <span
+class="math inline">\(B\)</span> 为 batch 大小，<span
+class="math inline">\(N\)</span> 为序列长度，<span
+class="math inline">\(d_k\)</span> 表示嵌入维度。那么我们有 <span
+class="math inline">\(W_q\)</span> 和 <span
+class="math inline">\(W_k\)</span> 的形状均为 <span
+class="math inline">\(d_k \times d_{qk_{dim}}\)</span>，其中 <span
+class="math inline">\(d_{qk_{dim}}\)</span>
+表示键——查询的空间维度，一般会比嵌入维度 <span
+class="math inline">\(d_k\)</span> 小。而 <span
+class="math inline">\(W_v\)</span> 矩阵不同，<span
+class="math inline">\(V\)</span> 最后是要能直接加到 <span
+class="math inline">\(X\)</span> 上进行更新的，因此 <span
+class="math inline">\(W_v\)</span> 最后一维的大小为 <span
+class="math inline">\(d_k\)</span>。所以，<span
+class="math inline">\(V\)</span> 的形状为 <span
+class="math inline">\(d_k\times d_k\)</span>。可以看到，<span
+class="math inline">\(W_v\)</span> 矩阵会比 <span
+class="math inline">\(W_q\)</span> 和 <span
+class="math inline">\(W_k\)</span>
+大很多，因此，实际工程中，我们一般会对 <span
+class="math inline">\(W_v\)</span> 矩阵进行低秩分解，分解成形状为 <span
+class="math inline">\(d_k \times d^\prime\)</span> 和 <span
+class="math inline">\(d^\prime \times d_k\)</span>
+的两个小矩阵的乘积。</p>
+<p><span class="math display">\[
+\begin{equation}
+\begin{aligned}
+W_v &amp;=
+\scriptsize{
+\underbrace{
+    \begin{pmatrix}
+    w_{11} &amp; w_{12} &amp; w_{13} &amp; w_{14} &amp; \cdots &amp;
+w_{1(d_k-1)} &amp; w_{1d_k} \\
+    w_{21} &amp; w_{22} &amp; w_{23} &amp; w_{24} &amp; \cdots &amp;
+w_{2(d_k-1)} &amp; w_{2d_k} \\
+    w_{31} &amp; w_{32} &amp; w_{33} &amp; w_{34} &amp; \cdots &amp;
+w_{3(d_k-1)} &amp; w_{3d_k} \\
+    w_{41} &amp; w_{42} &amp; w_{43} &amp; w_{44} &amp; \cdots &amp;
+w_{4(d_k-1)} &amp; w_{4d_k} \\
+    \vdots &amp; \vdots &amp; \vdots &amp; \vdots &amp; \ddots &amp;
+\vdots &amp; \vdots \\
+    w_{(d_k-1)1} &amp; w_{(d_k-1)2} &amp; w_{(d_k-1)3} &amp;
+w_{(d_k-1)4} &amp; \cdots &amp; w_{(d_k-1)(d_k-1)} &amp; w_{(d_k-1)d_k}
+\\
+    w_{d_k1} &amp; w_{d_k2} &amp; w_{d_k3} &amp; w_{d_k4} &amp; \cdots
+&amp; w_{d_k(d_k-1)} &amp; w_{d_kd_k} \\
+    \end{pmatrix}}_{d_k \times d_k}
+} \\
+&amp;=
+\scriptsize{
+\underbrace{
+    \begin{pmatrix}
+    w_{11} &amp; w_{12} &amp; \cdots &amp; w_{1(d^\prime-1)} &amp;
+w_{1d^\prime} \\
+    w_{21} &amp; w_{22} &amp; \cdots &amp; w_{2(d^\prime-1)} &amp;
+w_{2d^\prime} \\
+    w_{31} &amp; w_{12} &amp; \cdots &amp; w_{3(d^\prime-1)} &amp;
+w_{3d^\prime} \\
+    w_{41} &amp; w_{12} &amp; \cdots &amp; w_{4(d^\prime-1)} &amp;
+w_{4d^\prime} \\
+    \vdots &amp; \vdots &amp; \ddots &amp; \vdots &amp; \vdots \\
+    w_{(d_k-1)1} &amp; w_{(d_k-1)2} &amp; \cdots &amp;
+w_{(d_k-1)(d^\prime-1)} &amp; w_{(d_k-1)d^\prime} \\
+    w_{d_k1} &amp; w_{d_k2} &amp; \cdots &amp; w_{d_k(d^{\prime-1})}
+&amp; w_{d_kd^\prime} \\
+    \end{pmatrix}}_{W_v \uparrow \quad d_k \times d^\prime}
+\underbrace{
+    \begin{pmatrix}
+    w^\prime_{11} &amp; w^\prime_{12} &amp; w^\prime_{13} &amp; \cdots
+&amp; w^\prime_{1(d_k-1)} &amp; w^\prime_{1d_k} \\
+    w^\prime_{21} &amp; w^\prime_{22} &amp; w^\prime_{23} &amp; \cdots
+&amp; w^\prime_{2(d_k-1)} &amp; w^\prime_{2d_k} \\
+    \vdots &amp; \vdots &amp; \vdots &amp; \ddots &amp; \vdots &amp;
+\vdots \\
+    w^\prime_{(d^\prime-1)1} &amp; w^\prime_{(d^\prime-1)2} &amp;
+w^\prime_{(d^\prime-1)3} &amp; \cdots &amp;
+w^\prime_{(d^\prime-1)(d_k-1)} &amp; w^\prime_{(d^\prime-1)d_k} \\
+    w^\prime_{d^\prime 1} &amp; w^\prime_{d^\prime 2} &amp;
+w^\prime_{d^\prime 3} &amp; \cdots &amp; w^\prime_{d^\prime (d_k-1)}
+&amp; w^\prime_{d^\prime d_k} \\
+    \end{pmatrix}}_{W_v \downarrow \quad d^\prime \times d_k} \\
+}
+\end{aligned}
+\end{equation}
+\]</span></p>
+<p>而在计算 <span class="math inline">\(V\)</span>
+的时候，一般我们只会用 <span class="math inline">\(W_v \uparrow\)</span>
+这个矩阵，而把 <span class="math inline">\(W_v \downarrow\)</span>
+这个矩阵留作最后的 <span
+class="math inline">\(W_o\)</span>（也就是开头那张流程图 GQA
+中最后那里的 Linear 层。<mark class="hl-label orange">并且，最后续的 $W_o$ 这个矩阵可以把多个头的拼接起来，形成 $d_k \times d_k$ 大小的矩阵，进行一次大的矩阵运算即可</mark>，更快更高效。</p>
+<h4 id="cross-attention-交叉注意力">Cross-Attention (交叉注意力)</h4>
+<p>建设中💪</p>
+<h4 id="causal-masked-attention-因果注意力">Causal / Masked Attention
+(因果注意力)</h4>
+<p>因果注意力（Causal Attention），也常被称为 Masked
+Attention（掩码注意力），是 GPT 类模型（Decoder-only
+架构）能够进行文本生成的核心机制。</p>
+<div class="note success flat"><p>它的作用是确保模型在预测当前字的时候，只能看到前面的字，绝对不能偷看后面的字。如果没有它，ChatGPT
+就无法生成连贯的句子，因为训练时它会“作弊”直接看到答案。</p>
+</div>
+<p>假设我们要训练模型学习一句话：“我喜欢吃苹果”。在 Transformer
+的训练中，为了效率，我们是一次性把整句话输入进去的（并行计算）。当模型在位置
+2
+处理“喜欢”这个词时，它的任务是预测下一个词是“吃”。但是，因为整句话都在输入里，标准的自注意力机制（Self-Attention）会让“喜欢”这个词能看到“吃”和“苹果”。</p>
+<p><strong>后果（数据泄露）：</strong>如果模型能看到“苹果”，它就不需要学习语法和逻辑了，直接把后面的字抄过来就行。这就好比考试时把答案放在了卷子旁边，模型学会了抄答案，但没学会解题。</p>
+<p>解决办法就是把后面还没发生的词挡住（Mask）： <span
+class="math display">\[
+\begin{equation}    \label{eq:mask_attention}
+\text{Attetion}(Q, K, V) = \text{Softmax}(\frac{QK^T + M}{\sqrt{d_k}})V
+\end{equation}
+\]</span> 其中的掩码矩阵 <span class="math inline">\(M\)</span> 由 0 和
+<span class="math inline">\(-\infty\)</span> 构成，并且 <span
+class="math inline">\(-\infty\)</span>
+分布在上三角（不包括主对角线）</p>
+<p><span class="math display">\[
+\scriptsize{
+M =
+\begin{pmatrix}
+    0 &amp; -\infty &amp; -\infty &amp; -\infty &amp; \cdots &amp;
+-\infty &amp; -\infty \\
+    0 &amp; 0 &amp; -\infty &amp; -\infty &amp; \cdots &amp; -\infty
+&amp; -\infty \\
+    0 &amp; 0 &amp; 0 &amp; -\infty &amp; \cdots &amp; -\infty &amp;
+-\infty \\
+    0 &amp; 0 &amp; 0 &amp; 0 &amp; \cdots &amp; -\infty &amp; -\infty
+\\
+    \vdots &amp; \vdots &amp; \vdots &amp; \vdots &amp; \ddots &amp;
+\vdots &amp; \vdots \\
+    0 &amp; 0 &amp; 0 &amp; 0 &amp; \cdots &amp; 0 &amp; -\infty \\
+    0 &amp; 0 &amp; 0 &amp; 0 &amp; \cdots &amp; 0 &amp; 0 \\
+\end{pmatrix}
+}
+\]</span></p>
+<h3 id="multi-head-attention-多头注意力">Multi-Head Attention
+(多头注意力)</h3>
+<p>“多头”
+能够让模型更好的理解输入，就像人看文章，既要看语法结构（主谓宾），又要看指代关系（it
+指谁），还要看情感色彩。一个头（一组 <span
+class="math inline">\(QKV\)</span>）不够用。</p>
+<p>实现流程如下：</p>
+<div class="timeline "><div class='timeline-item'><div class='timeline-item-title'><div class='item-circle'><p>维度切分</p>
+</div></div><div class='timeline-item-content'><p>一般来说，输入 Attention 层的 <code>x</code> 的形状通常为
+<code>[batch_size, seq_len, hidden_dim]</code>。之后，我们规定头的个数为
+<code>num_heads</code>，于是，我们会把 <code>x</code> reshape 成形状
+<code>[batch_size, seq_len, num_heads, head_dim]</code>，其中
+<code>hidden_dim = num_heads * head_dim</code>。</p>
+<p>此处还需要注意的是，我们把每个“头”分下去，而且每个头里面都应该是完整的
+<code>seq_len</code> 长度。所以，我们需要对前面的 <code>x</code> 的第 1
+维和第 2 维再进行一次转置，将形状变为
+<code>[batch_size, num_heads, seq_len, head_dim]</code></p>
+</div></div><div class='timeline-item'><div class='timeline-item-title'><div class='item-circle'><p>每个头独立做 Attention</p>
+</div></div><div class='timeline-item-content'><p>每一个 head 拿到的输入 <code>x_h</code> 的形状为
+<code>[batch_size, seq_len, head_dim]</code>。然后按照前面说的算法求解注意力分数，值加权求和即可。</p>
+</div></div><div class='timeline-item'><div class='timeline-item-title'><div class='item-circle'><p>把 <span class="math inline">\(h\)</span> 个结果拼接回去</p>
+</div></div><div class='timeline-item-content'><p>这一步就相当于是步骤 1 的逆过程了，此处不再赘述。</p>
+</div></div><div class='timeline-item'><div class='timeline-item-title'><div class='item-circle'><p>融合信息</p>
+</div></div><div class='timeline-item-content'><p>最后，经过一个线性层 <span class="math inline">\(W_o\)</span>
+融合信息，公式为 <span class="math display">\[
+\text{MultiHead}(Q, K, V) = \text{Concat}(\text{head}_1, \dots,
+\text{head}_h)W_o
+\]</span></p>
+</div></div></div>
+<div class="note info flat"><p>🖊️在实际工程中，分别计算几个小的 <span
+class="math inline">\(QKV\)</span>
+矩阵然后再将其拼接，是比较耗时的。因此，在代码实现中，我们更倾向于整体使用一个大的
+<span class="math inline">\(QKV\)</span>
+矩阵与输入进行相乘，然后再将输出给 reshape 或者 view 成
+<code>[batch_size, seq_len, num_heads, head_dim]</code> 的形状！</p>
+</div>
+<h2 id="gqa">GQA</h2>
+<p>接下来进入正题，正式讲解分组查询注意力。在此之前，首先我们需要了解一下<strong>MHA（Multi-Head
+Attention）标准多头注意力</strong>和<strong>MQA（Multi-Query
+Attention）多查询注意力</strong>。</p>
+<h3 id="mhamulti-head-attention">MHA（Multi-Head Attention）</h3>
+<p>这是 Transformer 原文的设计，也是 BERT、GPT-2 的做法。</p>
+<ul>
+<li>配置：8 个 <span class="math inline">\(Q\)</span> 头，配对 8 个
+<span class="math inline">\(K\)</span> 头 和 8 个 <span
+class="math inline">\(V\)</span> 头。</li>
+<li>关系：1 对 1。每个 <span class="math inline">\(Q\)</span>
+头都有自己专属的 <span class="math inline">\(K\)</span> 和 <span
+class="math inline">\(V\)</span>。</li>
+<li>优点：脑子最好使，捕捉细节能力最强。</li>
+<li>缺点：KV Cache 太大。推理时（生成文本时），需要把所有的 <span
+class="math inline">\(K\)</span> 和 <span
+class="math inline">\(V\)</span>
+存下来。显存占用极高，读取速度慢（带宽瓶颈）。</li>
+</ul>
+<h3 id="mqamulti-query-attention">MQA（Multi-Query Attention）</h3>
+<p>为了解决显存不够用的问题，Google 提出了 MQA（如 Falcon 模型）。</p>
+<ul>
+<li>配置：8 个 <span class="math inline">\(Q\)</span> 头，只配 1 个
+<span class="math inline">\(K\)</span> 头 和 1 个 <span
+class="math inline">\(V\)</span> 头。</li>
+<li>关系：多对 1。所有的 <span class="math inline">\(Q\)</span>
+头共享同一份 <span class="math inline">\(K\)</span> 和 <span
+class="math inline">\(V\)</span>。</li>
+<li>优点：KV Cache 极小（只有 MHA 的 1/8），推理速度飞快。</li>
+<li>缺点：变笨了。因为所有人看同一份资料，模型的表达能力下降，容易产生幻觉或逻辑混乱。</li>
+</ul>
+<p>GQA (Grouped Query Attention，分组查询注意力) 是目前大语言模型（如
+Llama 2-70B, Llama 3,
+Mistral）中为了平衡推理速度和模型性能而采用的一种主流技术。简单来说，它是
+MHA（标准多头注意力）和 MQA（多查询注意力）之间的折中方案。</p>
+<h2 id="attention-代码实现">Attention 代码实现</h2>
+<p>首先是对于 GQA 所需要的工具函数进行一下实现。因为 <span
+class="math inline">\(KV\)</span> 头的数量是少于 <span
+class="math inline">\(Q\)</span> 的，因此，我们在分头之后，需要对 <span
+class="math inline">\(K、V\)</span> 这两个张量的 <code>num_heads</code>
+进行一下复制，让它们的大小与 <span class="math inline">\(Q\)</span>
+的相同。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">repeat_kv</span>(<span class="params">x: torch.Tensor, n_rep: <span class="built_in">int</span> = <span class="number">1</span></span>):</span><br><span class="line">    <span class="keyword">if</span> n_rep == <span class="number">1</span>:</span><br><span class="line">        <span class="keyword">return</span> x</span><br><span class="line">    batch_size, seq_len, num_heads, head_dim = x.shape</span><br><span class="line">    <span class="keyword">return</span> x[:, :, :, <span class="literal">None</span>, :].expand(batch_size, seq_len, num_heads, n_rep, head_dim).reshape(batch_size, seq_len, num_heads * n_rep, head_dim)</span><br></pre></td></tr></table></figure>
+<p>接下来就是 Attention
+的实现了，之前看视频的时候照着写过一次，但是在写此文，铺垫了前面这么多的知识后，我决定尝试自己完全再重新写一次，以检验一下自己是否真的明白了。断断续续写了
+1
+个多小时，最后还是没写出一个完美的版本，尤其是对于网络、张量的维度的理解，脑子里当时还是一片浆糊。但这也是真正理解
+Attention
+的必经之路。一边照着视频一边写，很多时候都只是一知半解，以为自己会了，实则不然。只有真正自己动手，从零开始不参照任何资料写出来，这才是理解了。</p>
+<p>这其中，我感觉最深的就是理论与实践之间的
+gap。如前面所述，我们这里用的是多头注意力，我们需要先把头分出来，然后每一个头单独进行
+Attention
+的运算。当时写代码的时候，我就是按照这个来写的，这样的话需要有多个 <span
+class="math inline">\(W_q, W_k, W_v\)</span>
+矩阵。但这样写实在是太麻烦了，越写心里越没有底，最后还是去看了范例是怎么写的。研究之后我才恍然大悟，我们需要对输入的
+<span class="math inline">\(X\)</span> 分成 <span
+class="math inline">\(h\)</span> 部分，然后又要有 <span
+class="math inline">\(h\)</span> 个与之对应的 <span
+class="math inline">\(W_q, W_k, W_v\)</span>（暂不考虑 GQA，如果考虑的话
+<span class="math inline">\(W_k\)</span> 和 <span
+class="math inline">\(W_v\)</span>
+数量会少一些），那其实，我们可以先不进行划分，直接对于整体的 <span
+class="math inline">\(X\)</span> 与整体的 <span
+class="math inline">\(W_q, W_k, W_v\)</span> 进行矩阵运算，之后到了求解
+Attention 分数的时候，再通过 <code>transpose</code> 以及
+<code>reshape</code> 等操作分成 <span class="math inline">\(h\)</span>
+部分进行。最后在经过 <span class="math inline">\(W_o\)</span>
+的时候，再变回去。全程我们都是在一个整体的矩阵中计算的，并没有孤立分成多个矩阵，需要分开的时候，我们是通过
+<code>transpose</code> 和 <code>reshape</code>
+来实现的。始终在一个大整体的矩阵中进行运算，这样能够提高 GPU
+的运算速度。</p>
+<div class="note warning flat"><p>注意此处完成的并不是整个绿色框全部，而是暂时忽略掉了
+<code>RMSNorm</code> 这一网络。<code>RMSNorm</code> 层将会在组装这一整个
+Block 的时候实现。</p>
+</div>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Attention</span>(nn.Module):</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self, config: MiniMindConfig</span>):</span><br><span class="line">        <span class="built_in">super</span>().__init__()</span><br><span class="line"></span><br><span class="line">        <span class="variable language_">self</span>.num_key_value_heads = config.num_key_value_heads <span class="keyword">if</span> config.num_key_value_heads <span class="keyword">is</span> <span class="keyword">not</span> <span class="literal">None</span> <span class="keyword">else</span> config.num_attention_heads</span><br><span class="line">        <span class="variable language_">self</span>.num_attention_heads = config.num_attention_heads</span><br><span class="line"></span><br><span class="line">        <span class="keyword">assert</span> <span class="variable language_">self</span>.num_attention_heads % <span class="variable language_">self</span>.num_key_value_heads == <span class="number">0</span></span><br><span class="line"></span><br><span class="line">        <span class="variable language_">self</span>.n_rep = <span class="variable language_">self</span>.num_attention_heads // <span class="variable language_">self</span>.num_key_value_heads</span><br><span class="line">        <span class="variable language_">self</span>.hidden_dim = config.hidden_dim</span><br><span class="line">        <span class="variable language_">self</span>.head_dim = <span class="variable language_">self</span>.hidden_dim // <span class="variable language_">self</span>.num_attention_heads</span><br><span class="line"></span><br><span class="line">        <span class="variable language_">self</span>.q_proj = nn.Linear(<span class="variable language_">self</span>.hidden_dim, <span class="variable language_">self</span>.num_attention_heads * <span class="variable language_">self</span>.head_dim, bias=<span class="literal">False</span>)</span><br><span class="line">        <span class="variable language_">self</span>.k_proj = nn.Linear(<span class="variable language_">self</span>.hidden_dim, <span class="variable language_">self</span>.num_key_value_heads * <span class="variable language_">self</span>.head_dim, bias=<span class="literal">False</span>)</span><br><span class="line">        <span class="variable language_">self</span>.v_proj = nn.Linear(<span class="variable language_">self</span>.hidden_dim, <span class="variable language_">self</span>.num_key_value_heads * <span class="variable language_">self</span>.head_dim, bias=<span class="literal">False</span>)</span><br><span class="line"></span><br><span class="line">        <span class="variable language_">self</span>.o_proj = nn.Linear(<span class="variable language_">self</span>.head_dim * <span class="variable language_">self</span>.num_attention_heads, <span class="variable language_">self</span>.hidden_dim, bias=<span class="literal">False</span>)</span><br><span class="line">        <span class="variable language_">self</span>.attention_dropout = nn.Dropout(config.dropout)</span><br><span class="line">        <span class="variable language_">self</span>.residual_dropout = nn.Dropout(config.dropout)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">forward</span>(<span class="params">self,</span></span><br><span class="line"><span class="params">                x: torch.Tensor,</span></span><br><span class="line"><span class="params">                position_embeddings: <span class="type">Tuple</span>[torch.Tensor, torch.Tensor],</span></span><br><span class="line"><span class="params">                past_key_value: <span class="type">Optional</span>[<span class="type">Tuple</span>[torch.Tensor, torch.Tensor]] = <span class="literal">None</span>,</span></span><br><span class="line"><span class="params">                use_cache: <span class="built_in">bool</span> = <span class="literal">False</span>,</span></span><br><span class="line"><span class="params">                attention_mask: <span class="type">Optional</span>[torch.Tensor] = <span class="literal">None</span>,</span></span><br><span class="line"><span class="params">                </span>):</span><br><span class="line"></span><br><span class="line">        batch_size, seq_len, hidden_dim = x.shape</span><br><span class="line">        <span class="comment"># now x.shape is [batch_size, seq_len, num_heads, head_dim]</span></span><br><span class="line"></span><br><span class="line">        <span class="comment"># 1. projection</span></span><br><span class="line">        xq = <span class="variable language_">self</span>.q_proj(x).view(batch_size, seq_len, <span class="variable language_">self</span>.num_attention_heads, <span class="variable language_">self</span>.head_dim)</span><br><span class="line">        xk = <span class="variable language_">self</span>.k_proj(x).view(batch_size, seq_len, <span class="variable language_">self</span>.num_key_value_heads, <span class="variable language_">self</span>.head_dim)</span><br><span class="line">        xv = <span class="variable language_">self</span>.v_proj(x).view(batch_size, seq_len, <span class="variable language_">self</span>.num_key_value_heads, <span class="variable language_">self</span>.head_dim)</span><br><span class="line"></span><br><span class="line">        <span class="comment"># 2. RoPE rotation</span></span><br><span class="line">        <span class="comment"># now xq.shape is [batch_size, num_heads, seq_len, intermediate_dim]</span></span><br><span class="line">        freqs_cos, freqs_sin = position_embeddings</span><br><span class="line">        xq, xk = apply_rotary_position_embedding(xq, xk, freqs_cos[: seq_len], freqs_sin[: seq_len])</span><br><span class="line"></span><br><span class="line">        <span class="comment"># 2. kv cache update</span></span><br><span class="line">        <span class="keyword">if</span> past_key_value <span class="keyword">is</span> <span class="keyword">not</span> <span class="literal">None</span>:</span><br><span class="line">            xk = torch.cat([past_key_value[<span class="number">0</span>], xk], dim=<span class="number">1</span>)</span><br><span class="line">            xv = torch.cat([past_key_value[<span class="number">1</span>], xv], dim=<span class="number">1</span>)</span><br><span class="line"></span><br><span class="line">        past_key_value = (xk, xv) <span class="keyword">if</span> use_cache <span class="keyword">else</span> <span class="literal">None</span></span><br><span class="line"></span><br><span class="line">        <span class="comment"># convert to [batch_size, num_heads, seq_len, head_dim]</span></span><br><span class="line">        xq = xq.transpose(<span class="number">1</span>, <span class="number">2</span>)</span><br><span class="line">        xk = repeat_kv(xk, <span class="variable language_">self</span>.n_rep).transpose(<span class="number">1</span>, <span class="number">2</span>)</span><br><span class="line">        xv = repeat_kv(xv, <span class="variable language_">self</span>.n_rep).transpose(<span class="number">1</span>, <span class="number">2</span>)</span><br><span class="line"></span><br><span class="line">        score = xq @ xk.transpose(-<span class="number">2</span>, -<span class="number">1</span>) / math.sqrt(<span class="variable language_">self</span>.head_dim)</span><br><span class="line">        mask = torch.triu(torch.full((seq_len, seq_len), <span class="built_in">float</span>(<span class="string">&quot;-inf&quot;</span>), device=score.device), diagonal=<span class="number">1</span>)</span><br><span class="line">        score = score + mask</span><br><span class="line"></span><br><span class="line">        <span class="comment"># attention_mask.shape [seq_len, seq_len]</span></span><br><span class="line">        <span class="keyword">if</span> attention_mask <span class="keyword">is</span> <span class="keyword">not</span> <span class="literal">None</span>:</span><br><span class="line">            attention_mask.unsqueeze(<span class="number">0</span>).unsqueeze(<span class="number">0</span>)</span><br><span class="line">            score = score + (<span class="number">1</span> - attention_mask) * <span class="built_in">float</span>(<span class="string">&quot;-inf&quot;</span>)</span><br><span class="line"></span><br><span class="line">        output = torch.nn.functional.softmax(score.<span class="built_in">float</span>(), dim=-<span class="number">1</span>) @ xv    <span class="comment"># [batch_size, num_heads, seq_len, hidden_dim]</span></span><br><span class="line">        output = <span class="variable language_">self</span>.attention_dropout(output)</span><br><span class="line"></span><br><span class="line">        output = output.transpose(<span class="number">1</span>, <span class="number">2</span>)     <span class="comment"># [batch_size, seq_len, num_heads, hidden_dim]</span></span><br><span class="line">        output = output.reshape(batch_size, seq_len, <span class="variable language_">self</span>.num_attention_heads * <span class="variable language_">self</span>.head_dim)</span><br><span class="line">        output = <span class="variable language_">self</span>.o_proj(output)</span><br><span class="line">        output = <span class="variable language_">self</span>.residual_dropout(output)</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> output, past_key_value</span><br></pre></td></tr></table></figure>
+<div class="note danger flat"><p>❌ <strong>犯错点</strong></p>
+<ol type="1">
+<li>使用 <code>kv_cache</code> 的时候，将当前计算的 <code>xk</code>
+与之前的 <code>cache</code> 进行拼接的时候，拼接的维度为
+<code>dim=1</code>，也就是 <code>seq_len</code> 这个维度；</li>
+<li>训练的时候不需要 <code>kv_cache</code>，因为每次计算出的 <span
+class="math inline">\(W_k\)</span> 和 <span
+class="math inline">\(W_v\)</span>
+在下一步的时候就被更新了，缓存的值没有任何意义了；</li>
+<li><code>torch.nn.functional.softmax(score.float(), dim=-1)</code>
+最好带上 <code>dim=-1</code>；</li>
+<li><code>mask</code> 在推理阶段会报错。（有待商榷）</li>
+<li>建议在 reshape 前显式调用
+.contiguous()，否则在某些内存布局下会报错。（有待商榷）</li>
+</ol>
+</div>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>文章作者: </span><span class="post-copyright-info"><a href="https://Ardbr.github.io">creat</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>文章链接: </span><span class="post-copyright-info"><a href="https://ardbr.github.io/2026/01/21/projects/minimind/minimind-Ch03-GQA-%E6%A8%A1%E5%9D%97/">https://ardbr.github.io/2026/01/21/projects/minimind/minimind-Ch03-GQA-%E6%A8%A1%E5%9D%97/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来源 <a href="https://Ardbr.github.io" target="_blank">creat's HomePage</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/LLM/">LLM</a></div><div class="post-share"><div class="social-share" data-image="/img/avatar.gif" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><a class="pagination-related" href="/2026/01/22/projects/minimind/minimind-Ch04-FFN-%E6%A8%A1%E5%9D%97/" title="minimind-Ch04 FFN 模块"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info"><div class="info-1"><div class="info-item-1">上一篇</div><div class="info-item-2">minimind-Ch04 FFN 模块</div></div><div class="info-2"><div class="info-item-1">       [{"url":"/img/minimind/architecture.png","alt":"model architecture"}]      FFN FFN（Feed Forward Network）前馈网络这一部分比较简单，只是多个简单网络层和激活函数的拼接，不像 GQA 部分涉及很深的理论背景。 这一部分有一个 SiLU 激活函数，可以拿出来介绍一下。 \(\text{SiLU}\) 激活函数 简单来说，SiLU 是 ReLU 的一个平滑、非线性、自带门控机制的升级版。 SiLU 公式 SiLU 的公式非常简单，就是输入乘以它自己的 Sigmoid： \[ \begin{equation} \text{SiLU}(x) = x \cdot \sigma(x) = \frac{x}{1 + e^{-x}} \end{equation} \] 这里的 \(\sigma(x)\) 是 Sigmoid 函数（输出在 0 到 1 之间）。 我们可以把它拆解来看：  \(x\)：原始输入。 \(\sigma(x)\)：一个 0 到...</div></div></div></a><a class="pagination-related" href="/2026/01/21/projects/minimind/minimind-Ch02-RoPE-YaRN-%E6%97%8B%E8%BD%AC%E4%BD%8D%E7%BD%AE%E7%BC%96%E7%A0%81/" title="minimind-Ch02 RoPE/YaRN 旋转位置编码"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-right"><div class="info-1"><div class="info-item-1">下一篇</div><div class="info-item-2">minimind-Ch02 RoPE/YaRN 旋转位置编码</div></div><div class="info-2"><div class="info-item-1">RoPE RoPE 理论 RoPE (Rotary Position Embedding) 意思是旋转位置编码，这是一种用绝对位置编码，来实现相对位置编码的算法。 首先，我们需要复习一下高中学习过的正余弦的和差化积公式： \[ \begin{aligned} \cos(m-n) &amp;= \cos m \cos n + \sin m \sin n \\ \sin(m-n) &amp;= \sin m \cos n - \cos m \sin n \end{aligned} \] 关于 RoPE 的具体推导过程，可见 RoPE 论文一作苏剑林的博客Transformer升级之路：2、博采众长的旋转式位置编码，以下为个人的一些简单理解。 RoPE 的具体思想是，既然 Attention 的核心运算是内积，那么我们希望内积的结果带有相对位置信息，因此假设存在恒等关系： \[ \begin{equation} \langle \boldsymbol{f}(\boldsymbol{q}, m), \boldsymbol{f}(\boldsymbol{k}, n)\rangle...</div></div></div></a></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><a class="pagination-related" href="/2026/01/21/projects/minimind/minimind-Ch02-RoPE-YaRN-%E6%97%8B%E8%BD%AC%E4%BD%8D%E7%BD%AE%E7%BC%96%E7%A0%81/" title="minimind-Ch02 RoPE&#x2F;YaRN 旋转位置编码"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2026-01-21</div><div class="info-item-2">minimind-Ch02 RoPE&#x2F;YaRN 旋转位置编码</div></div><div class="info-2"><div class="info-item-1">RoPE RoPE 理论 RoPE (Rotary Position Embedding) 意思是旋转位置编码，这是一种用绝对位置编码，来实现相对位置编码的算法。 首先，我们需要复习一下高中学习过的正余弦的和差化积公式： \[ \begin{aligned} \cos(m-n) &amp;= \cos m \cos n + \sin m \sin n \\ \sin(m-n) &amp;= \sin m \cos n - \cos m \sin n \end{aligned} \] 关于 RoPE 的具体推导过程，可见 RoPE 论文一作苏剑林的博客Transformer升级之路：2、博采众长的旋转式位置编码，以下为个人的一些简单理解。 RoPE 的具体思想是，既然 Attention 的核心运算是内积，那么我们希望内积的结果带有相对位置信息，因此假设存在恒等关系： \[ \begin{equation} \langle \boldsymbol{f}(\boldsymbol{q}, m), \boldsymbol{f}(\boldsymbol{k}, n)\rangle...</div></div></div></a><a class="pagination-related" href="/2026/01/21/projects/minimind/minimind-Ch01-RMSNorm-%E5%BD%92%E4%B8%80%E5%8C%96%E5%B1%82/" title="minimind-Ch01 RMSNorm 归一化层"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2026-01-21</div><div class="info-item-2">minimind-Ch01 RMSNorm 归一化层</div></div><div class="info-2"><div class="info-item-1">在本章节中，我们将要学习一个现在最常用的归一化算法，那就是 RMSNorm 层归一化。 给定一个 \(n\) 维向量 \(x = [x_1, x_2, ..., x_i, ..., x_n]\)，输出为同样是 \(n\) 维的向量 \(y\)，公式为： \[y_i = \frac{x_i}{\sqrt{\frac{1}{n} \sum^n_{i=1}(x_i)^2 + \epsilon}}\] \(\epsilon\) 的目的是防止当 \(x_i\) 均为 0 的时候，发生除零溢出的问题。这一操作在 AI 算法中将会经常见到。 对应的 Python 代码如下： 1234567891011121314class RMSNorm(nn.Module):    def __init__(self, input_dim: int, eps: float = 1e-5):        super().__init__()        self.input_dim = input_dim        self.eps = eps        self.weight =...</div></div></div></a><a class="pagination-related" href="/2026/01/21/projects/minimind/minimind-Ch00-%E9%A1%B9%E7%9B%AE%E4%BB%8B%E7%BB%8D/" title="minimind-Ch00 项目介绍"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2026-01-21</div><div class="info-item-2">minimind-Ch00 项目介绍</div></div><div class="info-2"><div class="info-item-1"> </div></div></div></a><a class="pagination-related" href="/2026/01/22/projects/minimind/minimind-Ch05-Block-%E6%95%B4%E5%90%88/" title="minimind-Ch05 Block 整合"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2026-01-22</div><div class="info-item-2">minimind-Ch05 Block 整合</div></div><div class="info-2"><div class="info-item-1">       [{"url":"/img/minimind/architecture.png","alt":"model architecture"}]      Block 这一章节，我们将要整合上两章讲过的 GQA 和 FFN！对应上图中的紫色框的结构。话不多说，直接开干！ Block 代码实现 这里我们最好维护一个 layer_id 的变量，这对应着我们当前这个 Block 的 ID。因为从上图中可以看到，我们最后的架构中，Block 是会重复有好几个的，每一个都会对应有一个 layer_id。  在这一部分的代码中，对于 position_embedding、attention_mask 和 past_key_value 这些变量，其实还是从上游传递过来的，并不是在这一层计算的，也没有必要在这一层进行计算，因为这些变量在每一层的 Block 中都是不变的，所以只需要上层计算完成后，在每一层的 Block 中传进去用就可以啦！ 12345678910111213141516171819202122232425262728293031class...</div></div></div></a><a class="pagination-related" href="/2026/01/23/projects/minimind/minimind-Ch06-Model-%E7%BB%84%E8%A3%85/" title="minimind-Ch06 Model 组装"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2026-01-23</div><div class="info-item-2">minimind-Ch06 Model 组装</div></div><div class="info-2"><div class="info-item-1">       [{"url":"/img/minimind/architecture.png","alt":"model architecture"}]      在上一章节中，我们又实现了单个的 Transformer 块，在这一章节中，我们将会组装实现上图最左边的整个 Model 结构。 Tokenizer Tokenizer（分词器） 是所有现代自然语言处理（NLP）模型（如 ChatGPT、Llama、BERT 等）的第一道大门。 计算机根本看不懂“苹果”或“Apple”这些字，它只认识数字。Tokenizer 的作用就是把一段文字切分成一个个小块（Token），然后把这些小块转换成计算机能识别的数字 ID。 📒Tokenizer 是人类语言（文本）和机器语言（数字）之间的“翻译官”。  为什么需要 Tokenizer 想象你要教一个只懂数学的机器人学英语：你不能直接给它看句子 “I love AI”。你需要把句子拆开，变成列表：[“I”, “love”, “AI”]。你需要一本字典，规定：“I” = 1, “love” = 2, “AI”...</div></div></div></a><a class="pagination-related" href="/2026/01/22/projects/minimind/minimind-Ch04-FFN-%E6%A8%A1%E5%9D%97/" title="minimind-Ch04 FFN 模块"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2026-01-22</div><div class="info-item-2">minimind-Ch04 FFN 模块</div></div><div class="info-2"><div class="info-item-1">       [{"url":"/img/minimind/architecture.png","alt":"model architecture"}]      FFN FFN（Feed Forward Network）前馈网络这一部分比较简单，只是多个简单网络层和激活函数的拼接，不像 GQA 部分涉及很深的理论背景。 这一部分有一个 SiLU 激活函数，可以拿出来介绍一下。 \(\text{SiLU}\) 激活函数 简单来说，SiLU 是 ReLU 的一个平滑、非线性、自带门控机制的升级版。 SiLU 公式 SiLU 的公式非常简单，就是输入乘以它自己的 Sigmoid： \[ \begin{equation} \text{SiLU}(x) = x \cdot \sigma(x) = \frac{x}{1 + e^{-x}} \end{equation} \] 这里的 \(\sigma(x)\) 是 Sigmoid 函数（输出在 0 到 1 之间）。 我们可以把它拆解来看：  \(x\)：原始输入。 \(\sigma(x)\)：一个 0 到...</div></div></div></a></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info text-center"><div class="avatar-img"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/img/avatar.gif" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info-name">creat</div><div class="author-info-description"></div><div class="site-data"><a href="/archives/"><div class="headline">文章</div><div class="length-num">36</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">8</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">5</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/ardbr"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons"><a class="social-icon" href="https://github.com/Ardbr" target="_blank" title="Github"><i class="fab fa-github" style="color: #24292e;"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">希望每天都能输出一点新知识😌</div></div><div class="card-widget card-countdown"><div class="countdown-mask"><div class="text-container"><p>2026 年已经过去</p><span class="countdown-number">xx</span><span class="countdown-unit">天</span></div><div class="current-time-container"> <span class="current-time"></span></div></div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#attention"><span class="toc-number">1.</span> <span class="toc-text">Attention</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%A0%B8%E5%BF%83%E7%9B%B4%E8%A7%89"><span class="toc-number">1.1.</span> <span class="toc-text">核心直觉</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%95%B0%E5%AD%A6%E6%9C%AC%E8%B4%A8"><span class="toc-number">1.2.</span> <span class="toc-text">数学本质</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#qkt%E7%9B%B8%E4%BC%BC%E5%BA%A6%E8%AE%A1%E7%AE%97"><span class="toc-number">1.2.1.</span> <span class="toc-text">\(QK^T\)（相似度计算）</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#sqrtd_k%E7%BC%A9%E6%94%BE%E5%9B%A0%E5%AD%90"><span class="toc-number">1.2.2.</span> <span class="toc-text">\(\sqrt{d_k}\)（缩放因子）</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#textsoftmax%E5%BD%92%E4%B8%80%E5%8C%96"><span class="toc-number">1.2.3.</span> <span class="toc-text">\(\text{Softmax}\)（归一化）</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#times-v%E5%8A%A0%E6%9D%83%E6%B1%82%E5%92%8C"><span class="toc-number">1.2.4.</span> <span class="toc-text">\(\times
+V\)（加权求和）</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%AE%B6%E6%97%8F%E5%8F%98%E4%BD%93self-cross-causal"><span class="toc-number">1.3.</span> <span class="toc-text">家族变体：Self, Cross, Causal</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#self-attention-%E8%87%AA%E6%B3%A8%E6%84%8F%E5%8A%9B"><span class="toc-number">1.3.1.</span> <span class="toc-text">Self-Attention (自注意力)</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#cross-attention-%E4%BA%A4%E5%8F%89%E6%B3%A8%E6%84%8F%E5%8A%9B"><span class="toc-number">1.3.2.</span> <span class="toc-text">Cross-Attention (交叉注意力)</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#causal-masked-attention-%E5%9B%A0%E6%9E%9C%E6%B3%A8%E6%84%8F%E5%8A%9B"><span class="toc-number">1.3.3.</span> <span class="toc-text">Causal &#x2F; Masked Attention
+(因果注意力)</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#multi-head-attention-%E5%A4%9A%E5%A4%B4%E6%B3%A8%E6%84%8F%E5%8A%9B"><span class="toc-number">1.4.</span> <span class="toc-text">Multi-Head Attention
+(多头注意力)</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#gqa"><span class="toc-number">2.</span> <span class="toc-text">GQA</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#mhamulti-head-attention"><span class="toc-number">2.1.</span> <span class="toc-text">MHA（Multi-Head Attention）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#mqamulti-query-attention"><span class="toc-number">2.2.</span> <span class="toc-text">MQA（Multi-Query Attention）</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#attention-%E4%BB%A3%E7%A0%81%E5%AE%9E%E7%8E%B0"><span class="toc-number">3.</span> <span class="toc-text">Attention 代码实现</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2026/02/15/notes/diffusion/diffusion-Ch04/" title="diffusion Ch04">diffusion Ch04</a><time datetime="2026-02-15T15:08:41.405Z" title="更新于 2026-02-15 23:08:41">2026-02-15</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2026/02/12/notes/flow_matching/flow-matching-Ch01/" title="flow_matching Ch01">flow_matching Ch01</a><time datetime="2026-02-15T02:43:06.395Z" title="更新于 2026-02-15 10:43:06">2026-02-15</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2026/02/14/notes/flow_matching/flow-matching-Ch02/" title="flow_matching Ch02">flow_matching Ch02</a><time datetime="2026-02-15T02:43:02.711Z" title="更新于 2026-02-15 10:43:02">2026-02-15</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2026/02/11/notes/diffusion/diffusion-Ch03/" title="diffusion Ch03">diffusion Ch03</a><time datetime="2026-02-15T02:42:57.148Z" title="更新于 2026-02-15 10:42:57">2026-02-15</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2026/02/10/notes/diffusion/diffusion-Ch02/" title="diffusion Ch02">diffusion Ch02</a><time datetime="2026-02-12T03:36:56.512Z" title="更新于 2026-02-12 11:36:56">2026-02-12</time></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">&copy;2024 - 2026 By creat</div><div class="footer_custom_text">很高兴你能看到这里！</div></div></footer></div><div id="leftside-fps"><span id="leftside-fps-text"></span></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="日间和夜间模式切换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/instant.page/instantpage.min.js" type="module"></script><script src="https://cdn.jsdelivr.net/npm/vanilla-lazyload/dist/lazyload.iife.min.js"></script><script src="https://cdn.jsdelivr.net/npm/node-snackbar/dist/snackbar.min.js"></script><div class="js-pjax"><script>(() => {
+  const loadMathjax = () => {
+    if (!window.MathJax) {
+      window.MathJax = {
+        tex: {
+          inlineMath: [['$', '$'], ['\\(', '\\)']],
+          tags: 'ams',
+        },
+        chtml: {
+          scale: 1.1
+        },
+        options: {
+          enableMenu: true,
+          renderActions: {
+            findScript: [10, doc => {
+              for (const node of document.querySelectorAll('script[type^="math/tex"]')) {
+                const display = !!node.type.match(/; *mode=display/)
+                const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display)
+                const text = document.createTextNode('')
+                node.parentNode.replaceChild(text, node)
+                math.start = {node: text, delim: '', n: 0}
+                math.end = {node: text, delim: '', n: 0}
+                doc.math.push(math)
+              }
+            }, '']
+          }
+        }
+      }
+      
+      const script = document.createElement('script')
+      script.src = 'https://cdn.jsdelivr.net/npm/mathjax/es5/tex-mml-chtml.min.js'
+      script.id = 'MathJax-script'
+      script.async = true
+      document.head.appendChild(script)
+    } else {
+      MathJax.startup.document.state(0)
+      MathJax.texReset()
+      MathJax.typesetPromise()
+    }
+  }
+
+  btf.addGlobalFn('encrypt', loadMathjax, 'mathjax')
+  window.pjax ? loadMathjax() : window.addEventListener('load', loadMathjax)
+})()</script></div><script src=/js/sakuraPlus.js></script><script src=/js/parseLyric.js></script><script src=/js/music.js></script><script src=/js/getFps.js></script><script src=/js/countdown.js></script><script src=/js/mathjax.js></script><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/dist/activate-power-mode.min.js"></script><script>POWERMODE.colorful = true;
+POWERMODE.shake = true;
+POWERMODE.mobile = false;
+document.body.addEventListener('input', POWERMODE);
+</script><script src="https://cdn.jsdelivr.net/npm/pjax/pjax.min.js"></script><script>(() => {
+  const pjaxSelectors = ["head > title","#config-diff","#body-wrap","#rightside-config-hide","#rightside-config-show",".js-pjax"]
+
+  window.pjax = new Pjax({
+    elements: 'a:not([target="_blank"])',
+    selectors: pjaxSelectors,
+    cacheBust: false,
+    analytics: false,
+    scrollRestoration: false
+  })
+
+  const triggerPjaxFn = (val) => {
+    if (!val) return
+    Object.values(val).forEach(fn => fn())
+  }
+
+  document.addEventListener('pjax:send', () => {
+    // removeEventListener
+    btf.removeGlobalFnEvent('pjaxSendOnce')
+    btf.removeGlobalFnEvent('themeChange')
+
+    // reset readmode
+    const $bodyClassList = document.body.classList
+    if ($bodyClassList.contains('read-mode')) $bodyClassList.remove('read-mode')
+
+    triggerPjaxFn(window.globalFn.pjaxSend)
+  })
+
+  document.addEventListener('pjax:complete', () => {
+    btf.removeGlobalFnEvent('pjaxCompleteOnce')
+    document.querySelectorAll('script[data-pjax]').forEach(item => {
+      const newScript = document.createElement('script')
+      const content = item.text || item.textContent || item.innerHTML || ""
+      Array.from(item.attributes).forEach(attr => newScript.setAttribute(attr.name, attr.value))
+      newScript.appendChild(document.createTextNode(content))
+      item.parentNode.replaceChild(newScript, item)
+    })
+
+    triggerPjaxFn(window.globalFn.pjaxComplete)
+  })
+
+  document.addEventListener('pjax:error', e => {
+    if (e.request.status === 404) {
+      pjax.loadUrl('/404.html')
+    }
+  })
+})()</script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><span id="loading-status"></span><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="text-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据加载中</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"/></div></div><hr/><div id="local-search-results"></div><div id="local-search-stats-wrap"></div></div></div><div id="search-mask"></div><script src="/js/search/local-search.js"></script></div></div></body></html>

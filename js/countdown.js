@@ -4,7 +4,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const target = new Date(targetDate)
         const today = new Date()
     
-        const timeDiff = target - today
+        const timeDiff = Math.abs(target - today)
     
         const daysDiff = Math.ceil(timeDiff / (1000 * 60 * 60 * 24))
 
@@ -16,7 +16,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // weekDay
         const weekdays = ['日', '一', '二', '三', '四', '五', '六']
         const weekDay = weekdays[today.getDay()]
-    
+
         return {
             diff: daysDiff,
             year: year,
@@ -27,8 +27,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     const refreshCountdownFn = () => {
-        // spring festival date
-        const targetDate = '2025-01-29'
+        const targetDate = '2026-01-01'
         const ret = calculateDaysUntil(targetDate)
 
         $countdownNumberEle = document.getElementsByClassName('countdown-number')[0]
@@ -39,5 +38,4 @@ document.addEventListener('DOMContentLoaded', () => {
 
     btf.addGlobalFn('pjaxComplete', refreshCountdownFn, 'refreshCountdownFn')
     refreshCountdownFn()
-    
 })

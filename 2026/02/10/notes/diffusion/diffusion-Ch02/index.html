@@ -1,0 +1,1290 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>diffusion Ch02 | creat's HomePage</title><meta name="author" content="creat"><meta name="copyright" content="creat"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="在上一章中，我们讲了 VDM 的第一种拆解方式，我们最终把 \(\text{ELBO}\) 拆解成了 3 项，分别是重建项、先验匹配项和一致项。这一种拆解的特点可总结如下：  三项都有期望，因此可以用蒙特卡洛方法来进行估计； “一致项”在时间步 \(t\) 的时候，与两个随机变量 \(\boldsymbol{x}_{t-1}\) 和 \(\boldsymbol{x}_{t+1}\) 都有关系，因此">
+<meta property="og:type" content="article">
+<meta property="og:title" content="diffusion Ch02">
+<meta property="og:url" content="https://ardbr.github.io/2026/02/10/notes/diffusion/diffusion-Ch02/index.html">
+<meta property="og:site_name" content="creat&#39;s HomePage">
+<meta property="og:description" content="在上一章中，我们讲了 VDM 的第一种拆解方式，我们最终把 \(\text{ELBO}\) 拆解成了 3 项，分别是重建项、先验匹配项和一致项。这一种拆解的特点可总结如下：  三项都有期望，因此可以用蒙特卡洛方法来进行估计； “一致项”在时间步 \(t\) 的时候，与两个随机变量 \(\boldsymbol{x}_{t-1}\) 和 \(\boldsymbol{x}_{t+1}\) 都有关系，因此">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://ardbr.github.io/img/avatar.gif">
+<meta property="article:published_time" content="2026-02-10T07:38:53.000Z">
+<meta property="article:modified_time" content="2026-02-12T03:36:56.512Z">
+<meta property="article:author" content="creat">
+<meta property="article:tag" content="Diffusion">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://ardbr.github.io/img/avatar.gif"><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="https://ardbr.github.io/2026/02/10/notes/diffusion/diffusion-Ch02/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/node-snackbar/dist/snackbar.min.css" media="print" onload="this.media='all'"><script>
+    (() => {
+      
+    const saveToLocal = {
+      set: (key, value, ttl) => {
+        if (!ttl) return
+        const expiry = Date.now() + ttl * 86400000
+        localStorage.setItem(key, JSON.stringify({ value, expiry }))
+      },
+      get: key => {
+        const itemStr = localStorage.getItem(key)
+        if (!itemStr) return undefined
+        const { value, expiry } = JSON.parse(itemStr)
+        if (Date.now() > expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return value
+      }
+    }
+
+    window.btf = {
+      saveToLocal,
+      getScript: (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        Object.entries(attr).forEach(([key, val]) => script.setAttribute(key, val))
+        script.onload = script.onreadystatechange = () => {
+          if (!script.readyState || /loaded|complete/.test(script.readyState)) resolve()
+        }
+        script.onerror = reject
+        document.head.appendChild(script)
+      }),
+      getCSS: (url, id) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onload = link.onreadystatechange = () => {
+          if (!link.readyState || /loaded|complete/.test(link.readyState)) resolve()
+        }
+        link.onerror = reject
+        document.head.appendChild(link)
+      }),
+      addGlobalFn: (key, fn, name = false, parent = window) => {
+        if (!true && key.startsWith('pjax')) return
+        const globalFn = parent.globalFn || {}
+        globalFn[key] = globalFn[key] || {}
+        globalFn[key][name || Object.keys(globalFn[key]).length] = fn
+        parent.globalFn = globalFn
+      }
+    }
+  
+      
+      const activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      const activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+
+      btf.activateDarkMode = activateDarkMode
+      btf.activateLightMode = activateLightMode
+
+      const theme = saveToLocal.get('theme')
+    
+          theme === 'dark' ? activateDarkMode() : theme === 'light' ? activateLightMode() : null
+        
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        document.documentElement.classList.toggle('hide-aside', asideStatus === 'hide')
+      }
+    
+      
+    const detectApple = () => {
+      if (/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)) {
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+  
+    })()
+  </script><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"/search.xml","preload":true,"top_n_per_article":10,"unescape":false,"languages":{"hits_empty":"未找到符合您查询的内容：${query}","hits_stats":"共找到 ${hits} 篇文章"}},
+  translate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":200,"highlightFullpage":false,"highlightMacStyle":"mac"},
+  copy: {
+    success: '复制成功',
+    error: '复制失败',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'null',
+  Snackbar: {"chs_to_cht":"已切换为繁体中文","cht_to_chs":"已切换为简体中文","day_to_night":"已切换为深色模式","night_to_day":"已切换为浅色模式","bgLight":"#49b1f5","bgDark":"#1f1f1f","position":"top-center"},
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid/dist/infinitegrid.min.js',
+    buttonText: '加载更多'
+  },
+  isPhotoFigcaption: false,
+  islazyload: true,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'diffusion Ch02',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  isShuoshuo: false
+}</script><link rel="stylesheet" href="/css/font.css"><link rel="stylesheet" href="/css/cursor.css"><link rel="stylesheet" href="/css/custom.css"><link rel="stylesheet" href="//at.alicdn.com/t/c/font_4746832_eb25gdpzci6.css"><meta name="generator" content="Hexo 7.3.0"></head><body><div id="web_bg" style="background-image: url(/img/background.png);"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img text-center"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/img/avatar.gif" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="site-data text-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">36</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">8</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">5</div></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 主页</span></a></div><div class="menus_item"><a class="site-page" href="/categories"><i class="fa-fw fas fa-book"></i><span> 学习资料</span></a></div><div class="menus_item"><a class="site-page" href="/link"><i class="fa-fw fas fa-globe"></i><span> 常用网站</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header"><nav id="nav"><span id="blog-info"><a class="nav-site-title" href="/"><img class="site-icon" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/img/favicon.png" alt="Logo"><span class="site-name">creat's HomePage</span></a><a class="nav-page-title" href="/"><span class="site-name">diffusion Ch02</span></a></span><div id="music-bar"><div id="music-cover-container"><div id="music-cover"></div></div><div id="music-button-container"><div id="music-button-container-top"><span class="music-icon iconfont icon-shangyishou" id="music-prev"></span><span class="music-icon iconfont icon-bofang" id="music-playOrPause"></span><span class="music-icon iconfont icon-xiayishou" id="music-next"></span><span class="music-icon iconfont icon-liebiaoxunhuan" id="music-mode"></span></div><div id="music-button-container-bottom"><div id="music-progressBar"><span id="music-currentProgress"></span><span id="music-dot"></span></div><span id="music-progressText">00:00 / 00:00</span></div></div><div id="music-name-container"><span id="music-name"></span></div><div id="music-lyric-container"><span id="music-lyric"></span></div></div><div id="menus"><div id="toggle-menu"><span class="site-page"></span><i class="fas fa-bars fa-fw"></i></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 主页</span></a></div><div class="menus_item"><a class="site-page" href="/categories"><i class="fa-fw fas fa-book"></i><span> 学习资料</span></a></div><div class="menus_item"><a class="site-page" href="/link"><i class="fa-fw fas fa-globe"></i><span> 常用网站</span></a></div></div><div id="search-button"><span class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> 搜索</span></span></div></div></nav><div id="post-info"><h1 class="post-title">diffusion Ch02</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2026-02-10T07:38:53.000Z" title="发表于 2026-02-10 15:38:53">2026-02-10</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2026-02-12T03:36:56.512Z" title="更新于 2026-02-12 11:36:56">2026-02-12</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/notes/">notes</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/notes/diffusion/">diffusion</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-wordcount"><i class="far fa-file-word fa-fw post-meta-icon"></i><span class="post-meta-label">总字数:</span><span class="word-count">9.4k</span><span class="post-meta-separator">|</span><i class="far fa-clock fa-fw post-meta-icon"></i><span class="post-meta-label">阅读时长:</span><span>47分钟</span></span><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title=""><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">浏览量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="container post-content" id="article-container"><p>在上一章中，我们讲了 VDM 的第一种拆解方式，我们最终把 <span
+class="math inline">\(\text{ELBO}\)</span> 拆解成了 3
+项，分别是重建项、先验匹配项和一致项。这一种拆解的特点可总结如下：</p>
+<ol type="1">
+<li>三项都有期望，因此可以用蒙特卡洛方法来进行估计；</li>
+<li>“一致项”在时间步 <span class="math inline">\(t\)</span>
+的时候，与两个随机变量 <span
+class="math inline">\(\boldsymbol{x}_{t-1}\)</span> 和 <span
+class="math inline">\(\boldsymbol{x}_{t+1}\)</span>
+都有关系，因此估计的方差会比单个变量估计的方差大。在“一致性项”中，模型试图让“从
+<span class="math inline">\(t+1\)</span> 推回 <span
+class="math inline">\(t\)</span> 的分布”去匹配“从 <span
+class="math inline">\(t-1\)</span> 推到 <span
+class="math inline">\(t\)</span> 的分布”。因为 <span
+class="math inline">\(t+1\)</span> 和 <span
+class="math inline">\(t-1\)</span>
+都是采样出来的随机样本，它们都在“抖动”，所以计算出来的 Loss
+波动会非常大。</li>
+<li>随着总扩散步 <span class="math inline">\(T\)</span>
+的增大，一致项估计方差也会线性增长。</li>
+</ol>
+<p>因此，这一种的拆解方法并不实用。我们希望最后推导出来的公式，每一项都只与一个随机变量有关。
+$$ <span class="math display">\[\begin{align}
+\log p(\boldsymbol{x}) &amp;\geq
+\mathbb{E}_{q(\boldsymbol{x}_{1:T}|\boldsymbol{x}_0)} \left[ \log
+\frac{p(\boldsymbol{x}_{0:T})}{q(\boldsymbol{x}_{1:T}|\boldsymbol{x}_0)}
+\right] \\
+
+&amp;= \mathbb{E}_{q(\boldsymbol{x}_{1:T}|\boldsymbol{x}_0)} \left[ \log
+\frac{p(\boldsymbol{x}_T) \prod_{t=1}^T
+p_{\theta}(\boldsymbol{x}_{t-1}|\boldsymbol{x}_t)}{\prod_{t=1}^T
+q(\boldsymbol{x}_t|\boldsymbol{x}_{t-1})} \right] \\
+
+&amp;= \mathbb{E}_{q(\boldsymbol{x}_{1:T}|\boldsymbol{x}_0)} \left[ \log
+\frac{p(\boldsymbol{x}_T) p_{\theta}(\boldsymbol{x}_0|\boldsymbol{x}_1)
+\prod_{t=2}^T
+p_{\theta}(\boldsymbol{x}_{t-1}|\boldsymbol{x}_t)}{q(\boldsymbol{x}_1|\boldsymbol{x}_0)
+\prod_{t=2}^T q(\boldsymbol{x}_t|\boldsymbol{x}_{t-1})} \right] \quad
+\color{orange}{(\text{extract } t=1)} \\
+
+&amp;= \mathbb{E}_{q(\boldsymbol{x}_{1:T}|\boldsymbol{x}_0)} \left[ \log
+\frac{p(\boldsymbol{x}_T) p_{\theta}(\boldsymbol{x}_0|\boldsymbol{x}_1)
+\prod_{t=2}^T
+p_{\theta}(\boldsymbol{x}_{t-1}|\boldsymbol{x}_t)}{q(\boldsymbol{x}_1|\boldsymbol{x}_0)
+\prod_{t=2}^T q(\boldsymbol{x}_t|\boldsymbol{x}_{t-1},
+\boldsymbol{x}_0)} \right] \quad (\color{green}{(\text{Markov
+property})} \\
+
+&amp;= \mathbb{E}_{q(\boldsymbol{x}_{1:T}|\boldsymbol{x}_0)} \left[ \log
+\frac{p_{\theta}(\boldsymbol{x}_T)
+p_{\theta}(\boldsymbol{x}_0|\boldsymbol{x}_1)}{q(\boldsymbol{x}_1|\boldsymbol{x}_0)}
++ \log \prod_{t=2}^T
+\frac{p_{\theta}(\boldsymbol{x}_{t-1}|\boldsymbol{x}_t)}{q(\boldsymbol{x}_t|\boldsymbol{x}_{t-1},
+\boldsymbol{x}_0)} \right] \\
+
+&amp;= \mathbb{E}_{q(\boldsymbol{x}_{1:T}|\boldsymbol{x}_0)} \left[ \log
+\frac{p(\boldsymbol{x}_T)
+p_{\theta}(\boldsymbol{x}_0|\boldsymbol{x}_1)}{q(\boldsymbol{x}_1|\boldsymbol{x}_0)}
++ \log \prod_{t=2}^T
+\frac{p_{\theta}(\boldsymbol{x}_{t-1}|\boldsymbol{x}_t)}{\frac{q(\boldsymbol{x}_{t-1}|\boldsymbol{x}_t,
+\boldsymbol{x}_0)q(\boldsymbol{x}_t|\boldsymbol{x}_0)}{q(\boldsymbol{x}_{t-1}|\boldsymbol{x}_0)}}
+\right] \quad \color{orange}{(\text{Bayes rule})} \\
+
+&amp;= \mathbb{E}_{q(\boldsymbol{x}_{1:T}|\boldsymbol{x}_0)} \left[ \log
+\frac{p(\boldsymbol{x}_T)p_{\theta}(\boldsymbol{x}_0|\boldsymbol{x}_1)}{q(\boldsymbol{x}_1|\boldsymbol{x}_0)}
++ \log \prod_{t=2}^{T}
+\frac{p_{\theta}(\boldsymbol{x}_{t-1}|\boldsymbol{x}_t)}{\frac{q(\boldsymbol{x}_{t-1}|\boldsymbol{x}_t,
+\boldsymbol{x}_0)q(\boldsymbol{x}_t|\boldsymbol{x}_0)}{q(\boldsymbol{x}_{t-1}|\boldsymbol{x}_0)}}
+\right] \\
+
+&amp;= \mathbb{E}_{q(\boldsymbol{x}_{1:T}|\boldsymbol{x}_0)} \left[ \log
+\frac{p(\boldsymbol{x}_T)p_{\theta}(\boldsymbol{x}_0|\boldsymbol{x}_1)}{q(\boldsymbol{x}_1|\boldsymbol{x}_0)}
++ \log
+\frac{q(\boldsymbol{x}_1|\boldsymbol{x}_0)}{q(\boldsymbol{x}_T|\boldsymbol{x}_0)}
++ \log \prod_{t=2}^{T}
+\frac{p_{\theta}(\boldsymbol{x}_{t-1}|\boldsymbol{x}_t)}{q(\boldsymbol{x}_{t-1}|\boldsymbol{x}_t,
+\boldsymbol{x}_0)} \right] \\
+
+&amp;= \mathbb{E}_{q(\boldsymbol{x}_{1:T}|\boldsymbol{x}_0)} \left[ \log
+p_{\theta}(\boldsymbol{x}_0|\boldsymbol{x}_1) + \log
+\frac{p(\boldsymbol{x}_T)}{q(\boldsymbol{x}_T|\boldsymbol{x}_0)} +
+\sum_{t=2}^{T} \log
+\frac{p_{\theta}(\boldsymbol{x}_{t-1}|\boldsymbol{x}_t)}{q(\boldsymbol{x}_{t-1}|\boldsymbol{x}_t,
+\boldsymbol{x}_0)} \right] \\
+
+&amp;= \mathbb{E}_{q(\boldsymbol{x}_{1:T}|\boldsymbol{x}_0)} [\log
+p_{\theta}(\boldsymbol{x}_0|\boldsymbol{x}_1)] +
+\mathbb{E}_{q(\boldsymbol{x}_T|\boldsymbol{x}_0)} \left[ \log
+\frac{p(\boldsymbol{x}_T)}{q(\boldsymbol{x}_T|\boldsymbol{x}_0)} \right]
++ \sum_{t=2}^{T} \mathbb{E}_{q(\boldsymbol{x}_t,
+\boldsymbol{x}_{t-1}|\boldsymbol{x}_0)} \left[ \log
+\frac{p_{\theta}(\boldsymbol{x}_{t-1}|\boldsymbol{x}_t)}{q(\boldsymbol{x}_{t-1}|\boldsymbol{x}_t,
+\boldsymbol{x}_0)} \right] \\
+
+&amp;= \underbrace{\mathbb{E}_{q(\boldsymbol{x}_1|\boldsymbol{x}_0)}
+[\log
+p_{\theta}(\boldsymbol{x}_0|\boldsymbol{x}_1)]}_{\text{reconstruction
+term}} - \underbrace{D_{\text{KL}}(q(\boldsymbol{x}_T|\boldsymbol{x}_0)
+\parallel p(\boldsymbol{x}_T))}_{\text{prior matching term}} -
+\underbrace{\sum_{t=2}^{T}
+\mathbb{E}_{q(\boldsymbol{x}_t|\boldsymbol{x}_0)}
+[D_{\text{KL}}(q(\boldsymbol{x}_{t-1}|\boldsymbol{x}_t,
+\boldsymbol{x}_0) \parallel
+p_{\theta}(\boldsymbol{x}_{t-1}|\boldsymbol{x}_t))]}_{\text{denoising
+matching term}}
+
+\end{align}\]</span> $$</p>
+<p>我们成功用另一种形式来推导出了 <span
+class="math inline">\(\text{ELBO}\)</span>
+的三项表达式。与之前一样，我们再来分析一下这三项。</p>
+<ul>
+<li><span
+class="math inline">\(\mathbb{E}_{q(\boldsymbol{x}_1|\boldsymbol{x}_0)}
+[\log p_{\theta}(\boldsymbol{x}_0|\boldsymbol{x}_1)]\)</span>
+这一部分与之前的相同，也是重建项，此处不再赘述。</li>
+<li><span
+class="math inline">\(D_{\text{KL}}(q(\boldsymbol{x}_T|\boldsymbol{x}_0)
+\parallel p(\boldsymbol{x}_T))\)</span>
+是先验匹配项。它的含义也是我们最终生成的噪声，与最终标准分布的噪声 <span
+class="math inline">\(\boldsymbol{x}_T\)</span> 的相似程度。在 <span
+class="math inline">\(T\)</span> 足够大的时候，我们也可以假设其近似为
+0，因此也是可以忽略掉的。</li>
+<li><span class="math inline">\(\sum_{t=2}^{T}
+\mathbb{E}_{q(\boldsymbol{x}_t|\boldsymbol{x}_0)}
+[D_{\text{KL}}(q(\boldsymbol{x}_{t-1}|\boldsymbol{x}_t,
+\boldsymbol{x}_0) \parallel
+p_{\theta}(\boldsymbol{x}_{t-1}|\boldsymbol{x}_t))]\)</span>
+这一项是去噪匹配项，这是与之前差距最大的地方。它所描述的是真实的去噪分布
+<span class="math inline">\(q(\boldsymbol{x}_{t-1}|\boldsymbol{x}_t,
+\boldsymbol{x}_0)\)</span> 与我们模型近似的去噪分布 <span
+class="math inline">\(p_{\theta}(\boldsymbol{x}_{t-1}|\boldsymbol{x}_t)\)</span>
+之间的相似程度。可以看到这个时候我们只需要一个变量 <span
+class="math inline">\(\boldsymbol{x}_{t-1}\)</span>
+就可以了，因此最后的方差会小很多。</li>
+</ul>
+<p>两种方法的第三项有着本质的区别。上一章中的思想是<strong>保持去噪和加噪过程的一致性</strong>，它规定了由
+<span class="math inline">\(\boldsymbol{x}_{t-1}\)</span> 加噪生成的
+<span class="math inline">\(\boldsymbol{x}_{t}\)</span> 必须与 <span
+class="math inline">\(\boldsymbol{x}_{t+1}\)</span> 去噪生成的 <span
+class="math inline">\(\boldsymbol{x}_{t}\)</span>
+保持一致。所以这会涉及到两个变量。
+而本章节中的第二种方法则仅针对去噪过程而言的，只需要 <span
+class="math inline">\(\boldsymbol{x}_{t+1}\)</span> 去噪生成的 <span
+class="math inline">\(\boldsymbol{x}_{t}\)</span>
+的近似去噪分布能够与真实去噪分布接近即可！</p>
+<h2
+id="扩散模型优化目标在高斯限制条件加噪过程下的最终形式变化思路">扩散模型优化目标在高斯限制条件（加噪过程）下的最终形式变化思路</h2>
+<h3 id="前向加噪过程">前向加噪过程</h3>
+<p>首先让我们再次写出我们之前推导得到的 <span
+class="math inline">\(\text{ELBO}\)</span> 表达式：</p>
+<p><span class="math display">\[
+\begin{equation}
+\underbrace{\mathbb{E}_{q(\boldsymbol{x}_1|\boldsymbol{x}_0)} [\log
+p_{\theta}(\boldsymbol{x}_0|\boldsymbol{x}_1)]}_{\text{reconstruction
+term}} - \underbrace{D_{\text{KL}}(q(\boldsymbol{x}_T|\boldsymbol{x}_0)
+\parallel p(\boldsymbol{x}_T))}_{\text{prior matching term}} -
+\underbrace{\sum_{t=2}^{T}
+\mathbb{E}_{q(\boldsymbol{x}_t|\boldsymbol{x}_0)}
+[D_{\text{KL}}(q(\boldsymbol{x}_{t-1}|\boldsymbol{x}_t,
+\boldsymbol{x}_0) \parallel
+p_{\theta}(\boldsymbol{x}_{t-1}|\boldsymbol{x}_t))]}_{\text{denoising
+matching term}}
+\end{equation}
+\]</span></p>
+<h4 id="前向加噪的公式推导">前向加噪的公式推导</h4>
+<p>回顾 MHVAE 的第 2 个限制条件——加噪过程可以建模成高斯分布。写出 <span
+class="math inline">\(\boldsymbol{x}_{t-1}\)</span> 到 <span
+class="math inline">\(\boldsymbol{x}_{t}\)</span> 的递推式：</p>
+<p><span class="math display">\[
+\begin{equation} \label{eq:forward1}
+q(\boldsymbol{x}_{t} | \boldsymbol{x}_{t-1}) =
+\mathcal{N}(\boldsymbol{x}_{t}; \sqrt{\alpha_t}\boldsymbol{x}_{t-1}, (1
+- \alpha_t)\textbf{I})
+\end{equation}
+\]</span></p>
+<p>注意我们的 <span class="math inline">\(\alpha\)</span>
+是预先就给定好的，并不是超参数，不参与训练。因此，加噪过程是一个完全确定的模型。</p>
+<p>应用一下重参数化技巧，我们可以得到： <span class="math display">\[
+\begin{equation} \label{eq:forward_reparam}
+\boldsymbol{x}_t = \sqrt{\alpha_t}\boldsymbol{x}_{t-1} + \sqrt{1 -
+\alpha_t}\boldsymbol{\epsilon} \quad \text{with } \boldsymbol{\epsilon}
+\sim \mathcal{N}(\boldsymbol{\epsilon}; \mathbf{0}, \mathbf{I})
+\end{equation}
+\]</span></p>
+<p>同理，我们也可以获取 <span
+class="math inline">\(\boldsymbol{x}_{t-1}\)</span> 时候的重参数化公式：
+<span class="math display">\[
+\begin{equation} \label{eq:forward_reparam2}
+\boldsymbol{x}_{t-1} = \sqrt{\alpha_{t-1}}\boldsymbol{x}_{t-2} + \sqrt{1
+- \alpha_{t-1}}\boldsymbol{\epsilon} \quad \text{with }
+\boldsymbol{\epsilon} \sim \mathcal{N}(\boldsymbol{\epsilon};
+\mathbf{0}, \mathbf{I})
+\end{equation}
+\]</span> 注意我们把公式 <span
+class="math inline">\(\ref{eq:forward_reparam2}\)</span> 代入到 <span
+class="math inline">\(\ref{eq:forward_reparam}\)</span> 中，消去 <span
+class="math inline">\(\boldsymbol{x}_{t-1}\)</span>，我们就得到了 <span
+class="math inline">\(\boldsymbol{x}_{t}\)</span> 和 <span
+class="math inline">\(\boldsymbol{x}_{t-2}\)</span>
+之间的关系！因此，可以预见，当我们一直这样迭代下去的话，最终就可以得到
+<span class="math inline">\(\boldsymbol{x}_{t}\)</span> 和 <span
+class="math inline">\(\boldsymbol{x}_{0}\)</span> 之间的关系。</p>
+<p><span class="math display">\[
+\begin{align}
+\boldsymbol{x}_t &amp;= \sqrt{\alpha_t}\boldsymbol{x}_{t-1} + \sqrt{1 -
+\alpha_t}\boldsymbol{\epsilon}^*_{t-1} \\
+&amp;= \sqrt{\alpha_t} \left( \sqrt{\alpha_{t-1}}\boldsymbol{x}_{t-2} +
+\sqrt{1 - \alpha_{t-1}}\boldsymbol{\epsilon}^*_{t-2} \right) + \sqrt{1 -
+\alpha_t}\boldsymbol{\epsilon}^*_{t-1} \\
+&amp;= \sqrt{\alpha_t \alpha_{t-1}}\boldsymbol{x}_{t-2} + \sqrt{\alpha_t
+- \alpha_t \alpha_{t-1}}\boldsymbol{\epsilon}^*_{t-2} + \sqrt{1 -
+\alpha_t}\boldsymbol{\epsilon}^*_{t-1} \label{eq:forward_Q1}\\
+&amp;= \sqrt{\alpha_t \alpha_{t-1}}\boldsymbol{x}_{t-2} + \sqrt{
+\sqrt{\alpha_t - \alpha_t \alpha_{t-1}}^2 + \sqrt{1 - \alpha_t}^2 }
+\boldsymbol{\epsilon}_{t-2} \label{eq:forward_Q2}\\
+&amp;= \sqrt{\alpha_t \alpha_{t-1}}\boldsymbol{x}_{t-2} + \sqrt{1 -
+\alpha_t \alpha_{t-1}}\boldsymbol{\epsilon}_{t-2} \\
+&amp;= \dots \\
+&amp;= \sqrt{\prod_{i=1}^t \alpha_i}\boldsymbol{x}_0 + \sqrt{1 -
+\prod_{i=1}^t \alpha_i}\boldsymbol{\epsilon}_0 \\
+&amp;= \sqrt{\bar{\alpha}_t}\boldsymbol{x}_0 + \sqrt{1 -
+\bar{\alpha}_t}\boldsymbol{\epsilon}_0 \\
+&amp;\sim \mathcal{N}(\boldsymbol{x}_t;
+\sqrt{\bar{\alpha}_t}\boldsymbol{x}_0, (1 - \bar{\alpha}_t)\mathbf{I})
+\end{align}
+\]</span></p>
+<p>即 <span class="math display">\[
+\begin{equation}
+q(\boldsymbol{x_t} | \boldsymbol{x_0}) = \mathcal{N}(\boldsymbol{x}_t;
+\sqrt{\bar{\alpha}_t}\boldsymbol{x}_0, (1 - \bar{\alpha}_t)\mathbf{I})
+\label{eq:forward2}
+\end{equation}
+\]</span></p>
+<h4 id="公式难点解释">公式难点解释</h4>
+<p>这部分用于解释说明为什么公式 <span
+class="math inline">\(\ref{eq:forward_Q1}\)</span> 能够变到 <span
+class="math inline">\(\ref{eq:forward_Q2}\)</span> 的。
+<div class="note danger flat"><p>📒如果随机变量 <span class="math inline">\(X \sim \mathcal{N}(\mu_1,
+\sigma_1^2)\)</span>，以及 <span class="math inline">\(Y \sim
+\mathcal{N}(\mu_2, \sigma_2^2)\)</span>，并且 <span
+class="math inline">\(X\)</span> 和 <span
+class="math inline">\(Y\)</span> 独立同分布。那么有 <span
+class="math display">\[
+aX + bY \sim \mathcal{N}(a\mu_1 + b\mu_2, a^2\sigma_1^2 + b^2\sigma_2^2)
+\]</span></p>
+</div></p>
+<p>依据这个知识点，我们就可以有</p>
+<p><span class="math display">\[
+\begin{align}
+\sqrt{\alpha_t - \alpha_t \alpha_{t-1}}\boldsymbol{\epsilon}^*_{t-2}
+&amp;\sim \mathcal{N}(0, (\alpha_t - \alpha_t \alpha_{t-1})\textbf{I})
+\\
+\sqrt{1 - \alpha_t}\boldsymbol{\epsilon}^*_{t-1} &amp;\sim
+\mathcal{N}(0, (1 - \alpha_t)\textbf{I}) \\
+\end{align}
+\]</span></p>
+<p>于是有下面公式成立：</p>
+<p><span class="math display">\[
+\begin{equation}
+\sqrt{\alpha_t - \alpha_t \alpha_{t-1}}\boldsymbol{\epsilon}^*_{t-2} +
+\sqrt{1 - \alpha_t}\boldsymbol{\epsilon}^*_{t-1} = \sqrt{ \sqrt{\alpha_t
+- \alpha_t \alpha_{t-1}}^2 + \sqrt{1 - \alpha_t}^2 }
+\boldsymbol{\epsilon}_{t-2}
+\end{equation}
+\]</span></p>
+<h3 id="真实去噪分布表示">真实去噪分布表示</h3>
+<p>接下来，我们需要来研究一下真实去噪分布 <span
+class="math inline">\(q(\boldsymbol{x}_{t-1}|\boldsymbol{x}_t,
+\boldsymbol{x}_0)\)</span>
+怎么表示。我们现在已知的信息有前面前向加噪过程推导出的这些公式，<strong>如何能够由已知的加噪过程，即公式
+<span class="math inline">\(\ref{eq:forward1}\)</span> 和 <span
+class="math inline">\(\ref{eq:forward2}\)</span>，推导出去噪过程呢？</strong></p>
+<p>借助<strong>贝叶斯公式</strong>，我们可以有： <span
+class="math display">\[
+\begin{equation}
+q(\boldsymbol{x}_{t-1} | \boldsymbol{x}_{t}, \boldsymbol{x}_{0}) =
+\frac{q(\boldsymbol{x}_{t} | \boldsymbol{x}_{t-1},
+\boldsymbol{x}_{0})q(\boldsymbol{x}_{t-1} |
+\boldsymbol{x}_{0})}{q(\boldsymbol{x}_{t} | \boldsymbol{x}_{0})}
+\end{equation}
+\]</span></p>
+<div class="note warning flat"><p>贝叶斯法则公式如下，证明十分简单，只需要把右边的分母乘到左边即可，思想就是把两个联合分布等价地换了一下顺序而已。
+<span class="math display">\[
+q(\boldsymbol{x}_{t-1} | \boldsymbol{x}_{t}, \boldsymbol{x}_{0}) =
+\frac{q(\boldsymbol{x}_{t} | \boldsymbol{x}_{t-1},
+\boldsymbol{x}_{0})q(\boldsymbol{x}_{t-1} |
+\boldsymbol{x}_{0})}{q(\boldsymbol{x}_{t} | \boldsymbol{x}_{0})}
+\]</span></p>
+</div>
+<p>注意右边分子中的 <span class="math inline">\(q(\boldsymbol{x}_{t} |
+\boldsymbol{x}_{t-1},
+\boldsymbol{x}_{0})\)</span>，我们由马尔可夫性质，完全可以把 <span
+class="math inline">\(\boldsymbol{x}_{0}\)</span> 忽略掉，化简即： <span
+class="math display">\[
+\begin{equation} \label{eq:reverse_gt}
+q(\boldsymbol{x}_{t-1} | \boldsymbol{x}_{t}, \boldsymbol{x}_{0}) =
+\frac{q(\boldsymbol{x}_{t} | \boldsymbol{x}_{t-1})q(\boldsymbol{x}_{t-1}
+| \boldsymbol{x}_{0})}{q(\boldsymbol{x}_{t} | \boldsymbol{x}_{0})}
+\end{equation}
+\]</span> 这个时候可以发现，等式 <span
+class="math inline">\(\ref{eq:reverse_gt}\)</span> 右边中的 <span
+class="math inline">\(q(\boldsymbol{x}_{t} |
+\boldsymbol{x}_{t-1})\)</span> 是递推式 <span
+class="math inline">\(\ref{eq:forward1}\)</span>，而 <span
+class="math inline">\(q(\boldsymbol{x}_{t-1} |
+\boldsymbol{x}_{0})\)</span> 和 <span
+class="math inline">\(q(\boldsymbol{x}_{t} |
+\boldsymbol{x}_{0})\)</span> 是累加式 <span
+class="math inline">\(\ref{eq:forward2}\)</span>。还有一个关键点是这三个概率分布都是服从高斯分布的，而他们的乘除运算还是高斯分布，于是，真实去噪分布
+<span class="math inline">\(q(\boldsymbol{x}_{t-1} | \boldsymbol{x}_{t},
+\boldsymbol{x}_{0})\)</span> 也是满足高斯分布的。</p>
+<p>具体的推导过程如下所示。 <span class="math display">\[
+\begin{align}
+q(\boldsymbol{x}_{t-1}|\boldsymbol{x}_t, \boldsymbol{x}_0) &amp;=
+\frac{q(\boldsymbol{x}_t|\boldsymbol{x}_{t-1},
+\boldsymbol{x}_0)q(\boldsymbol{x}_{t-1}|\boldsymbol{x}_0)}{q(\boldsymbol{x}_t|\boldsymbol{x}_0)}
+\\
+&amp;= \frac{\mathcal{N}(\boldsymbol{x}_t;
+\sqrt{\alpha_t}\boldsymbol{x}_{t-1}, (1-\alpha_t)\mathbf{I})
+\mathcal{N}(\boldsymbol{x}_{t-1};
+\sqrt{\bar{\alpha}_{t-1}}\boldsymbol{x}_0,
+(1-\bar{\alpha}_{t-1})\mathbf{I})}{\mathcal{N}(\boldsymbol{x}_t;
+\sqrt{\bar{\alpha}_t}\boldsymbol{x}_0, (1-\bar{\alpha}_t)\mathbf{I})} \\
+&amp;\propto \exp \left\{ - \left[ \frac{(\boldsymbol{x}_t -
+\sqrt{\alpha_t}\boldsymbol{x}_{t-1})^2}{2(1-\alpha_t)} +
+\frac{(\boldsymbol{x}_{t-1} -
+\sqrt{\bar{\alpha}_{t-1}}\boldsymbol{x}_0)^2}{2(1-\bar{\alpha}_{t-1})} -
+\frac{(\boldsymbol{x}_t -
+\sqrt{\bar{\alpha}_t}\boldsymbol{x}_0)^2}{2(1-\bar{\alpha}_t)} \right]
+\right\} \\
+&amp;= \exp \left\{ -\frac{1}{2} \left[ \frac{(\boldsymbol{x}_t -
+\sqrt{\alpha_t}\boldsymbol{x}_{t-1})^2}{1-\alpha_t} +
+\frac{(\boldsymbol{x}_{t-1} -
+\sqrt{\bar{\alpha}_{t-1}}\boldsymbol{x}_0)^2}{1-\bar{\alpha}_{t-1}} +
+C(\boldsymbol{x}_t, \boldsymbol{x}_0) \right] \right\} \\
+&amp;\propto \exp \left\{ -\frac{1}{2} \left[
+\frac{-2\sqrt{\alpha_t}\boldsymbol{x}_t\boldsymbol{x}_{t-1} +
+\alpha_t\boldsymbol{x}_{t-1}^2}{1-\alpha_t} +
+\frac{\boldsymbol{x}_{t-1}^2 -
+2\sqrt{\bar{\alpha}_{t-1}}\boldsymbol{x}_{t-1}\boldsymbol{x}_0}{1-\bar{\alpha}_{t-1}}
+\right] \right\} \\
+&amp;= \exp \left\{ -\frac{1}{2} \left[ \left(
+\frac{\alpha_t}{1-\alpha_t} + \frac{1}{1-\bar{\alpha}_{t-1}}
+\right)\boldsymbol{x}_{t-1}^2 - 2 \left(
+\frac{\sqrt{\alpha_t}\boldsymbol{x}_t}{1-\alpha_t} +
+\frac{\sqrt{\bar{\alpha}_{t-1}}\boldsymbol{x}_0}{1-\bar{\alpha}_{t-1}}
+\right)\boldsymbol{x}_{t-1} \right] \right\} \\
+&amp;= \exp \left\{ -\frac{1}{2} \left[
+\frac{\alpha_t(1-\bar{\alpha}_{t-1}) + 1 -
+\alpha_t}{(1-\alpha_t)(1-\bar{\alpha}_{t-1})} \boldsymbol{x}_{t-1}^2 - 2
+\left( \frac{\sqrt{\alpha_t}\boldsymbol{x}_t}{1-\alpha_t} +
+\frac{\sqrt{\bar{\alpha}_{t-1}}\boldsymbol{x}_0}{1-\bar{\alpha}_{t-1}}
+\right)\boldsymbol{x}_{t-1} \right] \right\} \\
+&amp;= \exp \left\{ -\frac{1}{2} \left[ \frac{\alpha_t - \bar{\alpha}_t
++ 1 - \alpha_t}{(1-\alpha_t)(1-\bar{\alpha}_{t-1})}
+\boldsymbol{x}_{t-1}^2 - 2 \left(
+\frac{\sqrt{\alpha_t}\boldsymbol{x}_t}{1-\alpha_t} +
+\frac{\sqrt{\bar{\alpha}_{t-1}}\boldsymbol{x}_0}{1-\bar{\alpha}_{t-1}}
+\right)\boldsymbol{x}_{t-1} \right] \right\} \\
+&amp;= \exp \left\{ -\frac{1}{2} \left[ \frac{1 -
+\bar{\alpha}_t}{(1-\alpha_t)(1-\bar{\alpha}_{t-1})}
+\boldsymbol{x}_{t-1}^2 - 2 \left(
+\frac{\sqrt{\alpha_t}\boldsymbol{x}_t}{1-\alpha_t} +
+\frac{\sqrt{\bar{\alpha}_{t-1}}\boldsymbol{x}_0}{1-\bar{\alpha}_{t-1}}
+\right)\boldsymbol{x}_{t-1} \right] \right\} \\
+&amp;= \exp \left\{ -\frac{1}{2} \left( \frac{1 -
+\bar{\alpha}_t}{(1-\alpha_t)(1-\bar{\alpha}_{t-1})} \right) \left[
+\boldsymbol{x}_{t-1}^2 - 2 \frac{ \left(
+\frac{\sqrt{\alpha_t}\boldsymbol{x}_t}{1-\alpha_t} +
+\frac{\sqrt{\bar{\alpha}_{t-1}}\boldsymbol{x}_0}{1-\bar{\alpha}_{t-1}}
+\right) }{ \frac{1 - \bar{\alpha}_t}{(1-\alpha_t)(1-\bar{\alpha}_{t-1})}
+} \boldsymbol{x}_{t-1} \right] \right\} \\
+&amp;= \exp \left\{ -\frac{1}{2} \left( \frac{1 -
+\bar{\alpha}_t}{(1-\alpha_t)(1-\bar{\alpha}_{t-1})} \right) \left[
+\boldsymbol{x}_{t-1}^2 - 2 \frac{ \left(
+\frac{\sqrt{\alpha_t}\boldsymbol{x}_t}{1-\alpha_t} +
+\frac{\sqrt{\bar{\alpha}_{t-1}}\boldsymbol{x}_0}{1-\bar{\alpha}_{t-1}}
+\right) (1-\alpha_t)(1-\bar{\alpha}_{t-1}) }{ 1 - \bar{\alpha}_t }
+\boldsymbol{x}_{t-1} \right] \right\} \\
+&amp;= \exp \left\{ -\frac{1}{2} \left( \frac{1 -
+\bar{\alpha}_t}{(1-\alpha_t)(1-\bar{\alpha}_{t-1})} \right) \left[
+\boldsymbol{x}_{t-1}^2 - 2 \frac{
+\sqrt{\alpha_t}(1-\bar{\alpha}_{t-1})\boldsymbol{x}_t +
+\sqrt{\bar{\alpha}_{t-1}}(1-\alpha_t)\boldsymbol{x}_0 }{ 1 -
+\bar{\alpha}_t } \boldsymbol{x}_{t-1} \right] \right\} \\
+&amp;\propto \mathcal{N} \Bigg( \boldsymbol{x}_{t-1}; \underbrace{
+\frac{\sqrt{\alpha_t}(1-\bar{\alpha}_{t-1})\boldsymbol{x}_t +
+\sqrt{\bar{\alpha}_{t-1}}(1-\alpha_t)\boldsymbol{x}_0}{1 -
+\bar{\alpha}_t} }_{\boldsymbol{\mu}_q(\boldsymbol{x}_t,
+\boldsymbol{x}_0)}, \underbrace{ \frac{(1 - \alpha_t)(1 -
+\bar{\alpha}_{t-1})}{1 - \bar{\alpha}_t} \mathbf{I}
+}_{\boldsymbol{\Sigma}_q(t)} \Bigg)
+\end{align}
+\]</span></p>
+<p>上式的最后一步，我们求解出了<strong>真实去噪分布的均值以及方差</strong>，我们在下方重新书写一份：
+<span class="math display">\[
+\begin{align}
+\mu_q(x_0, x_t) &amp;=
+\frac{\sqrt{\alpha_t}(1-\bar{\alpha}_{t-1})\boldsymbol{x}_t +
+\sqrt{\bar{\alpha}_{t-1}}(1-\alpha_t)\boldsymbol{x}_0}{1 -
+\bar{\alpha}_t} \label{eq:reverse_gt_mu} \\
+\sigma^2_q(t) &amp;= \frac{(1 - \alpha_t)(1 - \bar{\alpha}_{t-1})}{1 -
+\bar{\alpha}_t} \label{eq:reverse_gt_sigma}
+\end{align}
+\]</span></p>
+<p>从式 <span class="math inline">\(\ref{eq:reverse_gt_mu}\)</span>
+可以看出，真实去噪分布的均值与 <span
+class="math inline">\(\boldsymbol{x}_t\)</span> 和 <span
+class="math inline">\(\boldsymbol{x}_0\)</span> 有关系，而方差 <span
+class="math inline">\(\ref{eq:reverse_gt_sigma}\)</span> 仅与时间步
+<span class="math inline">\(t\)</span> 有关，因此可以看做是定值。</p>
+<h3 id="近似去噪分布表示">近似去噪分布表示</h3>
+<mark class="hl-label orange">为了能够使得近似与真实的去噪分布相近，我们不妨假设近似的去噪分布也是服从高斯分布的。</mark>
+<p><span class="math display">\[
+\begin{equation}
+\boldsymbol{x}_{t-1} \sim
+p_{\theta}(\boldsymbol{x}_{t-1}|\boldsymbol{x}_t) =
+\mathcal{N}(\boldsymbol{x}_{t-1}; \mu_{\theta}, \Sigma_{\theta}(t))
+\end{equation}
+\]</span> 由公式 <span
+class="math inline">\(\ref{eq:reverse_gt_sigma}\)</span>，我们发现了真实去噪分布的方差是完全确定的，因此我们也假设近似去噪分布的方差
+<span class="math inline">\(\sigma_{\theta}(t)\)</span> 就等于 <span
+class="math inline">\(\sigma_{q}(t)\)</span>。这样一来，我们只需要关注其均值就好了！</p>
+<h3 id="进一步简化-kl-散度">进一步简化 <span
+class="math inline">\(KL\)</span> 散度</h3>
+<div class="note warning flat"><p>🧀两个多元高斯分布的 <span class="math inline">\(\text{KL}\)</span>
+散度公式为 <span class="math display">\[
+D_{\text{KL}}(\mathcal{N}(\boldsymbol{x}; \boldsymbol{\mu}_x,
+\boldsymbol{\Sigma}_x) \parallel \mathcal{N}(\boldsymbol{y};
+\boldsymbol{\mu}_y, \boldsymbol{\Sigma}_y)) = \frac{1}{2} \left[ \log
+\frac{|\boldsymbol{\Sigma}_y|}{|\boldsymbol{\Sigma}_x|} - d +
+\text{tr}(\boldsymbol{\Sigma}_y^{-1}\boldsymbol{\Sigma}_x) +
+(\boldsymbol{\mu}_y - \boldsymbol{\mu}_x)^T \boldsymbol{\Sigma}_y^{-1}
+(\boldsymbol{\mu}_y - \boldsymbol{\mu}_x) \right]
+\]</span></p>
+</div>
+<p>有了前面众多的铺垫，接下来让我们计算化简一下式 <span
+class="math inline">\(\underset{\theta}{\arg \min}
+D_{\text{KL}}(q(\boldsymbol{x}_{t-1}|\boldsymbol{x}_t, \boldsymbol{x}_0)
+\parallel p_{\theta}(\boldsymbol{x}_{t-1}|\boldsymbol{x}_t))\)</span>
+吧！💪 <span class="math display">\[
+\begin{align}
+&amp; \underset{\theta}{\arg \min}
+D_{\text{KL}}(q(\boldsymbol{x}_{t-1}|\boldsymbol{x}_t, \boldsymbol{x}_0)
+\parallel p_{\theta}(\boldsymbol{x}_{t-1}|\boldsymbol{x}_t)) \\
+&amp;= \underset{\theta}{\arg \min}
+D_{\text{KL}}(\mathcal{N}(\boldsymbol{x}_{t-1}; \boldsymbol{\mu}_q,
+\boldsymbol{\Sigma}_q(t)) \parallel \mathcal{N}(\boldsymbol{x}_{t-1};
+\boldsymbol{\mu}_{\theta}, \boldsymbol{\Sigma}_q(t))) \\
+&amp;= \underset{\theta}{\arg \min} \frac{1}{2} \left[ \log
+\frac{|\boldsymbol{\Sigma}_q(t)|}{|\boldsymbol{\Sigma}_q(t)|} - d +
+\text{tr}(\boldsymbol{\Sigma}_q(t)^{-1}\boldsymbol{\Sigma}_q(t)) +
+(\boldsymbol{\mu}_{\theta} - \boldsymbol{\mu}_q)^T
+\boldsymbol{\Sigma}_q(t)^{-1} (\boldsymbol{\mu}_{\theta} -
+\boldsymbol{\mu}_q) \right] \\
+&amp;= \underset{\theta}{\arg \min} \frac{1}{2} \left[ \log 1 - d + d +
+(\boldsymbol{\mu}_{\theta} - \boldsymbol{\mu}_q)^T
+\boldsymbol{\Sigma}_q(t)^{-1} (\boldsymbol{\mu}_{\theta} -
+\boldsymbol{\mu}_q) \right] \\
+&amp;= \underset{\theta}{\arg \min} \frac{1}{2} \left[
+(\boldsymbol{\mu}_{\theta} - \boldsymbol{\mu}_q)^T
+\boldsymbol{\Sigma}_q(t)^{-1} (\boldsymbol{\mu}_{\theta} -
+\boldsymbol{\mu}_q) \right] \\
+&amp;= \underset{\theta}{\arg \min} \frac{1}{2} \left[
+(\boldsymbol{\mu}_{\theta} - \boldsymbol{\mu}_q)^T
+(\sigma_q^2(t)\mathbf{I})^{-1} (\boldsymbol{\mu}_{\theta} -
+\boldsymbol{\mu}_q) \right] \\
+&amp;= \underset{\theta}{\arg \min} \frac{1}{2\sigma_q^2(t)} \left[
+\|\boldsymbol{\mu}_{\theta} - \boldsymbol{\mu}_q\|_2^2 \right]
+\label{eq:objective_normal}
+\end{align}
+\]</span></p>
+<p>经过上述“简单”的运算，我们最终得到了一个十分简洁的表达式形式，它告诉我们，实际上我们最终的训练目标，可以只是我们模型近似后验高斯分布的均值，与真实的后验分布的均值的均方误差
+MSE（系数是可以忽略的）。这个简洁的形式，离不开我们假设近似后验分布的方差与真实后验分布的方差是相同的。</p>
+<p>但是我们的优化目标化归到均值 <span class="math inline">\(\mu\)</span>
+上，还是不太好进行计算。我们可以进一步对 <span
+class="math inline">\(\mu\)</span>
+进行不同的设定，来使得我们最终的优化目标更加简单。</p>
+<h3 id="mu-的不同设定"><span class="math inline">\(\mu\)</span>
+的不同设定</h3>
+<h4 id="利用-x_0-进行设定">利用 <span class="math inline">\(x_0\)</span>
+进行设定</h4>
+<p>回忆式 <span
+class="math inline">\(\ref{eq:reverse_gt_mu}\)</span>，仿照这个公式，我们设计一个
+<span class="math inline">\(\mu_\theta(t)\)</span>，如式所示： <span
+class="math display">\[
+\begin{equation}
+\mu_\theta(x_t, t) =
+\frac{\sqrt{\alpha_t}(1-\bar{\alpha}_{t-1})\boldsymbol{x}_t +
+\sqrt{\bar{\alpha}_{t-1}}(1-\alpha_t)\hat{\boldsymbol{x}}_\theta(\boldsymbol{x}_t,
+t)}{1 - \bar{\alpha}_t} \label{eq:reverse_mu}
+\end{equation}
+\]</span></p>
+<p>这样一来，我们把式 <span
+class="math inline">\(\ref{eq:reverse_gt_mu}\)</span> 和式 <span
+class="math inline">\(\ref{eq:reverse_mu}\)</span> 代入到式 <span
+class="math inline">\(\ref{eq:objective_normal}\)</span>
+进行化简，如下推导： <span class="math display">\[
+\begin{align}
+&amp; \underset{\theta}{\arg \min}
+D_{\text{KL}}(q(\boldsymbol{x}_{t-1}|\boldsymbol{x}_t, \boldsymbol{x}_0)
+\parallel p_{\theta}(\boldsymbol{x}_{t-1}|\boldsymbol{x}_t)) \\
+&amp;= \underset{\theta}{\arg \min}
+D_{\text{KL}}(\mathcal{N}(\boldsymbol{x}_{t-1}; \boldsymbol{\mu}_q,
+\boldsymbol{\Sigma}_q(t)) \parallel \mathcal{N}(\boldsymbol{x}_{t-1};
+\boldsymbol{\mu}_{\theta}, \boldsymbol{\Sigma}_q(t))) \\
+&amp;= \underset{\theta}{\arg \min} \frac{1}{2\sigma_q^2(t)} \left[
+\left\| \frac{\sqrt{\alpha_t}(1-\bar{\alpha}_{t-1})\boldsymbol{x}_t +
+\sqrt{\bar{\alpha}_{t-1}}(1-\alpha_t)\hat{\boldsymbol{x}}_{\theta}(\boldsymbol{x}_t,
+t)}{1-\bar{\alpha}_t} -
+\frac{\sqrt{\alpha_t}(1-\bar{\alpha}_{t-1})\boldsymbol{x}_t +
+\sqrt{\bar{\alpha}_{t-1}}(1-\alpha_t)\boldsymbol{x}_0}{1-\bar{\alpha}_t}
+\right\|_2^2 \right] \\
+&amp;= \underset{\theta}{\arg \min} \frac{1}{2\sigma_q^2(t)} \left[
+\left\|
+\frac{\sqrt{\bar{\alpha}_{t-1}}(1-\alpha_t)\hat{\boldsymbol{x}}_{\theta}(\boldsymbol{x}_t,
+t)}{1-\bar{\alpha}_t} -
+\frac{\sqrt{\bar{\alpha}_{t-1}}(1-\alpha_t)\boldsymbol{x}_0}{1-\bar{\alpha}_t}
+\right\|_2^2 \right] \\
+&amp;= \underset{\theta}{\arg \min} \frac{1}{2\sigma_q^2(t)} \left[
+\left\| \frac{\sqrt{\bar{\alpha}_{t-1}}(1-\alpha_t)}{1-\bar{\alpha}_t}
+(\hat{\boldsymbol{x}}_{\theta}(\boldsymbol{x}_t, t) - \boldsymbol{x}_0)
+\right\|_2^2 \right] \\
+&amp;= \underset{\theta}{\arg \min} \frac{1}{2\sigma_q^2(t)}
+\frac{\bar{\alpha}_{t-1}(1-\alpha_t)^2}{(1-\bar{\alpha}_t)^2} \left[
+\|\hat{\boldsymbol{x}}_{\theta}(\boldsymbol{x}_t, t) -
+\boldsymbol{x}_0\|_2^2 \right] \label{eq:KL_x0}
+\end{align}
+\]</span></p>
+<p>至此，我们得到了 <span class="math inline">\(\mu_q\)</span>
+的第一种设定方法，也就是我们学习一个神经网络，然后从给定的任意时刻 <span
+class="math inline">\(t\)</span> 和其对应的噪声数据 <span
+class="math inline">\(\boldsymbol{x}_t\)</span>，预测出原样本数据 <span
+class="math inline">\(\boldsymbol{x}_0\)</span>。</p>
+<p>另外，我们这里推导的都只是一项 <span
+class="math inline">\(\text{KL}\)</span>
+散度，别忘了去噪匹配项中，前面还有一个加和运算 <span
+class="math inline">\(\Sigma^T_{t=2}\)</span>。在这里，为了实现这一目标，我们把加和项变成一个均匀分布的期望。
+<span class="math display">\[
+\underset{\theta}{\arg \min} \mathbb{E}_{t \sim U\{2, T\}} \left[
+\mathbb{E}_{q(\boldsymbol{x}_t|\boldsymbol{x}_0)} \left[
+D_{\text{KL}}(q(\boldsymbol{x}_{t-1}|\boldsymbol{x}_t, \boldsymbol{x}_0)
+\parallel p_{\theta}(\boldsymbol{x}_{t-1}|\boldsymbol{x}_t)) \right]
+\right]
+\]</span></p>
+<div class="note success flat"><p>💡这也是为什么在扩散模型算法的流程中，第一步总是随机选取一个时间步
+<span class="math inline">\(t\)</span>。</p>
+</div>
+<h4 id="利用-epsilon_t-进行设定">利用 <span
+class="math inline">\(\epsilon_t\)</span> 进行设定</h4>
+<p>由前面的公式，我们有公式 <span
+class="math inline">\(\ref{eq:mu_epsilon}\)</span> 成立。 <span
+class="math display">\[
+\begin{equation}
+\boldsymbol{x}_0 = \frac{\boldsymbol{x}_t - \sqrt{1 -
+\bar{\alpha}_t}\boldsymbol{\epsilon}_0}{\sqrt{\bar{\alpha}_t}}
+\label{eq:mu_epsilon}
+\end{equation}
+\]</span></p>
+<p>之后将 <span class="math inline">\(\mu_q\)</span> 改写为 <span
+class="math inline">\(\boldsymbol{x}_t\)</span> 和 <span
+class="math inline">\(\epsilon_t\)</span> 的形式，也就是把 <span
+class="math inline">\(\boldsymbol{x}_0\)</span> 进行替换，即： <span
+class="math display">\[
+\begin{align}
+\boldsymbol{\mu}_q(\boldsymbol{x}_t, \boldsymbol{x}_0) &amp;=
+\frac{\sqrt{\alpha_t}(1-\bar{\alpha}_{t-1})\boldsymbol{x}_t +
+\sqrt{\bar{\alpha}_{t-1}}(1-\alpha_t)\boldsymbol{x}_0}{1-\bar{\alpha}_t}
+\\
+&amp;= \frac{\sqrt{\alpha_t}(1-\bar{\alpha}_{t-1})\boldsymbol{x}_t +
+\sqrt{\bar{\alpha}_{t-1}}(1-\alpha_t) \frac{\boldsymbol{x}_t -
+\sqrt{1-\bar{\alpha}_t}\boldsymbol{\epsilon}_0}{\sqrt{\bar{\alpha}_t}}}{1-\bar{\alpha}_t}
+\\
+&amp;= \frac{\sqrt{\alpha_t}(1-\bar{\alpha}_{t-1})\boldsymbol{x}_t +
+(1-\alpha_t) \frac{\boldsymbol{x}_t -
+\sqrt{1-\bar{\alpha}_t}\boldsymbol{\epsilon}_0}{\sqrt{\alpha_t}}}{1-\bar{\alpha}_t}
+\\
+&amp;=
+\frac{\sqrt{\alpha_t}(1-\bar{\alpha}_{t-1})\boldsymbol{x}_t}{1-\bar{\alpha}_t}
++ \frac{(1-\alpha_t)\boldsymbol{x}_t}{(1-\bar{\alpha}_t)\sqrt{\alpha_t}}
+-
+\frac{(1-\alpha_t)\sqrt{1-\bar{\alpha}_t}\boldsymbol{\epsilon}_0}{(1-\bar{\alpha}_t)\sqrt{\alpha_t}}
+\\
+&amp;= \left(
+\frac{\sqrt{\alpha_t}(1-\bar{\alpha}_{t-1})}{1-\bar{\alpha}_t} +
+\frac{1-\alpha_t}{(1-\bar{\alpha}_t)\sqrt{\alpha_t}} \right)
+\boldsymbol{x}_t -
+\frac{(1-\alpha_t)\sqrt{1-\bar{\alpha}_t}}{(1-\bar{\alpha}_t)\sqrt{\alpha_t}}
+\boldsymbol{\epsilon}_0 \\
+&amp;= \left(
+\frac{\alpha_t(1-\bar{\alpha}_{t-1})}{(1-\bar{\alpha}_t)\sqrt{\alpha_t}}
++ \frac{1-\alpha_t}{(1-\bar{\alpha}_t)\sqrt{\alpha_t}} \right)
+\boldsymbol{x}_t -
+\frac{1-\alpha_t}{\sqrt{1-\bar{\alpha}_t}\sqrt{\alpha_t}}
+\boldsymbol{\epsilon}_0 \\
+&amp;= \frac{\alpha_t - \bar{\alpha}_t + 1 -
+\alpha_t}{(1-\bar{\alpha}_t)\sqrt{\alpha_t}} \boldsymbol{x}_t -
+\frac{1-\alpha_t}{\sqrt{1-\bar{\alpha}_t}\sqrt{\alpha_t}}
+\boldsymbol{\epsilon}_0 \\
+&amp;= \frac{1-\bar{\alpha}_t}{(1-\bar{\alpha}_t)\sqrt{\alpha_t}}
+\boldsymbol{x}_t -
+\frac{1-\alpha_t}{\sqrt{1-\bar{\alpha}_t}\sqrt{\alpha_t}}
+\boldsymbol{\epsilon}_0 \\
+&amp;= \frac{1}{\sqrt{\alpha_t}} \boldsymbol{x}_t -
+\frac{1-\alpha_t}{\sqrt{1-\bar{\alpha}_t}\sqrt{\alpha_t}}
+\boldsymbol{\epsilon}_0
+\end{align}
+\]</span></p>
+<p>这就是真实的后验分布的概率分布函数。接下来我们可以依葫芦画瓢，设定一下近似的后验分布的函数表达式：
+<span class="math display">\[
+\boldsymbol{\mu_\theta}(\boldsymbol{x}_t, t) = \frac{1}{\sqrt{\alpha_t}}
+\boldsymbol{x}_t -
+\frac{1-\alpha_t}{\sqrt{1-\bar{\alpha}_t}\sqrt{\alpha_t}}
+\boldsymbol{\epsilon}_0
+\]</span></p>
+<p>于是此时的优化目标，<span class="math inline">\(\text{KL}\)</span>
+散度就可以表示成 <span class="math display">\[
+\begin{align}
+&amp; \underset{\theta}{\arg \min}
+D_{\text{KL}}(q(\boldsymbol{x}_{t-1}|\boldsymbol{x}_t, \boldsymbol{x}_0)
+\parallel p_{\theta}(\boldsymbol{x}_{t-1}|\boldsymbol{x}_t)) \\
+&amp;= \underset{\theta}{\arg \min}
+D_{\text{KL}}(\mathcal{N}(\boldsymbol{x}_{t-1}; \boldsymbol{\mu}_q,
+\boldsymbol{\Sigma}_q(t)) \parallel \mathcal{N}(\boldsymbol{x}_{t-1};
+\boldsymbol{\mu}_{\theta}, \boldsymbol{\Sigma}_q(t))) \\
+&amp;= \underset{\theta}{\arg \min} \frac{1}{2\sigma_q^2(t)} \left[
+\left\| \frac{1}{\sqrt{\alpha_t}}\boldsymbol{x}_t -
+\frac{1-\alpha_t}{\sqrt{1-\bar{\alpha}_t}\sqrt{\alpha_t}}\hat{\boldsymbol{\epsilon}}_{\theta}(\boldsymbol{x}_t,
+t) - \frac{1}{\sqrt{\alpha_t}}\boldsymbol{x}_t +
+\frac{1-\alpha_t}{\sqrt{1-\bar{\alpha}_t}\sqrt{\alpha_t}}\boldsymbol{\epsilon}_0
+\right\|_2^2 \right] \\
+&amp;= \underset{\theta}{\arg \min} \frac{1}{2\sigma_q^2(t)} \left[
+\left\|
+\frac{1-\alpha_t}{\sqrt{1-\bar{\alpha}_t}\sqrt{\alpha_t}}\boldsymbol{\epsilon}_0
+-
+\frac{1-\alpha_t}{\sqrt{1-\bar{\alpha}_t}\sqrt{\alpha_t}}\hat{\boldsymbol{\epsilon}}_{\theta}(\boldsymbol{x}_t,
+t) \right\|_2^2 \right] \\
+&amp;= \underset{\theta}{\arg \min} \frac{1}{2\sigma_q^2(t)} \left[
+\left\|
+\frac{1-\alpha_t}{\sqrt{1-\bar{\alpha}_t}\sqrt{\alpha_t}}(\boldsymbol{\epsilon}_0
+- \hat{\boldsymbol{\epsilon}}_{\theta}(\boldsymbol{x}_t, t))
+\right\|_2^2 \right] \\
+&amp;= \underset{\theta}{\arg \min} \frac{1}{2\sigma_q^2(t)}
+\frac{(1-\alpha_t)^2}{(1-\bar{\alpha}_t)\alpha_t} \left[
+\|\boldsymbol{\epsilon}_0 -
+\hat{\boldsymbol{\epsilon}}_{\theta}(\boldsymbol{x}_t, t)\|_2^2 \right]
+\end{align}
+\]</span></p>
+<h4 id="利用分数函数进行设定">利用分数函数进行设定</h4>
+<p>首先，我们需要先来用一下 <strong>Tweedie 公式</strong>。</p>
+<div class="note info flat"><p>Tweedie（特威迪）公式揭示了<strong>去噪后的真实均值</strong>（左边）可以通过<strong>当前噪声数据加上分数函数（Score
+Function）</strong>（右边）直接计算出来。 <span class="math display">\[
+\begin{equation}
+\mathbb{E}[\boldsymbol{\mu}_z | \boldsymbol{z}] = \boldsymbol{z} +
+\boldsymbol{\Sigma}_z \nabla_{\boldsymbol{z}} \log p(\boldsymbol{z})
+\label{eq:tweedie}
+\end{equation}
+\]</span></p>
+<hr />
+<p><strong>证明如下：</strong></p>
+<p>我们假设存在一个“原本的、干净的、真实的”数值 <span
+class="math inline">\(\theta\)</span>，它遵循某种自然的规律分布 <span
+class="math inline">\(\pi(\theta)\)</span>，即 <span
+class="math inline">\(\theta \sim \pi(\theta)\)</span>。</p>
+<p>观测值（含噪数据）<span class="math inline">\(x \sim \mathcal{N}(x;
+\theta, \sigma^2)\)</span>。即 <span
+class="math inline">\(f(x|\theta)\)</span> 是一个均值为 <span
+class="math inline">\(\theta\)</span>，方差为 <span
+class="math inline">\(\sigma^2\)</span> 的高斯分布。</p>
+<p>于是 <span class="math inline">\(x\)</span>
+的分布可以由边际分布（证据）：<span class="math inline">\(m(x) = \int
+f(x|\theta)\pi(\theta) d\theta\)</span> 得到。</p>
+<hr />
+<p>证明从计算后验期望（即我们想要的去噪结果）开始： <span
+class="math display">\[
+\mathbb{E}[\theta|x] = \int \theta f(\theta|x) d\theta
+\]</span></p>
+<p>之后，我们使用了一个经典的<strong>“加一项减一项” (Add Zero
+Trick)</strong> 技巧：将 <span class="math inline">\(\theta\)</span>
+写成 <span class="math inline">\((\theta - x + x)\)</span>。 <span
+class="math display">\[
+\begin{align*}
+\mathbb{E}[\theta|x] &amp;= \int (\theta - x + x) f(\theta|x) d\theta \\
+&amp;= \underbrace{\int (\theta - x) f(\theta|x)
+d\theta}_{\text{第一部分：残差项}} + \underbrace{\int x f(\theta|x)
+d\theta}_{\text{第二部分：基准项}}
+\end{align*}
+\]</span> 第二部分很简单：因为 <span class="math inline">\(x\)</span>
+对于积分变量 <span class="math inline">\(\theta\)</span>
+来说是常数，且概率密度积分为1，所以这一项就是 <span
+class="math inline">\(x\)</span>。这对应了公式 <span
+class="math inline">\(\ref{eq:tweedie}\)</span> 里的第一项。</p>
+<p>第一部分是难点：利用贝叶斯公式 <span
+class="math inline">\(f(\theta|x) =
+\frac{f(x|\theta)\pi(\theta)}{m(x)}\)</span> 展开： <span
+class="math display">\[
+\text{Term 1} = \int (\theta - x) \frac{f(x|\theta)\pi(\theta)}{m(x)}
+d\theta = \frac{1}{m(x)} \int (\theta - x) f(x|\theta)\pi(\theta)
+d\theta
+\]</span></p>
+<p>为了处理上面那个积分里的 <span class="math inline">\((\theta - x)
+f(x|\theta)\)</span>，考虑对边际分布 <span
+class="math inline">\(m(x)\)</span> 求导： <span class="math display">\[
+m&#39;(x) = \frac{\partial}{\partial x} \int f(x|\theta)\pi(\theta)
+d\theta
+\]</span></p>
+<p>交换积分与微分符号，核心在于对高斯似然函数 <span
+class="math inline">\(f(x|\theta)\)</span> 求导： <span
+class="math display">\[
+f(x|\theta) = \frac{1}{\sqrt{2\pi}\sigma}
+e^{-\frac{(x-\theta)^2}{2\sigma^2}}
+\]</span></p>
+<p><span class="math display">\[\frac{\partial}{\partial x} f(x|\theta)
+= f(x|\theta) \cdot \left( -\frac{2(x-\theta)}{2\sigma^2} \right) =
+f(x|\theta) \frac{\theta - x}{\sigma^2}
+\]</span></p>
+<p>这样一来，导数里自动出现了我们刚才需要的 <span
+class="math inline">\((\theta - x)\)</span> 项！所以： <span
+class="math display">\[
+m&#39;(x) = \int \left( f(x|\theta) \frac{\theta - x}{\sigma^2} \right)
+\pi(\theta) d\theta
+\]</span></p>
+<p>移项整理得到： <span class="math display">\[
+\sigma^2 m&#39;(x) = \int (\theta - x) f(x|\theta)\pi(\theta) d\theta
+\]</span></p>
+<p>现在把第3步的结果代回第2步的式子中： <span class="math display">\[
+\begin{align*}
+\mathbb{E}[\theta|x] &amp;= x + \frac{1}{m(x)} \cdot \underbrace{\int
+(\theta - x) f(x|\theta)\pi(\theta) d\theta}_{\text{替换为 } \sigma^2
+m&#39;(x)} \\
+&amp;= x + \frac{1}{m(x)} \cdot \sigma^2 m&#39;(x) \\
+&amp;= x + \sigma^2 \frac{m&#39;(x)}{m(x)}
+\end{align*}
+\]</span> 利用对数导数性质 <span class="math inline">\(\frac{u&#39;}{u}
+= (\log u)&#39;\)</span>，最终得到： <span class="math display">\[
+\mathbb{E}[\theta|x] = x + \sigma^2 \frac{d}{dx} \log m(x)
+\]</span></p>
+</div>
+<p>由公式 <span
+class="math inline">\(\ref{eq:forward2}\)</span>，我们可以得到其均值
+<span class="math inline">\(\mu\)</span> 和方差 <span
+class="math inline">\(\sigma^2\)</span>。代入 Tweedie 公式中，可以得到
+<span class="math display">\[
+\begin{equation}
+\mathbb{E}[\boldsymbol{\mu}_{\boldsymbol{x}_t}|\boldsymbol{x}_t] =
+\boldsymbol{x}_t + (1 - \bar{\alpha}_t)\nabla_{\boldsymbol{x}_t} \log
+p(\boldsymbol{x}_t)
+\end{equation}
+\]</span></p>
+<p>注意我们用 <span class="math inline">\(\mu =
+\sqrt{\bar{\alpha}_t}\boldsymbol{x}_0\)</span> 来估计 <span
+class="math inline">\(\mathbb{E}[\boldsymbol{\mu}_{\boldsymbol{x}_t}|\boldsymbol{x}_t]\)</span>，可以有下式成立。
+<span class="math display">\[
+\begin{equation}
+\sqrt{\bar{\alpha}_t}\boldsymbol{x}_0 = \boldsymbol{x}_t + (1 -
+\bar{\alpha}_t)\nabla \log p(\boldsymbol{x}_t)
+\end{equation}
+\]</span></p>
+<p>最终可以得到 <span class="math inline">\(\boldsymbol{x}_0\)</span>
+和对数似然 <span class="math inline">\(\log p(\boldsymbol{x}_t)\)</span>
+之间的关系式 <span
+class="math inline">\(\ref{eq:build_x0_with_score}\)</span> <span
+class="math display">\[
+\begin{equation}
+\boldsymbol{x}_0 = \frac{\boldsymbol{x}_t + (1 - \bar{\alpha}_t)\nabla
+\log p(\boldsymbol{x}_t)}{\sqrt{\bar{\alpha}_t}}
+\label{eq:build_x0_with_score}
+\end{equation}
+\]</span></p>
+<p>我们现在有了用分数函数重建的 <span
+class="math inline">\(\boldsymbol{x}_0\)</span>，将其带入到 <span
+class="math inline">\(\ref{eq:reverse_gt_mu}\)</span>，然后进行一系列的化简，得到真实后验分布的均值
+<span class="math inline">\(\mu_q\)</span>，即 <span
+class="math display">\[
+\begin{align}
+\boldsymbol{\mu}_q(\boldsymbol{x}_t, \boldsymbol{x}_0) &amp;=
+\frac{\sqrt{\alpha_t}(1-\bar{\alpha}_{t-1})\boldsymbol{x}_t +
+\sqrt{\bar{\alpha}_{t-1}}(1-\alpha_t)\boldsymbol{x}_0}{1-\bar{\alpha}_t}
+\\
+&amp;= \frac{\sqrt{\alpha_t}(1-\bar{\alpha}_{t-1})\boldsymbol{x}_t +
+\sqrt{\bar{\alpha}_{t-1}}(1-\alpha_t) \frac{\boldsymbol{x}_t +
+(1-\bar{\alpha}_t)\nabla \log
+p(\boldsymbol{x}_t)}{\sqrt{\bar{\alpha}_t}}}{1-\bar{\alpha}_t} \\
+&amp;= \frac{\sqrt{\alpha_t}(1-\bar{\alpha}_{t-1})\boldsymbol{x}_t +
+(1-\alpha_t)\frac{\boldsymbol{x}_t + (1-\bar{\alpha}_t)\nabla \log
+p(\boldsymbol{x}_t)}{\sqrt{\alpha_t}}}{1-\bar{\alpha}_t} \\
+&amp;=
+\frac{\sqrt{\alpha_t}(1-\bar{\alpha}_{t-1})\boldsymbol{x}_t}{1-\bar{\alpha}_t}
++ \frac{(1-\alpha_t)\boldsymbol{x}_t}{(1-\bar{\alpha}_t)\sqrt{\alpha_t}}
++ \frac{(1-\alpha_t)(1-\bar{\alpha}_t)\nabla \log
+p(\boldsymbol{x}_t)}{(1-\bar{\alpha}_t)\sqrt{\alpha_t}} \\
+&amp;= \left(
+\frac{\sqrt{\alpha_t}(1-\bar{\alpha}_{t-1})}{1-\bar{\alpha}_t} +
+\frac{1-\alpha_t}{(1-\bar{\alpha}_t)\sqrt{\alpha_t}} \right)
+\boldsymbol{x}_t + \frac{1-\alpha_t}{\sqrt{\alpha_t}}\nabla \log
+p(\boldsymbol{x}_t) \\
+&amp;= \left(
+\frac{\alpha_t(1-\bar{\alpha}_{t-1})}{(1-\bar{\alpha}_t)\sqrt{\alpha_t}}
++ \frac{1-\alpha_t}{(1-\bar{\alpha}_t)\sqrt{\alpha_t}} \right)
+\boldsymbol{x}_t + \frac{1-\alpha_t}{\sqrt{\alpha_t}}\nabla \log
+p(\boldsymbol{x}_t) \\
+&amp;= \frac{\alpha_t - \bar{\alpha}_t + 1 -
+\alpha_t}{(1-\bar{\alpha}_t)\sqrt{\alpha_t}}\boldsymbol{x}_t +
+\frac{1-\alpha_t}{\sqrt{\alpha_t}}\nabla \log p(\boldsymbol{x}_t) \\
+&amp;= \frac{1 -
+\bar{\alpha}_t}{(1-\bar{\alpha}_t)\sqrt{\alpha_t}}\boldsymbol{x}_t +
+\frac{1-\alpha_t}{\sqrt{\alpha_t}}\nabla \log p(\boldsymbol{x}_t) \\
+&amp;= \frac{1}{\sqrt{\alpha_t}}\boldsymbol{x}_t +
+\frac{1-\alpha_t}{\sqrt{\alpha_t}}\nabla \log p(\boldsymbol{x}_t)
+\end{align}
+\]</span></p>
+<p>因此，这个时候我们可以设近似的后验分布均值为 <span
+class="math display">\[
+\begin{equation}
+\boldsymbol{\mu}_{\theta}(\boldsymbol{x}_t, t) =
+\frac{1}{\sqrt{\alpha_t}}\boldsymbol{x}_t +
+\frac{1-\alpha_t}{\sqrt{\alpha_t}}\boldsymbol{s}_{\theta}(\boldsymbol{x}_t,
+t)
+\end{equation}
+\]</span></p>
+<p>因此这个时候问题的优化目标就会转变成 <span class="math display">\[
+\begin{align}
+&amp; \underset{\theta}{\arg \min}
+D_{\text{KL}}(q(\boldsymbol{x}_{t-1}|\boldsymbol{x}_t, \boldsymbol{x}_0)
+\parallel p_{\theta}(\boldsymbol{x}_{t-1}|\boldsymbol{x}_t)) \\
+&amp;= \underset{\theta}{\arg \min}
+D_{\text{KL}}(\mathcal{N}(\boldsymbol{x}_{t-1}; \boldsymbol{\mu}_q,
+\boldsymbol{\Sigma}_q(t)) \parallel \mathcal{N}(\boldsymbol{x}_{t-1};
+\boldsymbol{\mu}_{\theta}, \boldsymbol{\Sigma}_q(t))) \\
+&amp;= \underset{\theta}{\arg \min} \frac{1}{2\sigma_q^2(t)} \left[
+\left\| \frac{1}{\sqrt{\alpha_t}}\boldsymbol{x}_t +
+\frac{1-\alpha_t}{\sqrt{\alpha_t}}\boldsymbol{s}_{\theta}(\boldsymbol{x}_t,
+t) - \frac{1}{\sqrt{\alpha_t}}\boldsymbol{x}_t -
+\frac{1-\alpha_t}{\sqrt{\alpha_t}}\nabla \log p(\boldsymbol{x}_t)
+\right\|_2^2 \right] \\
+&amp;= \underset{\theta}{\arg \min} \frac{1}{2\sigma_q^2(t)} \left[
+\left\|
+\frac{1-\alpha_t}{\sqrt{\alpha_t}}\boldsymbol{s}_{\theta}(\boldsymbol{x}_t,
+t) - \frac{1-\alpha_t}{\sqrt{\alpha_t}}\nabla \log p(\boldsymbol{x}_t)
+\right\|_2^2 \right] \\
+&amp;= \underset{\theta}{\arg \min} \frac{1}{2\sigma_q^2(t)} \left[
+\left\| \frac{1-\alpha_t}{\sqrt{\alpha_t}}
+(\boldsymbol{s}_{\theta}(\boldsymbol{x}_t, t) - \nabla \log
+p(\boldsymbol{x}_t)) \right\|_2^2 \right] \\
+&amp;= \underset{\theta}{\arg \min} \frac{1}{2\sigma_q^2(t)}
+\frac{(1-\alpha_t)^2}{\alpha_t} \left[
+\|\boldsymbol{s}_{\theta}(\boldsymbol{x}_t, t) - \nabla \log
+p(\boldsymbol{x}_t)\|_2^2 \right]
+\end{align}
+\]</span></p>
+<p>也就是神经网络所要学习的参数 <span
+class="math inline">\(\boldsymbol{s}_{\theta}(\boldsymbol{x}_t,
+t)\)</span> 与实际的分数函数 <span class="math inline">\(\log
+p(\boldsymbol{x}_t)\)</span> 的均方误差最小。</p>
+<h4
+id="使用分数函数与噪声预测之间的联系">使用分数函数与噪声预测之间的联系</h4>
+<p>在下面的式子中，左边是用 Tweedie 公式表示的 <span
+class="math inline">\(\boldsymbol{x}_0\)</span>，右边是用重参数化技巧表示的
+<span
+class="math inline">\(\boldsymbol{x}_0\)</span>。通过让两者相等，我们找到了连接两者的桥梁。之后消去分母
+<span class="math inline">\(\sqrt{\bar{\alpha}_t}\)</span> 和分子中的
+<span class="math inline">\(\boldsymbol{x}_t\)</span>，得到中间关系。
+<span class="math display">\[
+\begin{align}
+\boldsymbol{x}_0 &amp;= \frac{\boldsymbol{x}_t + (1 -
+\bar{\alpha}_t)\nabla \log p(\boldsymbol{x}_t)}{\sqrt{\bar{\alpha}_t}} =
+\frac{\boldsymbol{x}_t - \sqrt{1 -
+\bar{\alpha}_t}\boldsymbol{\epsilon}_0}{\sqrt{\bar{\alpha}_t}} \\
+\therefore (1 - \bar{\alpha}_t)\nabla \log p(\boldsymbol{x}_t) &amp;=
+-\sqrt{1 - \bar{\alpha}_t}\boldsymbol{\epsilon}_0 \\
+\nabla \log p(\boldsymbol{x}_t) &amp;= - \frac{1}{\sqrt{1 -
+\bar{\alpha}_t}}\boldsymbol{\epsilon}_0
+\end{align}
+\]</span></p>
+<p>最后，不难发现，我们<strong>学习分数函数，实际上就是在学习负的噪声</strong>。直觉来讲，噪声是使得我们的图像变得越来越混乱，最终接近于标准高斯分布（指向数据密度低的地方）。而分数函数则是通过梯度引导，使得指向数据密度高的地方。因此，两者的方向恰好相反，预测噪声
+<span class="math inline">\(\boldsymbol{\epsilon}_\theta\)</span>
+等价于预测分数 <span
+class="math inline">\(\boldsymbol{s}_\theta\)</span>，预测噪声就是在预测梯度的反方向。</p>
+<div class="note success flat"><p>🌞<strong>进一步加深对于 <span class="math inline">\(\log
+p(\boldsymbol{x}_t)\)</span> 的理解</strong></p>
+<p><span class="math inline">\(\log p(\boldsymbol{x}_t)\)</span>
+可以看作是上帝给这张图片 <span
+class="math inline">\(\boldsymbol{x}_t\)</span> 打的一个
+“真实性分数”。</p>
+<p><strong><span
+class="math inline">\(p(\boldsymbol{x}_t)\)</span>（概率密度）表示在
+<span class="math inline">\(t\)</span> 时刻，出现这张图片 <span
+class="math inline">\(\boldsymbol{x}_t\)</span>
+的概率有多大。</strong>而使用 <span class="math inline">\(\log
+p(\boldsymbol{x}_t)\)</span>（对数概率）是因为概率通常是极小的数（比如
+<span class="math inline">\(10^{-100}\)</span>），取对数后变成负数（比如
+<span
+class="math inline">\(-230\)</span>），数值上更容易处理，且变成了“加法”关系。</p>
+<hr />
+<p>举个例子🌰：</p>
+<p>假设 <span class="math inline">\(t=0\)</span>（无噪声阶段）：</p>
+<p>如果 <span class="math inline">\(\boldsymbol{x}_0\)</span>
+是<strong>一张清晰的猫的照片</strong>：它在真实数据分布中很常见，所以
+<span class="math inline">\(p(\boldsymbol{x}_0)\)</span> 很高，<span
+class="math inline">\(\log p(\boldsymbol{x}_0)\)</span>
+是一个较大的值（比如 -100）。</p>
+<p>如果 <span class="math inline">\(\boldsymbol{x}_0\)</span>
+是<strong>一张完全随机的乱码图</strong>：它在真实世界几乎不可能出现，所以
+<span class="math inline">\(p(\boldsymbol{x}_0)\)</span> 极低，<span
+class="math inline">\(\log p(\boldsymbol{x}_0)\)</span>
+是一个极小的值（比如 -100000）。</p>
+<p>因此，<strong><span class="math inline">\(\log
+p(\boldsymbol{x}_t)\)</span> 越大，说明这张图在当前时刻 <span
+class="math inline">\(t\)</span> 看起来越“正常”、越“合理”。</strong></p>
+</div>
+<h3 id="学习扩散模型噪声参数-alpha_t">学习扩散模型噪声参数 <span
+class="math inline">\(\alpha_t\)</span></h3>
+<p>在前面的学习中，我们一直假设了噪声参数 <span
+class="math inline">\(\alpha_t\)</span>
+是预先设定好的，因此可以在模型初始化的时候预先计算并缓存好所有的 <span
+class="math inline">\(\bar{\alpha_t}\)</span>
+等数据，需要的时候直接拿过来用即可。其实，<span
+class="math inline">\(\alpha_t\)</span>
+参数也是可以进行学习的，这一章将对其进行重点讨论。</p>
+<h4 id="alpha_t-的第一种学习方式"><span
+class="math inline">\(\alpha_t\)</span> 的第一种学习方式</h4>
+<p>第一种方法是我们可以直接构造一个神经网络来学习 <span
+class="math inline">\(\alpha_t =
+\hat{\alpha}_\eta(t)\)</span>。这样一来每给定一个具体的时间步 <span
+class="math inline">\(t\)</span>，我们就可以调用模型来输出一个 <span
+class="math inline">\(\hat{\alpha}_\eta(t)\)</span>。但是这种方法的效率并不高，因为我们前面很多地方需要用到
+<span class="math inline">\(\bar{\alpha}_t\)</span>
+这种连乘形式，这样一来需要调用模型多次。当然我们也可以对连乘项预计算并缓存，但是由于
+<span class="math inline">\(\alpha_t\)</span>
+此时是学习参数，会动态更新。而一旦更新后，原先的缓存值便已失效，我们不得不重新计算缓存，总体来说效率依旧不高。</p>
+<h4 id="alpha_t-的第二种学习方式"><span
+class="math inline">\(\alpha_t\)</span> 的第二种学习方式</h4>
+<p>第二种方法则是从公式 <span
+class="math inline">\(\ref{eq:KL_x0}\)</span> 入手，将方差 <span
+class="math inline">\(\sigma_q^2(t)\)</span>
+代入后，对其进行进一步的变换，最后裂项得到对称的形式： <span
+class="math display">\[
+\begin{align}
+\frac{1}{2\sigma_q^2(t)}
+\frac{\bar{\alpha}_{t-1}(1-\alpha_t)^2}{(1-\bar{\alpha}_t)^2} \left[
+\|\hat{\boldsymbol{x}}_{\theta}(\boldsymbol{x}_t, t) -
+\boldsymbol{x}_0\|_2^2 \right]
+&amp;= \frac{1}{2
+\frac{(1-\alpha_t)(1-\bar{\alpha}_{t-1})}{1-\bar{\alpha}_t}}
+\frac{\bar{\alpha}_{t-1}(1-\alpha_t)^2}{(1-\bar{\alpha}_t)^2} \left[
+\|\hat{\boldsymbol{x}}_{\theta}(\boldsymbol{x}_t, t) -
+\boldsymbol{x}_0\|_2^2 \right] \\
+&amp;= \frac{1}{2}
+\frac{1-\bar{\alpha}_t}{(1-\alpha_t)(1-\bar{\alpha}_{t-1})}
+\frac{\bar{\alpha}_{t-1}(1-\alpha_t)^2}{(1-\bar{\alpha}_t)^2} \left[
+\|\hat{\boldsymbol{x}}_{\theta}(\boldsymbol{x}_t, t) -
+\boldsymbol{x}_0\|_2^2 \right] \\
+&amp;= \frac{1}{2}
+\frac{\bar{\alpha}_{t-1}(1-\alpha_t)}{(1-\bar{\alpha}_{t-1})(1-\bar{\alpha}_t)}
+\left[ \|\hat{\boldsymbol{x}}_{\theta}(\boldsymbol{x}_t, t) -
+\boldsymbol{x}_0\|_2^2 \right] \\
+&amp;= \frac{1}{2} \frac{\bar{\alpha}_{t-1} -
+\bar{\alpha}_t}{(1-\bar{\alpha}_{t-1})(1-\bar{\alpha}_t)} \left[
+\|\hat{\boldsymbol{x}}_{\theta}(\boldsymbol{x}_t, t) -
+\boldsymbol{x}_0\|_2^2 \right] \\
+&amp;= \frac{1}{2} \frac{\bar{\alpha}_{t-1} -
+\bar{\alpha}_{t-1}\bar{\alpha}_t + \bar{\alpha}_{t-1}\bar{\alpha}_t -
+\bar{\alpha}_t}{(1-\bar{\alpha}_{t-1})(1-\bar{\alpha}_t)} \left[
+\|\hat{\boldsymbol{x}}_{\theta}(\boldsymbol{x}_t, t) -
+\boldsymbol{x}_0\|_2^2 \right] \\
+&amp;= \frac{1}{2} \frac{\bar{\alpha}_{t-1}(1-\bar{\alpha}_t) -
+\bar{\alpha}_t(1-\bar{\alpha}_{t-1})}{(1-\bar{\alpha}_{t-1})(1-\bar{\alpha}_t)}
+\left[ \|\hat{\boldsymbol{x}}_{\theta}(\boldsymbol{x}_t, t) -
+\boldsymbol{x}_0\|_2^2 \right] \\
+&amp;= \frac{1}{2} \left(
+\frac{\bar{\alpha}_{t-1}(1-\bar{\alpha}_t)}{(1-\bar{\alpha}_{t-1})(1-\bar{\alpha}_t)}
+-
+\frac{\bar{\alpha}_t(1-\bar{\alpha}_{t-1})}{(1-\bar{\alpha}_{t-1})(1-\bar{\alpha}_t)}
+\right) \left[ \|\hat{\boldsymbol{x}}_{\theta}(\boldsymbol{x}_t, t) -
+\boldsymbol{x}_0\|_2^2 \right] \\
+&amp;= \frac{1}{2} \left(
+\frac{\bar{\alpha}_{t-1}}{1-\bar{\alpha}_{t-1}} -
+\frac{\bar{\alpha}_t}{1-\bar{\alpha}_t} \right) \left[
+\|\hat{\boldsymbol{x}}_{\theta}(\boldsymbol{x}_t, t) -
+\boldsymbol{x}_0\|_2^2 \right] \label{eq:KL_alpha}
+\end{align}
+\]</span></p>
+<div class="note warning flat"><p>🎈对于高斯分布 <span class="math inline">\(X \sim \mathcal{N}(x; \mu,
+\sigma^2)\)</span>，信噪比的定义为： <span class="math display">\[
+\text{SNR} = \frac{\mu^2}{\sigma^2}
+\]</span></p>
+</div>
+<p>回忆我们 <span class="math inline">\(q(\boldsymbol{x}_t |
+\boldsymbol{x}_0) = \mathcal{N}(\boldsymbol{x}_t; \sqrt{\bar{\alpha_t}},
+1 - \bar{\alpha_t}\mathbf{I})\)</span>，于是由 SNR 的定义，可以有：
+<span class="math display">\[
+\begin{equation}
+\text{SNR} = \frac{\bar{\alpha_t}}{1 - \bar{\alpha_t}}
+\label{eq:snr_def}
+\end{equation}
+\]</span></p>
+<p>将 <span class="math inline">\(\ref{eq:snr_def}\)</span> 代入到 <span
+class="math inline">\(\ref{eq:KL_alpha}\)</span>，我们有 <span
+class="math display">\[
+\frac{1}{2\sigma_q^2(t)}
+\frac{\bar{\alpha}_{t-1}(1-\alpha_t)^2}{(1-\bar{\alpha}_t)^2} \left[
+\|\hat{\boldsymbol{x}}_{\theta}(\boldsymbol{x}_t, t) -
+\boldsymbol{x}_0\|_2^2 \right] = \frac{1}{2} \left( \text{SNR}(t-1) -
+\text{SNR}(t) \right) \left[
+\|\hat{\boldsymbol{x}}_{\theta}(\boldsymbol{x}_t, t) -
+\boldsymbol{x}_0\|_2^2 \right]
+\]</span></p>
+<p>注意我们的 <span class="math inline">\(\alpha_t &lt; 1\)</span>
+恒成立，因此在式 <span class="math inline">\(\ref{eq:snr_def}\)</span>
+中，随着时间步 <span class="math inline">\(t\)</span> 的增大，分子 <span
+class="math inline">\(\bar{\alpha_t}\)</span> 会越来越小，而分母 <span
+class="math inline">\(1 - \bar{\alpha_t}\)</span>
+则会越来越大，所以<strong>信噪比 SNR 是随着 <span
+class="math inline">\(t\)</span>
+的增大而单调递增的。</strong>直观理解，这一性质是显然的，因为随着时间步
+<span class="math inline">\(t\)</span>
+的增大，我们的加噪就一个让信噪比越来越大的过程。因此，我们可以利用神经网络设计一个单调递增的函数
+<span class="math inline">\(\omega_\eta(t)\)</span>，然后定义 SNR 如式
+<span class="math inline">\(\ref{eq:snr_dec}\)</span> 所示。 <span
+class="math display">\[
+\begin{equation}
+\text{SNR}(t) = \text{exp}(-\omega_\eta(t)) \label{eq:snr_dec}
+\end{equation}
+\]</span></p>
+<div class="note danger flat"><p><strong>❓怎么才能够保证设计的神经网络是单调递增的呢？</strong></p>
+</div>
+<p><span class="math display">\[
+\begin{align}
+&amp;\frac{\bar{\alpha}_t}{1 - \bar{\alpha}_t} =
+\exp(-\omega_{\boldsymbol{\eta}}(t)) \\
+&amp;\therefore \bar{\alpha}_t =
+\text{sigmoid}(-\omega_{\boldsymbol{\eta}}(t)) \\
+&amp;\therefore 1 - \bar{\alpha}_t =
+\text{sigmoid}(\omega_{\boldsymbol{\eta}}(t))
+\end{align}
+\]</span></p>
+<div class="note info flat"><p><span class="math inline">\(\text{sigmoid}\)</span>
+函数是一个单调递增的函数，其表达式为 <span class="math display">\[
+\text{sigmoid}(x) = \frac{1}{1 + e^{-x}}
+\]</span></p>
+</div>
+<p>这就是第二种方法！在这一思路下，我们对原先的公式进行进一步处理，发现最终的优化目标其实只与
+<span class="math inline">\(\bar{\alpha_t}\)</span>
+这种连乘形式的有关。所以我们直接使用一个神经网络来预测 <span
+class="math inline">\(\bar{\alpha_t}\)</span>
+即可。同时，我们还通过设计的神经网络，保证了其参数的性质，例如函数的单调性。</p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>文章作者: </span><span class="post-copyright-info"><a href="https://Ardbr.github.io">creat</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>文章链接: </span><span class="post-copyright-info"><a href="https://ardbr.github.io/2026/02/10/notes/diffusion/diffusion-Ch02/">https://ardbr.github.io/2026/02/10/notes/diffusion/diffusion-Ch02/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来源 <a href="https://Ardbr.github.io" target="_blank">creat's HomePage</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/Diffusion/">Diffusion</a></div><div class="post-share"><div class="social-share" data-image="/img/avatar.gif" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><a class="pagination-related" href="/2026/02/11/notes/diffusion/diffusion-Ch03/" title="diffusion Ch03"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info"><div class="info-1"><div class="info-item-1">上一篇</div><div class="info-item-2">diffusion Ch03</div></div><div class="info-2"><div class="info-item-1">条件扩散模型 至此，我们研究的都只是简单的分布 \(p(\boldsymbol{x})\)，然而，在实际应用中，我们经常会对形如 \(p(\boldsymbol{x} | y)\) 这种有条件的分布更感兴趣。这样一来，我们就可以通过条件 \(y\) 来对生成的数据 \(\boldsymbol{x}\) 进行控制。例如，在 image-text 生成模型中，\(y\) 就可以被视作对于输入文本 text 的编码。 回忆我们之前的联合概率密度公式 \[ \begin{equation} p(\boldsymbol{x}_{0:T}) = p(\boldsymbol{x}_T) \prod_{t=1}^{T} p_{\theta}(\boldsymbol{x}_{t-1}|\boldsymbol{x}_t) \label{eq:dist_uncond} \end{equation} \] 我们在分布 \(p(\cdot)\) 中注入条件 \(y\)，即 \(p(\cdot | y)\)，公式 \(\ref{eq:dist_uncond}\) 就会转变成...</div></div></div></a><a class="pagination-related" href="/2026/02/09/notes/diffusion/diffusion-Ch01/" title="diffusion Ch01"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-right"><div class="info-1"><div class="info-item-1">下一篇</div><div class="info-item-2">diffusion Ch01</div></div><div class="info-2"><div class="info-item-1">生成模型的定义 生成模型是从给定的一堆数据样本中，学习数据的真正分布（由观测样本学习到真实分布），即 \(x \rightarrow p(x)\)。 作用：  任意生成一个新的样本 评估观测或者采样数据的似然度（likelihood）  现有的生成模型：  GAN：以对抗的方式从复杂的分布中采样 基于似然的生成模型，比如自回归、归一化流、VAE 变分自编码器 基于能量函数建模：把分布学习变为学习能量函数 基于分数的生成模型：不学习能量函数，而是能量函数的分数来评判神经网络  我们需要引入“潜变量”，一般记为 \(z\)。观测变量也就是数据样本 \(x\)，一般只是潜变量的一部分（某一维度）的投射。对于隐变量而言，我们一般应该寻找低维的，而不是高维的。原因有二：  没有更强的先验知识，学习高维的隐变量是不可能的 低维隐变量的表示是一种压缩形式，语义上可能会更有意义  证据下界（Evidence Lower Bound） 我们可以通过联合密度 \(p(x, z)\) 对观测样本和隐变量进行建模。而由联合密度得到似然函数 \(p(x)\)...</div></div></div></a></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><a class="pagination-related" href="/2026/02/09/notes/diffusion/diffusion-Ch01/" title="diffusion Ch01"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2026-02-09</div><div class="info-item-2">diffusion Ch01</div></div><div class="info-2"><div class="info-item-1">生成模型的定义 生成模型是从给定的一堆数据样本中，学习数据的真正分布（由观测样本学习到真实分布），即 \(x \rightarrow p(x)\)。 作用：  任意生成一个新的样本 评估观测或者采样数据的似然度（likelihood）  现有的生成模型：  GAN：以对抗的方式从复杂的分布中采样 基于似然的生成模型，比如自回归、归一化流、VAE 变分自编码器 基于能量函数建模：把分布学习变为学习能量函数 基于分数的生成模型：不学习能量函数，而是能量函数的分数来评判神经网络  我们需要引入“潜变量”，一般记为 \(z\)。观测变量也就是数据样本 \(x\)，一般只是潜变量的一部分（某一维度）的投射。对于隐变量而言，我们一般应该寻找低维的，而不是高维的。原因有二：  没有更强的先验知识，学习高维的隐变量是不可能的 低维隐变量的表示是一种压缩形式，语义上可能会更有意义  证据下界（Evidence Lower Bound） 我们可以通过联合密度 \(p(x, z)\) 对观测样本和隐变量进行建模。而由联合密度得到似然函数 \(p(x)\)...</div></div></div></a><a class="pagination-related" href="/2026/02/15/notes/diffusion/diffusion-Ch04/" title="diffusion Ch04"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2026-02-15</div><div class="info-item-2">diffusion Ch04</div></div><div class="info-2"><div class="info-item-1">扩散模型中 reverse-time SDE 推导 待补充，参考  两类扩散模型了解 朗之万动力学去噪分数匹配（SMLD） 我们设定扰动核 \(p_{\sigma}(\tilde{x}|x) := \mathcal{N}(\tilde{x}; x, \sigma^2\mathbf{I})\)，以及扰动（加噪）后的数据边缘概率分布为 \(p_\sigma(\tilde{x}) := \int p_\sigma(\tilde{x}|x) p_\text{data}(x)\text{d}x\)。 考虑一个噪声序列 \(\sigma_\text{min} = \sigma_1 &lt; \sigma_2 &lt; \dots &lt; \sigma_N = \sigma_\text{max}\)，这也就是说每一步的加噪会越来越大。其中，\(\sigma_\text{min}\) 足够小，能够使得 \(p_{\sigma_\text{min}} \approx p_\text{data}(x)\)，\(\sigma_\text{max}\) 足够大，能够使得...</div></div></div></a><a class="pagination-related" href="/2026/02/11/notes/diffusion/diffusion-Ch03/" title="diffusion Ch03"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2026-02-11</div><div class="info-item-2">diffusion Ch03</div></div><div class="info-2"><div class="info-item-1">条件扩散模型 至此，我们研究的都只是简单的分布 \(p(\boldsymbol{x})\)，然而，在实际应用中，我们经常会对形如 \(p(\boldsymbol{x} | y)\) 这种有条件的分布更感兴趣。这样一来，我们就可以通过条件 \(y\) 来对生成的数据 \(\boldsymbol{x}\) 进行控制。例如，在 image-text 生成模型中，\(y\) 就可以被视作对于输入文本 text 的编码。 回忆我们之前的联合概率密度公式 \[ \begin{equation} p(\boldsymbol{x}_{0:T}) = p(\boldsymbol{x}_T) \prod_{t=1}^{T} p_{\theta}(\boldsymbol{x}_{t-1}|\boldsymbol{x}_t) \label{eq:dist_uncond} \end{equation} \] 我们在分布 \(p(\cdot)\) 中注入条件 \(y\)，即 \(p(\cdot | y)\)，公式 \(\ref{eq:dist_uncond}\) 就会转变成...</div></div></div></a></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info text-center"><div class="avatar-img"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/img/avatar.gif" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info-name">creat</div><div class="author-info-description"></div><div class="site-data"><a href="/archives/"><div class="headline">文章</div><div class="length-num">36</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">8</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">5</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/ardbr"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons"><a class="social-icon" href="https://github.com/Ardbr" target="_blank" title="Github"><i class="fab fa-github" style="color: #24292e;"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">希望每天都能输出一点新知识😌</div></div><div class="card-widget card-countdown"><div class="countdown-mask"><div class="text-container"><p>2026 年已经过去</p><span class="countdown-number">xx</span><span class="countdown-unit">天</span></div><div class="current-time-container"> <span class="current-time"></span></div></div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%89%A9%E6%95%A3%E6%A8%A1%E5%9E%8B%E4%BC%98%E5%8C%96%E7%9B%AE%E6%A0%87%E5%9C%A8%E9%AB%98%E6%96%AF%E9%99%90%E5%88%B6%E6%9D%A1%E4%BB%B6%E5%8A%A0%E5%99%AA%E8%BF%87%E7%A8%8B%E4%B8%8B%E7%9A%84%E6%9C%80%E7%BB%88%E5%BD%A2%E5%BC%8F%E5%8F%98%E5%8C%96%E6%80%9D%E8%B7%AF"><span class="toc-number">1.</span> <span class="toc-text">扩散模型优化目标在高斯限制条件（加噪过程）下的最终形式变化思路</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%89%8D%E5%90%91%E5%8A%A0%E5%99%AA%E8%BF%87%E7%A8%8B"><span class="toc-number">1.1.</span> <span class="toc-text">前向加噪过程</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%89%8D%E5%90%91%E5%8A%A0%E5%99%AA%E7%9A%84%E5%85%AC%E5%BC%8F%E6%8E%A8%E5%AF%BC"><span class="toc-number">1.1.1.</span> <span class="toc-text">前向加噪的公式推导</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%85%AC%E5%BC%8F%E9%9A%BE%E7%82%B9%E8%A7%A3%E9%87%8A"><span class="toc-number">1.1.2.</span> <span class="toc-text">公式难点解释</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%9C%9F%E5%AE%9E%E5%8E%BB%E5%99%AA%E5%88%86%E5%B8%83%E8%A1%A8%E7%A4%BA"><span class="toc-number">1.2.</span> <span class="toc-text">真实去噪分布表示</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%BF%91%E4%BC%BC%E5%8E%BB%E5%99%AA%E5%88%86%E5%B8%83%E8%A1%A8%E7%A4%BA"><span class="toc-number">1.3.</span> <span class="toc-text">近似去噪分布表示</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%BF%9B%E4%B8%80%E6%AD%A5%E7%AE%80%E5%8C%96-kl-%E6%95%A3%E5%BA%A6"><span class="toc-number">1.4.</span> <span class="toc-text">进一步简化 \(KL\) 散度</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#mu-%E7%9A%84%E4%B8%8D%E5%90%8C%E8%AE%BE%E5%AE%9A"><span class="toc-number">1.5.</span> <span class="toc-text">\(\mu\)
+的不同设定</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%88%A9%E7%94%A8-x_0-%E8%BF%9B%E8%A1%8C%E8%AE%BE%E5%AE%9A"><span class="toc-number">1.5.1.</span> <span class="toc-text">利用 \(x_0\)
+进行设定</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%88%A9%E7%94%A8-epsilon_t-%E8%BF%9B%E8%A1%8C%E8%AE%BE%E5%AE%9A"><span class="toc-number">1.5.2.</span> <span class="toc-text">利用 \(\epsilon_t\) 进行设定</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%88%A9%E7%94%A8%E5%88%86%E6%95%B0%E5%87%BD%E6%95%B0%E8%BF%9B%E8%A1%8C%E8%AE%BE%E5%AE%9A"><span class="toc-number">1.5.3.</span> <span class="toc-text">利用分数函数进行设定</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%BD%BF%E7%94%A8%E5%88%86%E6%95%B0%E5%87%BD%E6%95%B0%E4%B8%8E%E5%99%AA%E5%A3%B0%E9%A2%84%E6%B5%8B%E4%B9%8B%E9%97%B4%E7%9A%84%E8%81%94%E7%B3%BB"><span class="toc-number">1.5.4.</span> <span class="toc-text">使用分数函数与噪声预测之间的联系</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%AD%A6%E4%B9%A0%E6%89%A9%E6%95%A3%E6%A8%A1%E5%9E%8B%E5%99%AA%E5%A3%B0%E5%8F%82%E6%95%B0-alpha_t"><span class="toc-number">1.6.</span> <span class="toc-text">学习扩散模型噪声参数 \(\alpha_t\)</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#alpha_t-%E7%9A%84%E7%AC%AC%E4%B8%80%E7%A7%8D%E5%AD%A6%E4%B9%A0%E6%96%B9%E5%BC%8F"><span class="toc-number">1.6.1.</span> <span class="toc-text">\(\alpha_t\) 的第一种学习方式</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#alpha_t-%E7%9A%84%E7%AC%AC%E4%BA%8C%E7%A7%8D%E5%AD%A6%E4%B9%A0%E6%96%B9%E5%BC%8F"><span class="toc-number">1.6.2.</span> <span class="toc-text">\(\alpha_t\) 的第二种学习方式</span></a></li></ol></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2026/02/15/notes/diffusion/diffusion-Ch04/" title="diffusion Ch04">diffusion Ch04</a><time datetime="2026-02-15T15:08:41.405Z" title="更新于 2026-02-15 23:08:41">2026-02-15</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2026/02/12/notes/flow_matching/flow-matching-Ch01/" title="flow_matching Ch01">flow_matching Ch01</a><time datetime="2026-02-15T02:43:06.395Z" title="更新于 2026-02-15 10:43:06">2026-02-15</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2026/02/14/notes/flow_matching/flow-matching-Ch02/" title="flow_matching Ch02">flow_matching Ch02</a><time datetime="2026-02-15T02:43:02.711Z" title="更新于 2026-02-15 10:43:02">2026-02-15</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2026/02/11/notes/diffusion/diffusion-Ch03/" title="diffusion Ch03">diffusion Ch03</a><time datetime="2026-02-15T02:42:57.148Z" title="更新于 2026-02-15 10:42:57">2026-02-15</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2026/02/10/notes/diffusion/diffusion-Ch02/" title="diffusion Ch02">diffusion Ch02</a><time datetime="2026-02-12T03:36:56.512Z" title="更新于 2026-02-12 11:36:56">2026-02-12</time></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">&copy;2024 - 2026 By creat</div><div class="footer_custom_text">很高兴你能看到这里！</div></div></footer></div><div id="leftside-fps"><span id="leftside-fps-text"></span></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="日间和夜间模式切换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/instant.page/instantpage.min.js" type="module"></script><script src="https://cdn.jsdelivr.net/npm/vanilla-lazyload/dist/lazyload.iife.min.js"></script><script src="https://cdn.jsdelivr.net/npm/node-snackbar/dist/snackbar.min.js"></script><div class="js-pjax"><script>(() => {
+  const loadMathjax = () => {
+    if (!window.MathJax) {
+      window.MathJax = {
+        tex: {
+          inlineMath: [['$', '$'], ['\\(', '\\)']],
+          tags: 'ams',
+        },
+        chtml: {
+          scale: 1.1
+        },
+        options: {
+          enableMenu: true,
+          renderActions: {
+            findScript: [10, doc => {
+              for (const node of document.querySelectorAll('script[type^="math/tex"]')) {
+                const display = !!node.type.match(/; *mode=display/)
+                const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display)
+                const text = document.createTextNode('')
+                node.parentNode.replaceChild(text, node)
+                math.start = {node: text, delim: '', n: 0}
+                math.end = {node: text, delim: '', n: 0}
+                doc.math.push(math)
+              }
+            }, '']
+          }
+        }
+      }
+      
+      const script = document.createElement('script')
+      script.src = 'https://cdn.jsdelivr.net/npm/mathjax/es5/tex-mml-chtml.min.js'
+      script.id = 'MathJax-script'
+      script.async = true
+      document.head.appendChild(script)
+    } else {
+      MathJax.startup.document.state(0)
+      MathJax.texReset()
+      MathJax.typesetPromise()
+    }
+  }
+
+  btf.addGlobalFn('encrypt', loadMathjax, 'mathjax')
+  window.pjax ? loadMathjax() : window.addEventListener('load', loadMathjax)
+})()</script></div><script src=/js/sakuraPlus.js></script><script src=/js/parseLyric.js></script><script src=/js/music.js></script><script src=/js/getFps.js></script><script src=/js/countdown.js></script><script src=/js/mathjax.js></script><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/dist/activate-power-mode.min.js"></script><script>POWERMODE.colorful = true;
+POWERMODE.shake = true;
+POWERMODE.mobile = false;
+document.body.addEventListener('input', POWERMODE);
+</script><script src="https://cdn.jsdelivr.net/npm/pjax/pjax.min.js"></script><script>(() => {
+  const pjaxSelectors = ["head > title","#config-diff","#body-wrap","#rightside-config-hide","#rightside-config-show",".js-pjax"]
+
+  window.pjax = new Pjax({
+    elements: 'a:not([target="_blank"])',
+    selectors: pjaxSelectors,
+    cacheBust: false,
+    analytics: false,
+    scrollRestoration: false
+  })
+
+  const triggerPjaxFn = (val) => {
+    if (!val) return
+    Object.values(val).forEach(fn => fn())
+  }
+
+  document.addEventListener('pjax:send', () => {
+    // removeEventListener
+    btf.removeGlobalFnEvent('pjaxSendOnce')
+    btf.removeGlobalFnEvent('themeChange')
+
+    // reset readmode
+    const $bodyClassList = document.body.classList
+    if ($bodyClassList.contains('read-mode')) $bodyClassList.remove('read-mode')
+
+    triggerPjaxFn(window.globalFn.pjaxSend)
+  })
+
+  document.addEventListener('pjax:complete', () => {
+    btf.removeGlobalFnEvent('pjaxCompleteOnce')
+    document.querySelectorAll('script[data-pjax]').forEach(item => {
+      const newScript = document.createElement('script')
+      const content = item.text || item.textContent || item.innerHTML || ""
+      Array.from(item.attributes).forEach(attr => newScript.setAttribute(attr.name, attr.value))
+      newScript.appendChild(document.createTextNode(content))
+      item.parentNode.replaceChild(newScript, item)
+    })
+
+    triggerPjaxFn(window.globalFn.pjaxComplete)
+  })
+
+  document.addEventListener('pjax:error', e => {
+    if (e.request.status === 404) {
+      pjax.loadUrl('/404.html')
+    }
+  })
+})()</script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><span id="loading-status"></span><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="text-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据加载中</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"/></div></div><hr/><div id="local-search-results"></div><div id="local-search-stats-wrap"></div></div></div><div id="search-mask"></div><script src="/js/search/local-search.js"></script></div></div></body></html>

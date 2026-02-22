@@ -1,0 +1,534 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>diffusion Ch03 | creat's HomePage</title><meta name="author" content="creat"><meta name="copyright" content="creat"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="条件扩散模型 至此，我们研究的都只是简单的分布 \(p(\boldsymbol{x})\)，然而，在实际应用中，我们经常会对形如 \(p(\boldsymbol{x} | y)\) 这种有条件的分布更感兴趣。这样一来，我们就可以通过条件 \(y\) 来对生成的数据 \(\boldsymbol{x}\) 进行控制。例如，在 image-text 生成模型中，\(y\) 就可以被视作对于输入文本 te">
+<meta property="og:type" content="article">
+<meta property="og:title" content="diffusion Ch03">
+<meta property="og:url" content="https://ardbr.github.io/2026/02/11/notes/diffusion/diffusion-Ch03/index.html">
+<meta property="og:site_name" content="creat&#39;s HomePage">
+<meta property="og:description" content="条件扩散模型 至此，我们研究的都只是简单的分布 \(p(\boldsymbol{x})\)，然而，在实际应用中，我们经常会对形如 \(p(\boldsymbol{x} | y)\) 这种有条件的分布更感兴趣。这样一来，我们就可以通过条件 \(y\) 来对生成的数据 \(\boldsymbol{x}\) 进行控制。例如，在 image-text 生成模型中，\(y\) 就可以被视作对于输入文本 te">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://ardbr.github.io/img/avatar.gif">
+<meta property="article:published_time" content="2026-02-11T03:42:29.000Z">
+<meta property="article:modified_time" content="2026-02-15T02:42:57.148Z">
+<meta property="article:author" content="creat">
+<meta property="article:tag" content="Diffusion">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://ardbr.github.io/img/avatar.gif"><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="https://ardbr.github.io/2026/02/11/notes/diffusion/diffusion-Ch03/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/node-snackbar/dist/snackbar.min.css" media="print" onload="this.media='all'"><script>
+    (() => {
+      
+    const saveToLocal = {
+      set: (key, value, ttl) => {
+        if (!ttl) return
+        const expiry = Date.now() + ttl * 86400000
+        localStorage.setItem(key, JSON.stringify({ value, expiry }))
+      },
+      get: key => {
+        const itemStr = localStorage.getItem(key)
+        if (!itemStr) return undefined
+        const { value, expiry } = JSON.parse(itemStr)
+        if (Date.now() > expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return value
+      }
+    }
+
+    window.btf = {
+      saveToLocal,
+      getScript: (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        Object.entries(attr).forEach(([key, val]) => script.setAttribute(key, val))
+        script.onload = script.onreadystatechange = () => {
+          if (!script.readyState || /loaded|complete/.test(script.readyState)) resolve()
+        }
+        script.onerror = reject
+        document.head.appendChild(script)
+      }),
+      getCSS: (url, id) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onload = link.onreadystatechange = () => {
+          if (!link.readyState || /loaded|complete/.test(link.readyState)) resolve()
+        }
+        link.onerror = reject
+        document.head.appendChild(link)
+      }),
+      addGlobalFn: (key, fn, name = false, parent = window) => {
+        if (!true && key.startsWith('pjax')) return
+        const globalFn = parent.globalFn || {}
+        globalFn[key] = globalFn[key] || {}
+        globalFn[key][name || Object.keys(globalFn[key]).length] = fn
+        parent.globalFn = globalFn
+      }
+    }
+  
+      
+      const activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      const activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+
+      btf.activateDarkMode = activateDarkMode
+      btf.activateLightMode = activateLightMode
+
+      const theme = saveToLocal.get('theme')
+    
+          theme === 'dark' ? activateDarkMode() : theme === 'light' ? activateLightMode() : null
+        
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        document.documentElement.classList.toggle('hide-aside', asideStatus === 'hide')
+      }
+    
+      
+    const detectApple = () => {
+      if (/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)) {
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+  
+    })()
+  </script><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"/search.xml","preload":true,"top_n_per_article":10,"unescape":false,"languages":{"hits_empty":"未找到符合您查询的内容：${query}","hits_stats":"共找到 ${hits} 篇文章"}},
+  translate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":200,"highlightFullpage":false,"highlightMacStyle":"mac"},
+  copy: {
+    success: '复制成功',
+    error: '复制失败',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'null',
+  Snackbar: {"chs_to_cht":"已切换为繁体中文","cht_to_chs":"已切换为简体中文","day_to_night":"已切换为深色模式","night_to_day":"已切换为浅色模式","bgLight":"#49b1f5","bgDark":"#1f1f1f","position":"top-center"},
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid/dist/infinitegrid.min.js',
+    buttonText: '加载更多'
+  },
+  isPhotoFigcaption: false,
+  islazyload: true,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'diffusion Ch03',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  isShuoshuo: false
+}</script><link rel="stylesheet" href="/css/font.css"><link rel="stylesheet" href="/css/cursor.css"><link rel="stylesheet" href="/css/custom.css"><link rel="stylesheet" href="//at.alicdn.com/t/c/font_4746832_eb25gdpzci6.css"><meta name="generator" content="Hexo 7.3.0"></head><body><div id="web_bg" style="background-image: url(/img/background.png);"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img text-center"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/img/avatar.gif" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="site-data text-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">36</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">8</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">5</div></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 主页</span></a></div><div class="menus_item"><a class="site-page" href="/categories"><i class="fa-fw fas fa-book"></i><span> 学习资料</span></a></div><div class="menus_item"><a class="site-page" href="/link"><i class="fa-fw fas fa-globe"></i><span> 常用网站</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header"><nav id="nav"><span id="blog-info"><a class="nav-site-title" href="/"><img class="site-icon" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/img/favicon.png" alt="Logo"><span class="site-name">creat's HomePage</span></a><a class="nav-page-title" href="/"><span class="site-name">diffusion Ch03</span></a></span><div id="music-bar"><div id="music-cover-container"><div id="music-cover"></div></div><div id="music-button-container"><div id="music-button-container-top"><span class="music-icon iconfont icon-shangyishou" id="music-prev"></span><span class="music-icon iconfont icon-bofang" id="music-playOrPause"></span><span class="music-icon iconfont icon-xiayishou" id="music-next"></span><span class="music-icon iconfont icon-liebiaoxunhuan" id="music-mode"></span></div><div id="music-button-container-bottom"><div id="music-progressBar"><span id="music-currentProgress"></span><span id="music-dot"></span></div><span id="music-progressText">00:00 / 00:00</span></div></div><div id="music-name-container"><span id="music-name"></span></div><div id="music-lyric-container"><span id="music-lyric"></span></div></div><div id="menus"><div id="toggle-menu"><span class="site-page"></span><i class="fas fa-bars fa-fw"></i></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 主页</span></a></div><div class="menus_item"><a class="site-page" href="/categories"><i class="fa-fw fas fa-book"></i><span> 学习资料</span></a></div><div class="menus_item"><a class="site-page" href="/link"><i class="fa-fw fas fa-globe"></i><span> 常用网站</span></a></div></div><div id="search-button"><span class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> 搜索</span></span></div></div></nav><div id="post-info"><h1 class="post-title">diffusion Ch03</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2026-02-11T03:42:29.000Z" title="发表于 2026-02-11 11:42:29">2026-02-11</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2026-02-15T02:42:57.148Z" title="更新于 2026-02-15 10:42:57">2026-02-15</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/notes/">notes</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/notes/diffusion/">diffusion</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-wordcount"><i class="far fa-file-word fa-fw post-meta-icon"></i><span class="post-meta-label">总字数:</span><span class="word-count">2.6k</span><span class="post-meta-separator">|</span><i class="far fa-clock fa-fw post-meta-icon"></i><span class="post-meta-label">阅读时长:</span><span>10分钟</span></span><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title=""><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">浏览量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="container post-content" id="article-container"><h2 id="条件扩散模型">条件扩散模型</h2>
+<p>至此，我们研究的都只是简单的分布 <span
+class="math inline">\(p(\boldsymbol{x})\)</span>，然而，在实际应用中，我们经常会对形如
+<span class="math inline">\(p(\boldsymbol{x} | y)\)</span>
+这种有条件的分布更感兴趣。这样一来，我们就可以通过条件 <span
+class="math inline">\(y\)</span> 来对生成的数据 <span
+class="math inline">\(\boldsymbol{x}\)</span> 进行控制。例如，在
+image-text 生成模型中，<span class="math inline">\(y\)</span>
+就可以被视作对于输入文本 text 的编码。</p>
+<p>回忆我们之前的联合概率密度公式 <span class="math display">\[
+\begin{equation}
+p(\boldsymbol{x}_{0:T}) = p(\boldsymbol{x}_T) \prod_{t=1}^{T}
+p_{\theta}(\boldsymbol{x}_{t-1}|\boldsymbol{x}_t) \label{eq:dist_uncond}
+\end{equation}
+\]</span></p>
+<p>我们在分布 <span class="math inline">\(p(\cdot)\)</span> 中注入条件
+<span class="math inline">\(y\)</span>，即 <span
+class="math inline">\(p(\cdot | y)\)</span>，公式 <span
+class="math inline">\(\ref{eq:dist_uncond}\)</span> 就会转变成 <span
+class="math inline">\(\ref{eq:dist_cond}\)</span>。 <span
+class="math display">\[
+\begin{equation}
+p(\boldsymbol{x}_{0:T}|y) = p(\boldsymbol{x}_T) \prod_{t=1}^{T}
+p_{\theta}(\boldsymbol{x}_{t-1}|\boldsymbol{x}_t, y)
+\label{eq:dist_cond}
+\end{equation}
+\]</span></p>
+<p>在上一章节中，我们还研究了扩散模型对于 <span
+class="math inline">\(\mu_q\)</span>
+的三种设定方式，借此引出了三种不同的优化目标，即</p>
+<ul>
+<li>预测<strong>原始样本数据 <span
+class="math inline">\(x_0\)</span></strong>，即 <span
+class="math inline">\(\hat{\boldsymbol{x}}_{\theta}(\boldsymbol{x}_t, t,
+y) \approx \boldsymbol{x}_0\)</span>；</li>
+<li>预测<strong>噪声数据 <span
+class="math inline">\(\epsilon\)</span></strong>，即 <span
+class="math inline">\(\hat{\boldsymbol{\epsilon}}_{\theta}(\boldsymbol{x}_t,
+t, y) \approx \boldsymbol{\epsilon}_0\)</span>；</li>
+<li>预测<strong>分数 <span
+class="math inline">\(\boldsymbol{s}_\theta\)</span></strong>，即 <span
+class="math inline">\(\boldsymbol{s}_{\theta}(\boldsymbol{x}_t, t, y)
+\approx \nabla \log p(\boldsymbol{x}_t|y)\)</span>。</li>
+</ul>
+<p>如果直接利用公式 <span
+class="math inline">\(\ref{eq:dist_cond}\)</span>
+来进行条件扩散，我们会发现实际上效果很差，<span
+class="math inline">\(y\)</span>
+并没有起到什么很明显的作用，仅仅只是多添加了一个输入 <span
+class="math inline">\(y\)</span>，主影响因素仍然是原先的输入 <span
+class="math inline">\(\boldsymbol{x}_t\)</span> 和 <span
+class="math inline">\(t\)</span>，<span class="math inline">\(y\)</span>
+作为输入条件会被忽略或弱化掉。这一问题的解决是通过两种加强控制条件的方法实现的。</p>
+<p>下面，我们针对<strong>基于分数的（Score-based）</strong>来进行这两种条件扩散方法的说明。</p>
+<h3 id="classifier-guidance">Classifier Guidance</h3>
+<p>首先，我们还是利用贝叶斯公式，对基于分数的扩散模型的优化目标公式进行变换，最后可以得到两项梯度。
+<span class="math display">\[
+\begin{align}
+\nabla_{\boldsymbol{x}_t} \log p(\boldsymbol{x}_t|y) &amp;= \nabla \log
+\left( \frac{p(\boldsymbol{x}_t)p(y|\boldsymbol{x}_t)}{p(y)} \right) \\
+&amp;= \nabla \log p(\boldsymbol{x}_t) + \nabla \log
+p(y|\boldsymbol{x}_t) - \nabla \log p(y) \\
+&amp;= \underbrace{\nabla \log p(\boldsymbol{x}_t)}_{\text{unconditional
+score}} + \underbrace{\nabla \log
+p(y|\boldsymbol{x}_t)}_{\text{adversarial gradient}}
+\label{eq:classifier_guidance}
+\end{align}
+\]</span></p>
+<ul>
+<li><strong>Unconditional Score:</strong>
+这是一个普通的扩散模型，负责让图片看起来“像一张真实的图片”。</li>
+<li><strong>Adversarial Gradient:</strong>
+这是一个分类器（Classifier）的梯度。它告诉模型：“请把图片修改得更像类别
+<span
+class="math inline">\(y\)</span>”。这就像一个对抗攻击过程，强迫生成的图片向目标类别靠拢。</li>
+</ul>
+<p>最大化分数，也就是要最大化这两项对数似然，即<strong>“让图片看起来像一张真实的图片”</strong>，并且<strong>“这张图片满足我注入的条件”</strong>。</p>
+<div class="note info flat"><p>❓<strong>为什么叫做“分类器”？</strong></p>
+<p>“分类器”这个名字起得非常直白，就是因为它在数学本质上和工程实现上，真的引入了一个外部的图像分类模型（Image
+Classifier）。</p>
+<p>为了理解为什么要叫“分类器”，我们需要看公式中的这一项： <span
+class="math display">\[
+\nabla_{\boldsymbol{x}_t} \log p(y|\boldsymbol{x}_t)
+\]</span> 这里的核心是 <span
+class="math inline">\(p(y|\boldsymbol{x}_t)\)</span>。在机器学习中，<span
+class="math inline">\(p(y|\boldsymbol{x})\)</span>
+是判别式模型（Discriminative
+Model）的标准形式，也就是我们俗称的“分类器”。例如，它的输入 <span
+class="math inline">\(\boldsymbol{x}\)</span>
+是一张图片（在这里是加了噪声的图片 <span
+class="math inline">\(\boldsymbol{x}_t\)</span>）。输出 <span
+class="math inline">\(y\)</span>
+是这张图片属于哪个类别（比如“狗”、“猫”或“飞机”）的概率。这样的话任务就是给图片打标签。因为这一项
+<span class="math inline">\(p(y|\boldsymbol{x}_t)\)</span>
+的计算任务就是“判断当前的噪声图 <span
+class="math inline">\(\boldsymbol{x}_t\)</span> 像类别 <span
+class="math inline">\(y\)</span>
+的概率有多大”，所以执行这个任务的模型就被称为“分类器”。</p>
+</div>
+<p>为了进一步能够控制平衡好<strong>无条件项</strong>和<strong>对抗生成项</strong>，我们会引入一个额外的超参数
+<span class="math inline">\(\gamma\)</span>。 <span
+class="math display">\[
+\begin{equation}
+\nabla \log p(\boldsymbol{x}_t|y) = \nabla \log p(\boldsymbol{x}_t) +
+\gamma \nabla \log p(y|\boldsymbol{x}_t)
+\label{eq:classifier_guidance_gamma}
+\end{equation}
+\]</span></p>
+<ul>
+<li>当 <span class="math inline">\(\gamma = 0\)</span>
+时，我们不考虑对抗生成项，也就是完全不考虑条件 <span
+class="math inline">\(y\)</span>，仅仅只是让它生成图像。</li>
+<li>随着 <span class="math inline">\(\gamma\)</span>
+越来越大，模型对于对抗生成项的考虑权重越来越大，会更注意生成的图像是否能够满足条件
+<span class="math inline">\(y\)</span>。</li>
+</ul>
+<p>这种 Guidance
+最大的缺点在于，我们需要额外去学习一个分类器模型，也就是用于提供 <span
+class="math inline">\(\nabla_{\boldsymbol{x}_t} \log
+p(y|\boldsymbol{x}_t)\)</span>
+梯度的模型。它需要能够在我们给出任意时间步 <span
+class="math inline">\(t\)</span> 的数据 <span
+class="math inline">\(\boldsymbol{x}_t\)</span>
+时，输出这个时候它满足条件 <span class="math inline">\(y\)</span>
+的分数，这一点并不高效。</p>
+<h3 id="classifier-free-guidance">Classifier-Free Guidance</h3>
+<p>首先，我们对公式 <span
+class="math inline">\(\ref{eq:classifier_guidance}\)</span>
+进行一下变换，有 <span class="math display">\[
+\begin{equation}
+\nabla \log p(y|\boldsymbol{x}_t) = \nabla \log p(\boldsymbol{x}_t|y) -
+\nabla \log p(\boldsymbol{x}_t)
+\end{equation}
+\]</span></p>
+<p>然后，把这个式子代入到公式 <span
+class="math inline">\(\ref{eq:classifier_guidance_gamma}\)</span>
+中，会得到 <span class="math display">\[
+\begin{align}
+\nabla \log p(\boldsymbol{x}_t|y) &amp;= \nabla \log p(\boldsymbol{x}_t)
++ \gamma (\nabla \log p(\boldsymbol{x}_t|y) - \nabla \log
+p(\boldsymbol{x}_t)) \\
+&amp;= \nabla \log p(\boldsymbol{x}_t) + \gamma \nabla \log
+p(\boldsymbol{x}_t|y) - \gamma \nabla \log p(\boldsymbol{x}_t) \\
+&amp;= \underbrace{\gamma \nabla \log
+p(\boldsymbol{x}_t|y)}_{\text{conditional score}} + \underbrace{(1 -
+\gamma) \nabla \log p(\boldsymbol{x}_t)}_{\text{unconditional score}}
+\label{eq:classifier_free_gamma}
+\end{align}
+\]</span></p>
+<p>这个就是无分类器引导的公式。分析一下 <span
+class="math inline">\(\gamma\)</span> 取值带来的影响：</p>
+<ul>
+<li><span class="math inline">\(\gamma = 0\)</span> 时，<span
+class="math inline">\(p(\boldsymbol{x}_t|y)\)</span> 这一项为
+0，完全不考虑条件 <span class="math inline">\(y\)</span>；</li>
+<li><span class="math inline">\(0 &lt; \gamma &lt; 1\)</span>
+时，既考虑无条件项，又考虑了对抗生成项；</li>
+<li><span class="math inline">\(\gamma = 1\)</span>
+时，此时就是最原始的正常训练，之前该忽略 <span
+class="math inline">\(y\)</span> 的，就依旧忽略 <span
+class="math inline">\(y\)</span>；</li>
+<li><span class="math inline">\(\gamma &gt; 1\)</span>
+时，加强对抗生成项，也就是加强条件控制，而且此时由于 <span
+class="math inline">\(1 - \gamma &lt;
+0\)</span>，<strong>会导致模型生成远离无条件项</strong>。</li>
+</ul>
+<p>这个时候我们可以分别独立去训练两个模型，一个是 <span
+class="math inline">\(p(\boldsymbol{x}_t|y)\)</span>，另一个是 <span
+class="math inline">\(p(\boldsymbol{x}_t)\)</span>。但实际应用中，训练两个扩散模型成本过高，所以我们还是合并成一个模型使用公式
+<span class="math inline">\(\ref{eq:classifier_free_gamma}\)</span>
+进行训练，至于是否使用条件进行控制，则交给超参数 <span
+class="math inline">\(\gamma\)</span> 进行调节即可。</p>
+<h2 id="扩散模型-dm-的训练和推理核心逻辑">扩散模型 DM
+的训练和推理核心逻辑</h2>
+<p>这一节的重点内容是对前面所有 Diffusion Model
+知识点做一个串联工作，并由此展现出扩散模型训练和推理的整个核心逻辑。</p>
+<h3 id="加噪过程">加噪过程</h3>
+<p>在加噪过程中，从前面的知识点中，我们可以学习到在统一视角下，有着三种设定优化目标的方式，分别是预测原图
+<span
+class="math inline">\(\boldsymbol{x}_0\)</span>，预测任意给定时间步
+<span class="math inline">\(t\)</span> 的噪声 <span
+class="math inline">\(\epsilon_t\)</span>，或者预测分数函数 <span
+class="math inline">\(\boldsymbol{s}_\theta\)</span>。这里的预测是通过学习一个
+UNet 网络实现的。</p>
+<p>以 DDPM 论文作为参考，我们使用预测噪声的视角，这个时候的优化目标 ELBO
+可以写成 <span class="math display">\[
+\begin{equation}
+\| \epsilon_t - \hat{\epsilon}_\theta(\boldsymbol{x}_t, t) \|^2_2
+\end{equation}
+\]</span> 其中 <span class="math inline">\(\theta\)</span> 就是 UNet
+网络需要学习的参数。</p>
+<h3 id="去噪过程">去噪过程</h3>
+<p>去噪的过程本质就是一个采样的过程，即计算 <span
+class="math inline">\(p(\boldsymbol{x}_{t-1} |
+\boldsymbol{x}_t)\)</span>。</p>
+<p>去噪的流程见下方： <span class="math display">\[
+\begin{equation*}
+% 第一步：加噪与定义
+\underset{\substack{\color{green}\text{设定:} \\
+\color{green}\mathcal{N}(\boldsymbol{x}_t;
+\sqrt{\alpha_t}\boldsymbol{x}_{t-1},
+(1-\alpha_t)\mathbf{I})}}{\overset{\color{orange}\text{加噪}}{p(\boldsymbol{x}_t|\boldsymbol{x}_{t-1})}}
+\quad \xrightarrow{\text{推导}} \quad
+% 第二步：任意时刻的分布（Boxed）
+\boxed{
+\underset{\color{red}\text{累加式}}{\overset{\color{purple}\text{与学习
+U-Net 有关}}{p(\boldsymbol{x}_t|\boldsymbol{x}_0)}} }
+\quad \xrightarrow{\text{推导去噪}} \quad
+% 第三步：真实后验（Boxed）
+\boxed{
+\underset{\color{red}\text{贝叶斯公式}}{\overset{\color{purple}\text{采样}}{p(\boldsymbol{x}_{t-1}|\boldsymbol{x}_t,
+\boldsymbol{x}_0)}} }
+\quad \xrightarrow{\text{近似}} \quad
+% 第四步：模型预测
+p(\boldsymbol{x}_{t-1}|\boldsymbol{x}_t)
+\end{equation*}
+\]</span></p>
+<h3 id="训练流程">训练流程</h3>
+<div class="timeline "><div class='timeline-item'><div class='timeline-item-title'><div class='item-circle'><p>数据准备</p>
+</div></div><div class='timeline-item-content'><p>从数据集中随机选取一张图片 <span
+class="math inline">\(\boldsymbol{x}_0\)</span></p>
+</div></div><div class='timeline-item'><div class='timeline-item-title'><div class='item-circle'><p>时间步准备</p>
+</div></div><div class='timeline-item-content'><p>设定最大去噪步数为 <span
+class="math inline">\(T\)</span>，从均匀分布中随机采样一个时间步 <span
+class="math inline">\(t \sim U(1, T)\)</span>，获取 <span
+class="math inline">\(\alpha_t\)</span> 等数据</p>
+</div></div><div class='timeline-item'><div class='timeline-item-title'><div class='item-circle'><p>噪声准备</p>
+</div></div><div class='timeline-item-content'><p>从标准高斯分布中采样一个噪声 <span class="math inline">\(\epsilon_0
+\sim \mathcal{N}(0, I)\)</span></p>
+</div></div><div class='timeline-item'><div class='timeline-item-title'><div class='item-circle'><p>加噪</p>
+</div></div><div class='timeline-item-content'><p>根据公式 <span class="math display">\[
+\boldsymbol{x}_t = \sqrt{\bar{\alpha}_t} \boldsymbol{x}_0 + (1 -
+\bar{\alpha}_t) \epsilon_0
+\]</span></p>
+<p>计算获取 <span class="math inline">\(t\)</span> 步加噪后的噪图 <span
+class="math inline">\(\boldsymbol{x}_t\)</span></p>
+</div></div><div class='timeline-item'><div class='timeline-item-title'><div class='item-circle'><p>训练</p>
+</div></div><div class='timeline-item-content'><p>根据优化目标，训练 UNet 网络进行预测（以视角二——预测噪声为例）：
+<span class="math display">\[
+\epsilon_0 \approx \hat{\epsilon}_\theta(\boldsymbol{x}_t, t)
+\]</span></p>
+</div></div></div>
+<h3 id="推理流程">推理流程</h3>
+<div class="timeline "><div class='timeline-item'><div class='timeline-item-title'><div class='item-circle'><p>数据准备</p>
+</div></div><div class='timeline-item-content'><p>从标准高斯分布中采样一个全噪图 <span
+class="math inline">\(\boldsymbol{x}_T\)</span></p>
+</div></div><div class='timeline-item'><div class='timeline-item-title'><div class='item-circle'><p>从第 <span class="math inline">\(T-1\)</span>
+步开始迭代，预测每一步的噪声</p>
+</div></div><div class='timeline-item-content'><p>利用训练好的 UNet 网络预测当前时间步 <span
+class="math inline">\(t\)</span> 的噪声 <span
+class="math inline">\(\hat{\epsilon}_t(\boldsymbol{x}_t, t) \approx
+\epsilon_t\)</span></p>
+</div></div><div class='timeline-item'><div class='timeline-item-title'><div class='item-circle'><p>更新获取 <span
+class="math inline">\(\boldsymbol{x}_{t-1}\)</span></p>
+</div></div><div class='timeline-item-content'><p><span class="math display">\[
+\boldsymbol{x}_{t-1} \approx \mu_{\theta}(\boldsymbol{x}_t, t) =
+\frac{1}{\sqrt{\alpha_t}} \boldsymbol{x}_t -
+\frac{1-\alpha_t}{\sqrt{1-\bar{\alpha}_t}\sqrt{\alpha_t}}
+\hat{\epsilon}_{\theta}(\boldsymbol{x}_t, t)
+\]</span></p>
+</div></div></div>
+<div class="note danger flat"><p>✏️<strong>为什么说均值 <span
+class="math inline">\(\mu_\theta\)</span> 就是 <span
+class="math inline">\(x_{t-1}\)</span> 的近似值？</strong></p>
+<hr />
+<p>在扩散模型的逆向过程（Reverse
+Process）中，神经网络预测的不是一个“定值”，而是一个概率分布。</p>
+<p>我们假设 <span class="math inline">\(p_\theta(x_{t-1} | x_t)\)</span>
+是一个高斯分布（正态分布）： <span class="math display">\[
+p_\theta(x_{t-1} | x_t) = \mathcal{N}(x_{t-1};
+\boldsymbol{\mu}_\theta(x_t, t), \boldsymbol{\Sigma}_\theta(x_t, t))
+\]</span></p>
+<p><span
+class="math inline">\(\boldsymbol{\mu}_\theta\)</span>（均值）代表这个高斯分布的峰值位置，也就是概率最大的那个点。<span
+class="math inline">\(\boldsymbol{\Sigma}_\theta\)</span>（方差）代表不确定性，也就是可能的波动范围。</p>
+<p>为什么说它是近似值？当你从这个分布中采样得到 <span
+class="math inline">\(x_{t-1}\)</span> 时，公式是这样的： <span
+class="math display">\[
+x_{t-1} = \underbrace{\boldsymbol{\mu}_\theta(x_t,
+t)}_{\text{确定性部分（图像内容）}} + \underbrace{\sigma_t
+\boldsymbol{z}}_{\text{随机噪声}}
+\]</span></p>
+<p>其中 <span class="math inline">\(\boldsymbol{z} \sim \mathcal{N}(0,
+\mathbf{I})\)</span>。如果我们忽略随机噪声（即让 <span
+class="math inline">\(\boldsymbol{z}=0\)</span>），那么 <span
+class="math inline">\(x_{t-1}\)</span> 就完全等于 <span
+class="math inline">\(\boldsymbol{\mu}_\theta\)</span>。所以，<span
+class="math inline">\(\boldsymbol{\mu}_\theta\)</span>
+本质上就是去除了随机扰动后的 <span
+class="math inline">\(x_{t-1}\)</span> 的核心骨架。</p>
+</div>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>文章作者: </span><span class="post-copyright-info"><a href="https://Ardbr.github.io">creat</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>文章链接: </span><span class="post-copyright-info"><a href="https://ardbr.github.io/2026/02/11/notes/diffusion/diffusion-Ch03/">https://ardbr.github.io/2026/02/11/notes/diffusion/diffusion-Ch03/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来源 <a href="https://Ardbr.github.io" target="_blank">creat's HomePage</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/Diffusion/">Diffusion</a></div><div class="post-share"><div class="social-share" data-image="/img/avatar.gif" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><a class="pagination-related" href="/2026/02/12/notes/flow_matching/flow-matching-Ch01/" title="flow_matching Ch01"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info"><div class="info-1"><div class="info-item-1">上一篇</div><div class="info-item-2">flow_matching Ch01</div></div><div class="info-2"><div class="info-item-1">Flow Matching 总览 生成模型的目标 生成模型（GAN, VAE, Diffusion, Flow）的目标是已知样本 \(x_1 \sim q_1\) (未知)，用样本把未知分布估计出来。其中 \(x_1\) 代表真实数据（比如一张真实的狗的照片）。\(q_1\) 代表真实数据的分布（Data Distribution），这是上帝视角的分布，我们在数学上不知道它的解析式，但我们有从中采样出来的“样本”。 我们的目标就是通过有限的样本，训练一个模型去逼近这个未知的 \(q_1\)。 做法 为了达到这个目的，通常的做法是利用已知分布（通常为高斯分布/标准正态分布）来映射到未知分布 \(q_1\)，即： \[ q_0 \text{（已知分布）} \xrightarrow{\phi} q_1 \text{（待估计的未知分布）} \] 其中 \(\phi\) (Phi) 是一个映射函数（Mapping）。 💡生成模型的本质就是寻找一个映射 \(\phi\)，它能把简单的噪声 \(x_0\) “推”成复杂的图像 \(x_1\)。  两种求解路径 Normalizing...</div></div></div></a><a class="pagination-related" href="/2026/02/10/notes/diffusion/diffusion-Ch02/" title="diffusion Ch02"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-right"><div class="info-1"><div class="info-item-1">下一篇</div><div class="info-item-2">diffusion Ch02</div></div><div class="info-2"><div class="info-item-1">在上一章中，我们讲了 VDM 的第一种拆解方式，我们最终把 \(\text{ELBO}\) 拆解成了 3 项，分别是重建项、先验匹配项和一致项。这一种拆解的特点可总结如下：  三项都有期望，因此可以用蒙特卡洛方法来进行估计； “一致项”在时间步 \(t\) 的时候，与两个随机变量 \(\boldsymbol{x}_{t-1}\) 和 \(\boldsymbol{x}_{t+1}\) 都有关系，因此估计的方差会比单个变量估计的方差大。在“一致性项”中，模型试图让“从 \(t+1\) 推回 \(t\) 的分布”去匹配“从 \(t-1\) 推到 \(t\) 的分布”。因为 \(t+1\) 和 \(t-1\) 都是采样出来的随机样本，它们都在“抖动”，所以计算出来的 Loss 波动会非常大。 随着总扩散步 \(T\) 的增大，一致项估计方差也会线性增长。  因此，这一种的拆解方法并不实用。我们希望最后推导出来的公式，每一项都只与一个随机变量有关。 $$ \[\begin{align} \log p(\boldsymbol{x})...</div></div></div></a></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><a class="pagination-related" href="/2026/02/09/notes/diffusion/diffusion-Ch01/" title="diffusion Ch01"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2026-02-09</div><div class="info-item-2">diffusion Ch01</div></div><div class="info-2"><div class="info-item-1">生成模型的定义 生成模型是从给定的一堆数据样本中，学习数据的真正分布（由观测样本学习到真实分布），即 \(x \rightarrow p(x)\)。 作用：  任意生成一个新的样本 评估观测或者采样数据的似然度（likelihood）  现有的生成模型：  GAN：以对抗的方式从复杂的分布中采样 基于似然的生成模型，比如自回归、归一化流、VAE 变分自编码器 基于能量函数建模：把分布学习变为学习能量函数 基于分数的生成模型：不学习能量函数，而是能量函数的分数来评判神经网络  我们需要引入“潜变量”，一般记为 \(z\)。观测变量也就是数据样本 \(x\)，一般只是潜变量的一部分（某一维度）的投射。对于隐变量而言，我们一般应该寻找低维的，而不是高维的。原因有二：  没有更强的先验知识，学习高维的隐变量是不可能的 低维隐变量的表示是一种压缩形式，语义上可能会更有意义  证据下界（Evidence Lower Bound） 我们可以通过联合密度 \(p(x, z)\) 对观测样本和隐变量进行建模。而由联合密度得到似然函数 \(p(x)\)...</div></div></div></a><a class="pagination-related" href="/2026/02/15/notes/diffusion/diffusion-Ch04/" title="diffusion Ch04"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2026-02-15</div><div class="info-item-2">diffusion Ch04</div></div><div class="info-2"><div class="info-item-1">扩散模型中 reverse-time SDE 推导 待补充，参考  两类扩散模型了解 朗之万动力学去噪分数匹配（SMLD） 我们设定扰动核 \(p_{\sigma}(\tilde{x}|x) := \mathcal{N}(\tilde{x}; x, \sigma^2\mathbf{I})\)，以及扰动（加噪）后的数据边缘概率分布为 \(p_\sigma(\tilde{x}) := \int p_\sigma(\tilde{x}|x) p_\text{data}(x)\text{d}x\)。 考虑一个噪声序列 \(\sigma_\text{min} = \sigma_1 &lt; \sigma_2 &lt; \dots &lt; \sigma_N = \sigma_\text{max}\)，这也就是说每一步的加噪会越来越大。其中，\(\sigma_\text{min}\) 足够小，能够使得 \(p_{\sigma_\text{min}} \approx p_\text{data}(x)\)，\(\sigma_\text{max}\) 足够大，能够使得...</div></div></div></a><a class="pagination-related" href="/2026/02/10/notes/diffusion/diffusion-Ch02/" title="diffusion Ch02"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2026-02-10</div><div class="info-item-2">diffusion Ch02</div></div><div class="info-2"><div class="info-item-1">在上一章中，我们讲了 VDM 的第一种拆解方式，我们最终把 \(\text{ELBO}\) 拆解成了 3 项，分别是重建项、先验匹配项和一致项。这一种拆解的特点可总结如下：  三项都有期望，因此可以用蒙特卡洛方法来进行估计； “一致项”在时间步 \(t\) 的时候，与两个随机变量 \(\boldsymbol{x}_{t-1}\) 和 \(\boldsymbol{x}_{t+1}\) 都有关系，因此估计的方差会比单个变量估计的方差大。在“一致性项”中，模型试图让“从 \(t+1\) 推回 \(t\) 的分布”去匹配“从 \(t-1\) 推到 \(t\) 的分布”。因为 \(t+1\) 和 \(t-1\) 都是采样出来的随机样本，它们都在“抖动”，所以计算出来的 Loss 波动会非常大。 随着总扩散步 \(T\) 的增大，一致项估计方差也会线性增长。  因此，这一种的拆解方法并不实用。我们希望最后推导出来的公式，每一项都只与一个随机变量有关。 $$ \[\begin{align} \log p(\boldsymbol{x})...</div></div></div></a></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info text-center"><div class="avatar-img"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/img/avatar.gif" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info-name">creat</div><div class="author-info-description"></div><div class="site-data"><a href="/archives/"><div class="headline">文章</div><div class="length-num">36</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">8</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">5</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/ardbr"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons"><a class="social-icon" href="https://github.com/Ardbr" target="_blank" title="Github"><i class="fab fa-github" style="color: #24292e;"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">希望每天都能输出一点新知识😌</div></div><div class="card-widget card-countdown"><div class="countdown-mask"><div class="text-container"><p>2026 年已经过去</p><span class="countdown-number">xx</span><span class="countdown-unit">天</span></div><div class="current-time-container"> <span class="current-time"></span></div></div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%9D%A1%E4%BB%B6%E6%89%A9%E6%95%A3%E6%A8%A1%E5%9E%8B"><span class="toc-number">1.</span> <span class="toc-text">条件扩散模型</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#classifier-guidance"><span class="toc-number">1.1.</span> <span class="toc-text">Classifier Guidance</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#classifier-free-guidance"><span class="toc-number">1.2.</span> <span class="toc-text">Classifier-Free Guidance</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%89%A9%E6%95%A3%E6%A8%A1%E5%9E%8B-dm-%E7%9A%84%E8%AE%AD%E7%BB%83%E5%92%8C%E6%8E%A8%E7%90%86%E6%A0%B8%E5%BF%83%E9%80%BB%E8%BE%91"><span class="toc-number">2.</span> <span class="toc-text">扩散模型 DM
+的训练和推理核心逻辑</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%8A%A0%E5%99%AA%E8%BF%87%E7%A8%8B"><span class="toc-number">2.1.</span> <span class="toc-text">加噪过程</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%8E%BB%E5%99%AA%E8%BF%87%E7%A8%8B"><span class="toc-number">2.2.</span> <span class="toc-text">去噪过程</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%AE%AD%E7%BB%83%E6%B5%81%E7%A8%8B"><span class="toc-number">2.3.</span> <span class="toc-text">训练流程</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%8E%A8%E7%90%86%E6%B5%81%E7%A8%8B"><span class="toc-number">2.4.</span> <span class="toc-text">推理流程</span></a></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2026/02/15/notes/diffusion/diffusion-Ch04/" title="diffusion Ch04">diffusion Ch04</a><time datetime="2026-02-15T15:08:41.405Z" title="更新于 2026-02-15 23:08:41">2026-02-15</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2026/02/12/notes/flow_matching/flow-matching-Ch01/" title="flow_matching Ch01">flow_matching Ch01</a><time datetime="2026-02-15T02:43:06.395Z" title="更新于 2026-02-15 10:43:06">2026-02-15</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2026/02/14/notes/flow_matching/flow-matching-Ch02/" title="flow_matching Ch02">flow_matching Ch02</a><time datetime="2026-02-15T02:43:02.711Z" title="更新于 2026-02-15 10:43:02">2026-02-15</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2026/02/11/notes/diffusion/diffusion-Ch03/" title="diffusion Ch03">diffusion Ch03</a><time datetime="2026-02-15T02:42:57.148Z" title="更新于 2026-02-15 10:42:57">2026-02-15</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2026/02/10/notes/diffusion/diffusion-Ch02/" title="diffusion Ch02">diffusion Ch02</a><time datetime="2026-02-12T03:36:56.512Z" title="更新于 2026-02-12 11:36:56">2026-02-12</time></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">&copy;2024 - 2026 By creat</div><div class="footer_custom_text">很高兴你能看到这里！</div></div></footer></div><div id="leftside-fps"><span id="leftside-fps-text"></span></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="日间和夜间模式切换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/instant.page/instantpage.min.js" type="module"></script><script src="https://cdn.jsdelivr.net/npm/vanilla-lazyload/dist/lazyload.iife.min.js"></script><script src="https://cdn.jsdelivr.net/npm/node-snackbar/dist/snackbar.min.js"></script><div class="js-pjax"><script>(() => {
+  const loadMathjax = () => {
+    if (!window.MathJax) {
+      window.MathJax = {
+        tex: {
+          inlineMath: [['$', '$'], ['\\(', '\\)']],
+          tags: 'ams',
+        },
+        chtml: {
+          scale: 1.1
+        },
+        options: {
+          enableMenu: true,
+          renderActions: {
+            findScript: [10, doc => {
+              for (const node of document.querySelectorAll('script[type^="math/tex"]')) {
+                const display = !!node.type.match(/; *mode=display/)
+                const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display)
+                const text = document.createTextNode('')
+                node.parentNode.replaceChild(text, node)
+                math.start = {node: text, delim: '', n: 0}
+                math.end = {node: text, delim: '', n: 0}
+                doc.math.push(math)
+              }
+            }, '']
+          }
+        }
+      }
+      
+      const script = document.createElement('script')
+      script.src = 'https://cdn.jsdelivr.net/npm/mathjax/es5/tex-mml-chtml.min.js'
+      script.id = 'MathJax-script'
+      script.async = true
+      document.head.appendChild(script)
+    } else {
+      MathJax.startup.document.state(0)
+      MathJax.texReset()
+      MathJax.typesetPromise()
+    }
+  }
+
+  btf.addGlobalFn('encrypt', loadMathjax, 'mathjax')
+  window.pjax ? loadMathjax() : window.addEventListener('load', loadMathjax)
+})()</script></div><script src=/js/sakuraPlus.js></script><script src=/js/parseLyric.js></script><script src=/js/music.js></script><script src=/js/getFps.js></script><script src=/js/countdown.js></script><script src=/js/mathjax.js></script><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/dist/activate-power-mode.min.js"></script><script>POWERMODE.colorful = true;
+POWERMODE.shake = true;
+POWERMODE.mobile = false;
+document.body.addEventListener('input', POWERMODE);
+</script><script src="https://cdn.jsdelivr.net/npm/pjax/pjax.min.js"></script><script>(() => {
+  const pjaxSelectors = ["head > title","#config-diff","#body-wrap","#rightside-config-hide","#rightside-config-show",".js-pjax"]
+
+  window.pjax = new Pjax({
+    elements: 'a:not([target="_blank"])',
+    selectors: pjaxSelectors,
+    cacheBust: false,
+    analytics: false,
+    scrollRestoration: false
+  })
+
+  const triggerPjaxFn = (val) => {
+    if (!val) return
+    Object.values(val).forEach(fn => fn())
+  }
+
+  document.addEventListener('pjax:send', () => {
+    // removeEventListener
+    btf.removeGlobalFnEvent('pjaxSendOnce')
+    btf.removeGlobalFnEvent('themeChange')
+
+    // reset readmode
+    const $bodyClassList = document.body.classList
+    if ($bodyClassList.contains('read-mode')) $bodyClassList.remove('read-mode')
+
+    triggerPjaxFn(window.globalFn.pjaxSend)
+  })
+
+  document.addEventListener('pjax:complete', () => {
+    btf.removeGlobalFnEvent('pjaxCompleteOnce')
+    document.querySelectorAll('script[data-pjax]').forEach(item => {
+      const newScript = document.createElement('script')
+      const content = item.text || item.textContent || item.innerHTML || ""
+      Array.from(item.attributes).forEach(attr => newScript.setAttribute(attr.name, attr.value))
+      newScript.appendChild(document.createTextNode(content))
+      item.parentNode.replaceChild(newScript, item)
+    })
+
+    triggerPjaxFn(window.globalFn.pjaxComplete)
+  })
+
+  document.addEventListener('pjax:error', e => {
+    if (e.request.status === 404) {
+      pjax.loadUrl('/404.html')
+    }
+  })
+})()</script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><span id="loading-status"></span><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="text-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据加载中</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"/></div></div><hr/><div id="local-search-results"></div><div id="local-search-stats-wrap"></div></div></div><div id="search-mask"></div><script src="/js/search/local-search.js"></script></div></div></body></html>

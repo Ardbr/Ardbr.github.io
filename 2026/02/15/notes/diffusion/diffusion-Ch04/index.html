@@ -1,0 +1,397 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>diffusion Ch04 | creat's HomePage</title><meta name="author" content="creat"><meta name="copyright" content="creat"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="扩散模型中 reverse-time SDE 推导 待补充，参考  两类扩散模型了解 朗之万动力学去噪分数匹配（SMLD） 我们设定扰动核 \(p_{\sigma}(\tilde{x}|x) :&#x3D; \mathcal{N}(\tilde{x}; x, \sigma^2\mathbf{I})\)，以及扰动（加噪）后的数据边缘概率分布为 \(p_\sigma(\tilde{x}) :&#x3D; \int p_\">
+<meta property="og:type" content="article">
+<meta property="og:title" content="diffusion Ch04">
+<meta property="og:url" content="https://ardbr.github.io/2026/02/15/notes/diffusion/diffusion-Ch04/index.html">
+<meta property="og:site_name" content="creat&#39;s HomePage">
+<meta property="og:description" content="扩散模型中 reverse-time SDE 推导 待补充，参考  两类扩散模型了解 朗之万动力学去噪分数匹配（SMLD） 我们设定扰动核 \(p_{\sigma}(\tilde{x}|x) :&#x3D; \mathcal{N}(\tilde{x}; x, \sigma^2\mathbf{I})\)，以及扰动（加噪）后的数据边缘概率分布为 \(p_\sigma(\tilde{x}) :&#x3D; \int p_\">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://ardbr.github.io/img/avatar.gif">
+<meta property="article:published_time" content="2026-02-15T14:03:43.000Z">
+<meta property="article:modified_time" content="2026-02-15T15:08:41.405Z">
+<meta property="article:author" content="creat">
+<meta property="article:tag" content="Diffusion">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://ardbr.github.io/img/avatar.gif"><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="https://ardbr.github.io/2026/02/15/notes/diffusion/diffusion-Ch04/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/node-snackbar/dist/snackbar.min.css" media="print" onload="this.media='all'"><script>
+    (() => {
+      
+    const saveToLocal = {
+      set: (key, value, ttl) => {
+        if (!ttl) return
+        const expiry = Date.now() + ttl * 86400000
+        localStorage.setItem(key, JSON.stringify({ value, expiry }))
+      },
+      get: key => {
+        const itemStr = localStorage.getItem(key)
+        if (!itemStr) return undefined
+        const { value, expiry } = JSON.parse(itemStr)
+        if (Date.now() > expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return value
+      }
+    }
+
+    window.btf = {
+      saveToLocal,
+      getScript: (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        Object.entries(attr).forEach(([key, val]) => script.setAttribute(key, val))
+        script.onload = script.onreadystatechange = () => {
+          if (!script.readyState || /loaded|complete/.test(script.readyState)) resolve()
+        }
+        script.onerror = reject
+        document.head.appendChild(script)
+      }),
+      getCSS: (url, id) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onload = link.onreadystatechange = () => {
+          if (!link.readyState || /loaded|complete/.test(link.readyState)) resolve()
+        }
+        link.onerror = reject
+        document.head.appendChild(link)
+      }),
+      addGlobalFn: (key, fn, name = false, parent = window) => {
+        if (!true && key.startsWith('pjax')) return
+        const globalFn = parent.globalFn || {}
+        globalFn[key] = globalFn[key] || {}
+        globalFn[key][name || Object.keys(globalFn[key]).length] = fn
+        parent.globalFn = globalFn
+      }
+    }
+  
+      
+      const activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      const activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+
+      btf.activateDarkMode = activateDarkMode
+      btf.activateLightMode = activateLightMode
+
+      const theme = saveToLocal.get('theme')
+    
+          theme === 'dark' ? activateDarkMode() : theme === 'light' ? activateLightMode() : null
+        
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        document.documentElement.classList.toggle('hide-aside', asideStatus === 'hide')
+      }
+    
+      
+    const detectApple = () => {
+      if (/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)) {
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+  
+    })()
+  </script><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"/search.xml","preload":true,"top_n_per_article":10,"unescape":false,"languages":{"hits_empty":"未找到符合您查询的内容：${query}","hits_stats":"共找到 ${hits} 篇文章"}},
+  translate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":200,"highlightFullpage":false,"highlightMacStyle":"mac"},
+  copy: {
+    success: '复制成功',
+    error: '复制失败',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'null',
+  Snackbar: {"chs_to_cht":"已切换为繁体中文","cht_to_chs":"已切换为简体中文","day_to_night":"已切换为深色模式","night_to_day":"已切换为浅色模式","bgLight":"#49b1f5","bgDark":"#1f1f1f","position":"top-center"},
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid/dist/infinitegrid.min.js',
+    buttonText: '加载更多'
+  },
+  isPhotoFigcaption: false,
+  islazyload: true,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'diffusion Ch04',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  isShuoshuo: false
+}</script><link rel="stylesheet" href="/css/font.css"><link rel="stylesheet" href="/css/cursor.css"><link rel="stylesheet" href="/css/custom.css"><link rel="stylesheet" href="//at.alicdn.com/t/c/font_4746832_eb25gdpzci6.css"><meta name="generator" content="Hexo 7.3.0"></head><body><div id="web_bg" style="background-image: url(/img/background.png);"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img text-center"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/img/avatar.gif" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="site-data text-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">36</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">8</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">5</div></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 主页</span></a></div><div class="menus_item"><a class="site-page" href="/categories"><i class="fa-fw fas fa-book"></i><span> 学习资料</span></a></div><div class="menus_item"><a class="site-page" href="/link"><i class="fa-fw fas fa-globe"></i><span> 常用网站</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header"><nav id="nav"><span id="blog-info"><a class="nav-site-title" href="/"><img class="site-icon" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/img/favicon.png" alt="Logo"><span class="site-name">creat's HomePage</span></a><a class="nav-page-title" href="/"><span class="site-name">diffusion Ch04</span></a></span><div id="music-bar"><div id="music-cover-container"><div id="music-cover"></div></div><div id="music-button-container"><div id="music-button-container-top"><span class="music-icon iconfont icon-shangyishou" id="music-prev"></span><span class="music-icon iconfont icon-bofang" id="music-playOrPause"></span><span class="music-icon iconfont icon-xiayishou" id="music-next"></span><span class="music-icon iconfont icon-liebiaoxunhuan" id="music-mode"></span></div><div id="music-button-container-bottom"><div id="music-progressBar"><span id="music-currentProgress"></span><span id="music-dot"></span></div><span id="music-progressText">00:00 / 00:00</span></div></div><div id="music-name-container"><span id="music-name"></span></div><div id="music-lyric-container"><span id="music-lyric"></span></div></div><div id="menus"><div id="toggle-menu"><span class="site-page"></span><i class="fas fa-bars fa-fw"></i></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 主页</span></a></div><div class="menus_item"><a class="site-page" href="/categories"><i class="fa-fw fas fa-book"></i><span> 学习资料</span></a></div><div class="menus_item"><a class="site-page" href="/link"><i class="fa-fw fas fa-globe"></i><span> 常用网站</span></a></div></div><div id="search-button"><span class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> 搜索</span></span></div></div></nav><div id="post-info"><h1 class="post-title">diffusion Ch04</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2026-02-15T14:03:43.000Z" title="发表于 2026-02-15 22:03:43">2026-02-15</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2026-02-15T15:08:41.405Z" title="更新于 2026-02-15 23:08:41">2026-02-15</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/notes/">notes</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/notes/diffusion/">diffusion</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-wordcount"><i class="far fa-file-word fa-fw post-meta-icon"></i><span class="post-meta-label">总字数:</span><span class="word-count">1.5k</span><span class="post-meta-separator">|</span><i class="far fa-clock fa-fw post-meta-icon"></i><span class="post-meta-label">阅读时长:</span><span>5分钟</span></span><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title=""><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">浏览量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="container post-content" id="article-container"><h2 id="扩散模型中-reverse-time-sde-推导">扩散模型中 reverse-time SDE
+推导</h2>
+<p>待补充，参考 <img
+src="https://www.zhihu.com/question/629085800/answer/3421808487"
+alt="知乎" /></p>
+<h2 id="两类扩散模型了解">两类扩散模型了解</h2>
+<h3
+id="朗之万动力学去噪分数匹配smld">朗之万动力学去噪分数匹配（SMLD）</h3>
+<p>我们设定扰动核 <span class="math inline">\(p_{\sigma}(\tilde{x}|x) :=
+\mathcal{N}(\tilde{x}; x,
+\sigma^2\mathbf{I})\)</span>，以及扰动（加噪）后的数据<strong>边缘概率分布</strong>为
+<span class="math inline">\(p_\sigma(\tilde{x}) := \int
+p_\sigma(\tilde{x}|x) p_\text{data}(x)\text{d}x\)</span>。</p>
+<p>考虑一个噪声序列 <span class="math inline">\(\sigma_\text{min} =
+\sigma_1 &lt; \sigma_2 &lt; \dots &lt; \sigma_N =
+\sigma_\text{max}\)</span>，这也就是说每一步的加噪会越来越大。其中，<span
+class="math inline">\(\sigma_\text{min}\)</span> 足够小，能够使得 <span
+class="math inline">\(p_{\sigma_\text{min}} \approx
+p_\text{data}(x)\)</span>，<span
+class="math inline">\(\sigma_\text{max}\)</span> 足够大，能够使得 <span
+class="math inline">\(p_{\sigma_\text{max}} \approx \mathcal{N}(x; 0,
+\sigma_\text{max}^2\mathbf{I})\)</span>。我们可以训练一个噪声条件分数网络（Noise
+Conditional Score Network, NCSN），即 <span
+class="math inline">\(s_\theta(x, \sigma)\)</span>，使得去噪分数匹配目标
+<span class="math inline">\(\ref{eq:ncsn_objective}\)</span> 最小。
+<span class="math display">\[
+\begin{equation}
+\theta^* = \arg \min_\theta \sum_{i=1}^N \sigma_i^2
+\mathbb{E}_{p_\text{data}(x)} \mathbb{E}_{p_{\sigma_i}(\tilde{x}|x)} [
+\| s_\theta(\tilde{x}, \sigma_i) - \textcolor{red}{\nabla_{\tilde{x}}
+\log p_{\sigma_i}(\tilde{x}|x)} \|_2^2 ] \label{eq:ncsn_objective}
+\end{equation}
+\]</span></p>
+<p>只要给定的样本数据足够多，我们就能使用神经网络学习到对于 <span
+class="math inline">\(\nabla_{\tilde{x}} \log
+p_{\sigma_i}(\tilde{x}|x)\)</span> 的较为准确的估计 <span
+class="math inline">\(s_\theta(x, \sigma)\)</span>。有了 <span
+class="math inline">\(s_\theta(x, \sigma)\)</span>，通过朗之万迭代式
+<span class="math inline">\(\ref{eq:langevin_mcmc}\)</span>
+就可以得到前面步的</p>
+<p><span class="math display">\[
+\begin{equation}
+\mathbf{x}_i^m = \mathbf{x}_i^{m-1} + \underbrace{\epsilon_i
+\mathbf{s}_{\theta^*}(\mathbf{x}_i^{m-1}, \sigma_i)}_{\text{1. 爬坡
+(Drift)}} + \underbrace{\sqrt{2\epsilon_i} \mathbf{z}_i^m}_{\text{2.
+扰动 (Noise)}} \label{eq:langevin_mcmc}
+\end{equation}
+\]</span></p>
+<div class="note danger flat"><p>这个公式由两股“力量”组成：</p>
+<ol type="1">
+<li>爬坡 (Drift / Gradient Ascent)<span
+class="math inline">\(\mathbf{s}_{\theta^*}(\dots)\)</span>
+是神经网络预测的分数 (Score)，也就是概率密度的梯度 <span
+class="math inline">\(\nabla \log
+p(x)\)</span>。作用：它告诉数据点：“往这边走！这边的概率更高，更像真实的图片！”<span
+class="math inline">\(\epsilon_i\)</span> 是步长 (Step
+Size)，控制这一步走多远。</li>
+<li>随机扰动 (Noise Injection)<span
+class="math inline">\(\mathbf{z}_i^m\)</span>
+是从标准正态分布采样出的随机噪声。作用：这是郎之万动力学的精髓。如果只爬坡，容易卡在局部的坑里出不来。加上这个噪声，就像给粒子一点“热运动”，让它有机会跳出局部最优解，去探索更好的区域。系数
+<span class="math inline">\(\sqrt{2\epsilon_i}\)</span>
+是物理学推导出来的固定比例，保证粒子最终能稳定在目标分布上。</li>
+</ol>
+</div>
+<p>这是一个双层循环的过程，被称为<strong>“退火
+(Annealing)”</strong>。</p>
+<ul>
+<li>外层循环 (<span class="math inline">\(i = N \to
+1\)</span>)：噪声等级的接力开始 (<span
+class="math inline">\(i=N\)</span>)：从巨大的噪声 <span
+class="math inline">\(\sigma_{max}\)</span>
+开始（此时图片完全是一团糟）。我们先在这个大噪声级别下，跑 <span
+class="math inline">\(M\)</span>
+步郎之万迭代（内层循环）。在大噪声下，梯度指引的是宏观方向。交接：当第
+<span class="math inline">\(N\)</span> 级跑完 <span
+class="math inline">\(M\)</span> 步后，把得到的结果 <span
+class="math inline">\(\mathbf{x}_N^M\)</span> 作为下一级 <span
+class="math inline">\(N-1\)</span> 的起点 <span
+class="math inline">\(\mathbf{x}_{N-1}^0\)</span>。当 <span
+class="math inline">\(i=1\)</span> 时，噪声越来越小 (<span
+class="math inline">\(\sigma_{min}\)</span>)，梯度指引变得越来越精细（开始雕刻头发、纹理），直到最后输出清晰图片。</li>
+<li>内层循环 (<span class="math inline">\(m = 1 \to
+M\)</span>)：在同一级噪声下混合在每一个固定的噪声等级 <span
+class="math inline">\(\sigma_i\)</span> 下，我们都要重复执行公式 (2)
+<span class="math inline">\(M\)</span>
+次。这是为了确保数据点真正“收敛”到了当前噪声等级下的分布 <span
+class="math inline">\(p_{\sigma_i}(x)\)</span>。</li>
+</ul>
+<h3 id="去噪扩散概率模型ddpm">去噪扩散概率模型（DDPM）</h3>
+<p>这一部分已经很熟悉了，因此简单讨论一下即可。DDPM
+设定了一个离散的马尔可夫链 <span class="math inline">\({x_0, x_1, \dots,
+x_N}\)</span>，并且假设了 <span class="math inline">\(p(x_i | x_{i-1}) =
+\mathcal{N}(x_i; \sqrt{1 - \beta_i}x_{i-1},
+\beta_i\mathbf{I})\)</span>，并且由此可以得到汇总步 <span
+class="math inline">\(p_{\alpha_i}(x_i | x_0) = \mathcal{N}(x_i;
+\underbrace{\sqrt{\alpha_i}x_0}_{\text{均值}},
+\underbrace{(1-\alpha_i)I}_{\text{方差}})\)</span>。通过变分下界（ELBO），以分数函数的形式写出来，也就是公式
+<span class="math inline">\(\ref{eq:ddpm_objective}\)</span>。 <span
+class="math display">\[
+\begin{equation}
+\theta^* = \arg \min_\theta \sum_{i=1}^N (1-\alpha_i)
+\mathbb{E}_{p_{\text{data}}(x)} \mathbb{E}_{p_{\alpha_i}(\tilde{x}|x)} [
+\| \mathbf{s}_\theta(\tilde{x}, i) - \underbrace{\nabla_{\tilde{x}} \log
+p_{\alpha_i}(\tilde{x}|x)}_{\text{真实分数}} \|_2^2 ]
+\label{eq:ddpm_objective}
+\end{equation}
+\]</span></p>
+<p>既然我们训练好了模型 <span
+class="math inline">\(s_\theta\)</span>，就可以倒着走，从纯噪声 <span
+class="math inline">\(x_N\)</span> 一步步还原回 <span
+class="math inline">\(x_0\)</span>。这个过程叫 Ancestral Sampling
+(祖先采样)，即公式 <span
+class="math inline">\(\ref{eq:ancestral_sampling}\)</span> <span
+class="math display">\[
+\begin{equation}
+x_{i-1} = \frac{1}{\sqrt{1-\beta_i}} (x_i + \beta_i
+\mathbf{s}_{\theta^*}(x_i, i)) + \sqrt{\beta_i} \mathbf{z}_i, \quad i =
+N, N-1, \dots, 1 \label{eq:ancestral_sampling}
+\end{equation}
+\]</span></p>
+<ul>
+<li><span class="math inline">\(\frac{1}{\sqrt{1-\beta_i}}\)</span>
+(放大)：因为前向过程把图像缩小了，逆向过程就要把它放大回来。</li>
+<li><span class="math inline">\(\beta_i \mathbf{s}_{\theta^*}\)</span>
+(去噪/漂移)：利用神经网络预测的
+Score（梯度方向），把图片往“清晰”的方向推一把。</li>
+<li><span class="math inline">\(\sqrt{\beta_i} \mathbf{z}_i\)</span>
+(随机扰动)：加入新的随机噪声 <span
+class="math inline">\(\mathbf{z}_i\)</span>。这非常关键！
+如果没有这一项，生成的图片纹理会很假。这和上一张图 SMLD
+里的郎之万动力学中的噪声项是一样的作用。</li>
+</ul>
+<div class="note warning flat"><p>SMLD 是“连续微分方程”的离散化求解；DDPM
+是“离散马尔可夫链”的逆向过程。虽然 DDPM
+看起来又是马尔可夫链又是变分推断，但把它剥皮拆骨后，它本质上依然是一个加权的去噪分数匹配
+(Weighted Denoising Score Matching)。</p>
+</div>
+<div class="note danger flat"><p><strong>❓怎么推导的</strong></p>
+<hr />
+<p>DDPM 和 SMLD 的真正区别就在于每一级噪声的权重不同。</p>
+<p>SMLD (Eq. 1)：权重是 <span
+class="math inline">\(\sigma_i^2\)</span>。来源：<span
+class="math inline">\(\sigma_i^2 \propto 1 /
+\mathbb{E}[\|\nabla_{\mathbf{x}} \log p_{\sigma_i}(\tilde{\mathbf{x}} |
+\mathbf{x})\|_2^2]\)</span>。这意味着 SMLD 的权重是根据 Fisher
+信息量来归一化的。</p>
+<p>DDPM (Eq. 3)：权重是 <span
+class="math inline">\((1-\alpha_i)\)</span>。来源：<span
+class="math inline">\((1-\alpha_i) \propto 1 /
+\mathbb{E}[\|\nabla_{\mathbf{x}} \log p_{\alpha_i}(\tilde{\mathbf{x}} |
+\mathbf{x})\|_2^2]\)</span>。</p>
+<p>具体的表达式不同，但这两个权重在函数形式上是一致的（都反比于 Score
+的模长期望）。</p>
+</div>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>文章作者: </span><span class="post-copyright-info"><a href="https://Ardbr.github.io">creat</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>文章链接: </span><span class="post-copyright-info"><a href="https://ardbr.github.io/2026/02/15/notes/diffusion/diffusion-Ch04/">https://ardbr.github.io/2026/02/15/notes/diffusion/diffusion-Ch04/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来源 <a href="https://Ardbr.github.io" target="_blank">creat's HomePage</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/Diffusion/">Diffusion</a></div><div class="post-share"><div class="social-share" data-image="/img/avatar.gif" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><a class="pagination-related full-width" href="/2026/02/14/notes/flow_matching/flow-matching-Ch02/" title="flow_matching Ch02"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-right"><div class="info-1"><div class="info-item-1">下一篇</div><div class="info-item-2">flow_matching Ch02</div></div><div class="info-2"><div class="info-item-1">条件流匹配（CFM） 在上一章节中，最后我们给出了边缘概率路径 \(\ref{eq:marginal_prob_path}\) 和边缘场向量 \(\ref{eq:marginal_vec_field}\) 的公式表达。 \[ \begin{align} p_t(x) &amp;= \int p_t(x | x_1)q(x_1) \text{d}x_1 \label{eq:marginal_prob_path} \\ u_t(x) &amp;= \int u_t(x | x_1) \frac{p_t(x | x_1)q(x_1)}{p_t(x)} \text{d} x_1 \label{eq:marginal_vec_field} \end{align} \] 然而，这两个公式都存在一个共同的问题：需要计算积分。积分是不好计算的，这也导致了计算原流匹配目标 \(\ref{eq:original_fm_objective}\)难以计算。 \[ \begin{equation} \mathcal{L}_\text{FM}(\theta) = \mathbb{E}_{t,...</div></div></div></a></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><a class="pagination-related" href="/2026/02/09/notes/diffusion/diffusion-Ch01/" title="diffusion Ch01"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2026-02-09</div><div class="info-item-2">diffusion Ch01</div></div><div class="info-2"><div class="info-item-1">生成模型的定义 生成模型是从给定的一堆数据样本中，学习数据的真正分布（由观测样本学习到真实分布），即 \(x \rightarrow p(x)\)。 作用：  任意生成一个新的样本 评估观测或者采样数据的似然度（likelihood）  现有的生成模型：  GAN：以对抗的方式从复杂的分布中采样 基于似然的生成模型，比如自回归、归一化流、VAE 变分自编码器 基于能量函数建模：把分布学习变为学习能量函数 基于分数的生成模型：不学习能量函数，而是能量函数的分数来评判神经网络  我们需要引入“潜变量”，一般记为 \(z\)。观测变量也就是数据样本 \(x\)，一般只是潜变量的一部分（某一维度）的投射。对于隐变量而言，我们一般应该寻找低维的，而不是高维的。原因有二：  没有更强的先验知识，学习高维的隐变量是不可能的 低维隐变量的表示是一种压缩形式，语义上可能会更有意义  证据下界（Evidence Lower Bound） 我们可以通过联合密度 \(p(x, z)\) 对观测样本和隐变量进行建模。而由联合密度得到似然函数 \(p(x)\)...</div></div></div></a><a class="pagination-related" href="/2026/02/11/notes/diffusion/diffusion-Ch03/" title="diffusion Ch03"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2026-02-11</div><div class="info-item-2">diffusion Ch03</div></div><div class="info-2"><div class="info-item-1">条件扩散模型 至此，我们研究的都只是简单的分布 \(p(\boldsymbol{x})\)，然而，在实际应用中，我们经常会对形如 \(p(\boldsymbol{x} | y)\) 这种有条件的分布更感兴趣。这样一来，我们就可以通过条件 \(y\) 来对生成的数据 \(\boldsymbol{x}\) 进行控制。例如，在 image-text 生成模型中，\(y\) 就可以被视作对于输入文本 text 的编码。 回忆我们之前的联合概率密度公式 \[ \begin{equation} p(\boldsymbol{x}_{0:T}) = p(\boldsymbol{x}_T) \prod_{t=1}^{T} p_{\theta}(\boldsymbol{x}_{t-1}|\boldsymbol{x}_t) \label{eq:dist_uncond} \end{equation} \] 我们在分布 \(p(\cdot)\) 中注入条件 \(y\)，即 \(p(\cdot | y)\)，公式 \(\ref{eq:dist_uncond}\) 就会转变成...</div></div></div></a><a class="pagination-related" href="/2026/02/10/notes/diffusion/diffusion-Ch02/" title="diffusion Ch02"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2026-02-10</div><div class="info-item-2">diffusion Ch02</div></div><div class="info-2"><div class="info-item-1">在上一章中，我们讲了 VDM 的第一种拆解方式，我们最终把 \(\text{ELBO}\) 拆解成了 3 项，分别是重建项、先验匹配项和一致项。这一种拆解的特点可总结如下：  三项都有期望，因此可以用蒙特卡洛方法来进行估计； “一致项”在时间步 \(t\) 的时候，与两个随机变量 \(\boldsymbol{x}_{t-1}\) 和 \(\boldsymbol{x}_{t+1}\) 都有关系，因此估计的方差会比单个变量估计的方差大。在“一致性项”中，模型试图让“从 \(t+1\) 推回 \(t\) 的分布”去匹配“从 \(t-1\) 推到 \(t\) 的分布”。因为 \(t+1\) 和 \(t-1\) 都是采样出来的随机样本，它们都在“抖动”，所以计算出来的 Loss 波动会非常大。 随着总扩散步 \(T\) 的增大，一致项估计方差也会线性增长。  因此，这一种的拆解方法并不实用。我们希望最后推导出来的公式，每一项都只与一个随机变量有关。 $$ \[\begin{align} \log p(\boldsymbol{x})...</div></div></div></a></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info text-center"><div class="avatar-img"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/img/avatar.gif" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info-name">creat</div><div class="author-info-description"></div><div class="site-data"><a href="/archives/"><div class="headline">文章</div><div class="length-num">36</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">8</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">5</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/ardbr"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons"><a class="social-icon" href="https://github.com/Ardbr" target="_blank" title="Github"><i class="fab fa-github" style="color: #24292e;"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">希望每天都能输出一点新知识😌</div></div><div class="card-widget card-countdown"><div class="countdown-mask"><div class="text-container"><p>2026 年已经过去</p><span class="countdown-number">xx</span><span class="countdown-unit">天</span></div><div class="current-time-container"> <span class="current-time"></span></div></div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%89%A9%E6%95%A3%E6%A8%A1%E5%9E%8B%E4%B8%AD-reverse-time-sde-%E6%8E%A8%E5%AF%BC"><span class="toc-number">1.</span> <span class="toc-text">扩散模型中 reverse-time SDE
+推导</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%A4%E7%B1%BB%E6%89%A9%E6%95%A3%E6%A8%A1%E5%9E%8B%E4%BA%86%E8%A7%A3"><span class="toc-number">2.</span> <span class="toc-text">两类扩散模型了解</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%9C%97%E4%B9%8B%E4%B8%87%E5%8A%A8%E5%8A%9B%E5%AD%A6%E5%8E%BB%E5%99%AA%E5%88%86%E6%95%B0%E5%8C%B9%E9%85%8Dsmld"><span class="toc-number">2.1.</span> <span class="toc-text">朗之万动力学去噪分数匹配（SMLD）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%8E%BB%E5%99%AA%E6%89%A9%E6%95%A3%E6%A6%82%E7%8E%87%E6%A8%A1%E5%9E%8Bddpm"><span class="toc-number">2.2.</span> <span class="toc-text">去噪扩散概率模型（DDPM）</span></a></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2026/02/15/notes/diffusion/diffusion-Ch04/" title="diffusion Ch04">diffusion Ch04</a><time datetime="2026-02-15T15:08:41.405Z" title="更新于 2026-02-15 23:08:41">2026-02-15</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2026/02/12/notes/flow_matching/flow-matching-Ch01/" title="flow_matching Ch01">flow_matching Ch01</a><time datetime="2026-02-15T02:43:06.395Z" title="更新于 2026-02-15 10:43:06">2026-02-15</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2026/02/14/notes/flow_matching/flow-matching-Ch02/" title="flow_matching Ch02">flow_matching Ch02</a><time datetime="2026-02-15T02:43:02.711Z" title="更新于 2026-02-15 10:43:02">2026-02-15</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2026/02/11/notes/diffusion/diffusion-Ch03/" title="diffusion Ch03">diffusion Ch03</a><time datetime="2026-02-15T02:42:57.148Z" title="更新于 2026-02-15 10:42:57">2026-02-15</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2026/02/10/notes/diffusion/diffusion-Ch02/" title="diffusion Ch02">diffusion Ch02</a><time datetime="2026-02-12T03:36:56.512Z" title="更新于 2026-02-12 11:36:56">2026-02-12</time></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">&copy;2024 - 2026 By creat</div><div class="footer_custom_text">很高兴你能看到这里！</div></div></footer></div><div id="leftside-fps"><span id="leftside-fps-text"></span></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="日间和夜间模式切换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/instant.page/instantpage.min.js" type="module"></script><script src="https://cdn.jsdelivr.net/npm/vanilla-lazyload/dist/lazyload.iife.min.js"></script><script src="https://cdn.jsdelivr.net/npm/node-snackbar/dist/snackbar.min.js"></script><div class="js-pjax"><script>(() => {
+  const loadMathjax = () => {
+    if (!window.MathJax) {
+      window.MathJax = {
+        tex: {
+          inlineMath: [['$', '$'], ['\\(', '\\)']],
+          tags: 'ams',
+        },
+        chtml: {
+          scale: 1.1
+        },
+        options: {
+          enableMenu: true,
+          renderActions: {
+            findScript: [10, doc => {
+              for (const node of document.querySelectorAll('script[type^="math/tex"]')) {
+                const display = !!node.type.match(/; *mode=display/)
+                const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display)
+                const text = document.createTextNode('')
+                node.parentNode.replaceChild(text, node)
+                math.start = {node: text, delim: '', n: 0}
+                math.end = {node: text, delim: '', n: 0}
+                doc.math.push(math)
+              }
+            }, '']
+          }
+        }
+      }
+      
+      const script = document.createElement('script')
+      script.src = 'https://cdn.jsdelivr.net/npm/mathjax/es5/tex-mml-chtml.min.js'
+      script.id = 'MathJax-script'
+      script.async = true
+      document.head.appendChild(script)
+    } else {
+      MathJax.startup.document.state(0)
+      MathJax.texReset()
+      MathJax.typesetPromise()
+    }
+  }
+
+  btf.addGlobalFn('encrypt', loadMathjax, 'mathjax')
+  window.pjax ? loadMathjax() : window.addEventListener('load', loadMathjax)
+})()</script></div><script src=/js/sakuraPlus.js></script><script src=/js/parseLyric.js></script><script src=/js/music.js></script><script src=/js/getFps.js></script><script src=/js/countdown.js></script><script src=/js/mathjax.js></script><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/dist/activate-power-mode.min.js"></script><script>POWERMODE.colorful = true;
+POWERMODE.shake = true;
+POWERMODE.mobile = false;
+document.body.addEventListener('input', POWERMODE);
+</script><script src="https://cdn.jsdelivr.net/npm/pjax/pjax.min.js"></script><script>(() => {
+  const pjaxSelectors = ["head > title","#config-diff","#body-wrap","#rightside-config-hide","#rightside-config-show",".js-pjax"]
+
+  window.pjax = new Pjax({
+    elements: 'a:not([target="_blank"])',
+    selectors: pjaxSelectors,
+    cacheBust: false,
+    analytics: false,
+    scrollRestoration: false
+  })
+
+  const triggerPjaxFn = (val) => {
+    if (!val) return
+    Object.values(val).forEach(fn => fn())
+  }
+
+  document.addEventListener('pjax:send', () => {
+    // removeEventListener
+    btf.removeGlobalFnEvent('pjaxSendOnce')
+    btf.removeGlobalFnEvent('themeChange')
+
+    // reset readmode
+    const $bodyClassList = document.body.classList
+    if ($bodyClassList.contains('read-mode')) $bodyClassList.remove('read-mode')
+
+    triggerPjaxFn(window.globalFn.pjaxSend)
+  })
+
+  document.addEventListener('pjax:complete', () => {
+    btf.removeGlobalFnEvent('pjaxCompleteOnce')
+    document.querySelectorAll('script[data-pjax]').forEach(item => {
+      const newScript = document.createElement('script')
+      const content = item.text || item.textContent || item.innerHTML || ""
+      Array.from(item.attributes).forEach(attr => newScript.setAttribute(attr.name, attr.value))
+      newScript.appendChild(document.createTextNode(content))
+      item.parentNode.replaceChild(newScript, item)
+    })
+
+    triggerPjaxFn(window.globalFn.pjaxComplete)
+  })
+
+  document.addEventListener('pjax:error', e => {
+    if (e.request.status === 404) {
+      pjax.loadUrl('/404.html')
+    }
+  })
+})()</script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><span id="loading-status"></span><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="text-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据加载中</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"/></div></div><hr/><div id="local-search-results"></div><div id="local-search-stats-wrap"></div></div></div><div id="search-mask"></div><script src="/js/search/local-search.js"></script></div></div></body></html>
