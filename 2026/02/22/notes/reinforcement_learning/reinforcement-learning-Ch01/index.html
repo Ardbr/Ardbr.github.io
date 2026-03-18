@@ -1,11 +1,13 @@
-<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>reinforcement_learning Ch01 | creat's HomePage</title><meta name="author" content="creat"><meta name="copyright" content="creat"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta property="og:type" content="article">
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>reinforcement_learning Ch01 | creat's HomePage</title><meta name="author" content="creat"><meta name="copyright" content="creat"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="alt text  PPO（Proximal Policy Optimization，近端策略优化） PPO 提出背景 PPO 是目前强化学习（Reinforcement Learning, RL）领域中最主流、最实用的一种算法。 在 PPO 之前，策略梯度（Policy Gradient）算法面临一个进退两难的问题：步长（Learning Rate）极难设定。  如果更新步长太大，新策略可能">
+<meta property="og:type" content="article">
 <meta property="og:title" content="reinforcement_learning Ch01">
 <meta property="og:url" content="https://ardbr.github.io/2026/02/22/notes/reinforcement_learning/reinforcement-learning-Ch01/index.html">
 <meta property="og:site_name" content="creat&#39;s HomePage">
+<meta property="og:description" content="alt text  PPO（Proximal Policy Optimization，近端策略优化） PPO 提出背景 PPO 是目前强化学习（Reinforcement Learning, RL）领域中最主流、最实用的一种算法。 在 PPO 之前，策略梯度（Policy Gradient）算法面临一个进退两难的问题：步长（Learning Rate）极难设定。  如果更新步长太大，新策略可能">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://ardbr.github.io/img/avatar.gif">
 <meta property="article:published_time" content="2026-02-22T08:50:08.000Z">
-<meta property="article:modified_time" content="2026-02-22T09:17:33.552Z">
+<meta property="article:modified_time" content="2026-03-11T04:05:30.097Z">
 <meta property="article:author" content="creat">
 <meta property="article:tag" content="Flow Matching">
 <meta name="twitter:card" content="summary">
@@ -142,10 +144,297 @@
   isPost: true,
   isHome: false,
   isHighlightShrink: false,
-  isToc: false,
+  isToc: true,
   isShuoshuo: false
-}</script><link rel="stylesheet" href="/css/font.css"><link rel="stylesheet" href="/css/cursor.css"><link rel="stylesheet" href="/css/custom.css"><link rel="stylesheet" href="//at.alicdn.com/t/c/font_4746832_eb25gdpzci6.css"><meta name="generator" content="Hexo 7.3.0"></head><body><div id="web_bg" style="background-image: url(/img/background.png);"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img text-center"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/img/avatar.gif" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="site-data text-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">37</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">8</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">5</div></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 主页</span></a></div><div class="menus_item"><a class="site-page" href="/categories"><i class="fa-fw fas fa-book"></i><span> 学习资料</span></a></div><div class="menus_item"><a class="site-page" href="/link"><i class="fa-fw fas fa-globe"></i><span> 常用网站</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header"><nav id="nav"><span id="blog-info"><a class="nav-site-title" href="/"><img class="site-icon" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/img/favicon.png" alt="Logo"><span class="site-name">creat's HomePage</span></a><a class="nav-page-title" href="/"><span class="site-name">reinforcement_learning Ch01</span></a></span><div id="music-bar"><div id="music-cover-container"><div id="music-cover"></div></div><div id="music-button-container"><div id="music-button-container-top"><span class="music-icon iconfont icon-shangyishou" id="music-prev"></span><span class="music-icon iconfont icon-bofang" id="music-playOrPause"></span><span class="music-icon iconfont icon-xiayishou" id="music-next"></span><span class="music-icon iconfont icon-liebiaoxunhuan" id="music-mode"></span></div><div id="music-button-container-bottom"><div id="music-progressBar"><span id="music-currentProgress"></span><span id="music-dot"></span></div><span id="music-progressText">00:00 / 00:00</span></div></div><div id="music-name-container"><span id="music-name"></span></div><div id="music-lyric-container"><span id="music-lyric"></span></div></div><div id="menus"><div id="toggle-menu"><span class="site-page"></span><i class="fas fa-bars fa-fw"></i></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 主页</span></a></div><div class="menus_item"><a class="site-page" href="/categories"><i class="fa-fw fas fa-book"></i><span> 学习资料</span></a></div><div class="menus_item"><a class="site-page" href="/link"><i class="fa-fw fas fa-globe"></i><span> 常用网站</span></a></div></div><div id="search-button"><span class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> 搜索</span></span></div></div></nav><div id="post-info"><h1 class="post-title">reinforcement_learning Ch01</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2026-02-22T08:50:08.000Z" title="发表于 2026-02-22 16:50:08">2026-02-22</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2026-02-22T09:17:33.552Z" title="更新于 2026-02-22 17:17:33">2026-02-22</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/notes/">notes</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/notes/flow-matching/">flow_matching</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-wordcount"><i class="far fa-file-word fa-fw post-meta-icon"></i><span class="post-meta-label">总字数:</span><span class="word-count">0</span><span class="post-meta-separator">|</span><i class="far fa-clock fa-fw post-meta-icon"></i><span class="post-meta-label">阅读时长:</span><span>1分钟</span></span><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title=""><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">浏览量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="container post-content" id="article-container">
-</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>文章作者: </span><span class="post-copyright-info"><a href="https://Ardbr.github.io">creat</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>文章链接: </span><span class="post-copyright-info"><a href="https://ardbr.github.io/2026/02/22/notes/reinforcement_learning/reinforcement-learning-Ch01/">https://ardbr.github.io/2026/02/22/notes/reinforcement_learning/reinforcement-learning-Ch01/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来源 <a href="https://Ardbr.github.io" target="_blank">creat's HomePage</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/Flow-Matching/">Flow Matching</a></div><div class="post-share"><div class="social-share" data-image="/img/avatar.gif" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><a class="pagination-related full-width" href="/2026/02/15/notes/diffusion/diffusion-Ch04/" title="diffusion Ch04"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-right"><div class="info-1"><div class="info-item-1">下一篇</div><div class="info-item-2">diffusion Ch04</div></div><div class="info-2"><div class="info-item-1">扩散模型中 reverse-time SDE 推导 待补充，参考  两类扩散模型了解 朗之万动力学去噪分数匹配（SMLD） 我们设定扰动核 \(p_{\sigma}(\tilde{x}|x) := \mathcal{N}(\tilde{x}; x, \sigma^2\mathbf{I})\)，以及扰动（加噪）后的数据边缘概率分布为 \(p_\sigma(\tilde{x}) := \int p_\sigma(\tilde{x}|x) p_\text{data}(x)\text{d}x\)。 考虑一个噪声序列 \(\sigma_\text{min} = \sigma_1 &lt; \sigma_2 &lt; \dots &lt; \sigma_N = \sigma_\text{max}\)，这也就是说每一步的加噪会越来越大。其中，\(\sigma_\text{min}\) 足够小，能够使得 \(p_{\sigma_\text{min}} \approx p_\text{data}(x)\)，\(\sigma_\text{max}\) 足够大，能够使得...</div></div></div></a></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><a class="pagination-related" href="/2026/02/12/notes/flow_matching/flow-matching-Ch01/" title="flow_matching Ch01"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2026-02-12</div><div class="info-item-2">flow_matching Ch01</div></div><div class="info-2"><div class="info-item-1">Flow Matching 总览 生成模型的目标 生成模型（GAN, VAE, Diffusion, Flow）的目标是已知样本 \(x_1 \sim q_1\) (未知)，用样本把未知分布估计出来。其中 \(x_1\) 代表真实数据（比如一张真实的狗的照片）。\(q_1\) 代表真实数据的分布（Data Distribution），这是上帝视角的分布，我们在数学上不知道它的解析式，但我们有从中采样出来的“样本”。 我们的目标就是通过有限的样本，训练一个模型去逼近这个未知的 \(q_1\)。 做法 为了达到这个目的，通常的做法是利用已知分布（通常为高斯分布/标准正态分布）来映射到未知分布 \(q_1\)，即： \[ q_0 \text{（已知分布）} \xrightarrow{\phi} q_1 \text{（待估计的未知分布）} \] 其中 \(\phi\) (Phi) 是一个映射函数（Mapping）。 💡生成模型的本质就是寻找一个映射 \(\phi\)，它能把简单的噪声 \(x_0\) “推”成复杂的图像 \(x_1\)。  两种求解路径 Normalizing...</div></div></div></a><a class="pagination-related" href="/2026/02/14/notes/flow_matching/flow-matching-Ch02/" title="flow_matching Ch02"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2026-02-14</div><div class="info-item-2">flow_matching Ch02</div></div><div class="info-2"><div class="info-item-1">条件流匹配（CFM） 在上一章节中，最后我们给出了边缘概率路径 \(\ref{eq:marginal_prob_path}\) 和边缘场向量 \(\ref{eq:marginal_vec_field}\) 的公式表达。 \[ \begin{align} p_t(x) &amp;= \int p_t(x | x_1)q(x_1) \text{d}x_1 \label{eq:marginal_prob_path} \\ u_t(x) &amp;= \int u_t(x | x_1) \frac{p_t(x | x_1)q(x_1)}{p_t(x)} \text{d} x_1 \label{eq:marginal_vec_field} \end{align} \] 然而，这两个公式都存在一个共同的问题：需要计算积分。积分是不好计算的，这也导致了计算原流匹配目标 \(\ref{eq:original_fm_objective}\)难以计算。 \[ \begin{equation} \mathcal{L}_\text{FM}(\theta) = \mathbb{E}_{t,...</div></div></div></a></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info text-center"><div class="avatar-img"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/img/avatar.gif" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info-name">creat</div><div class="author-info-description"></div><div class="site-data"><a href="/archives/"><div class="headline">文章</div><div class="length-num">37</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">8</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">5</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/ardbr"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons"><a class="social-icon" href="https://github.com/Ardbr" target="_blank" title="Github"><i class="fab fa-github" style="color: #24292e;"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">希望每天都能输出一点新知识😌</div></div><div class="card-widget card-countdown"><div class="countdown-mask"><div class="text-container"><p>2026 年已经过去</p><span class="countdown-number">xx</span><span class="countdown-unit">天</span></div><div class="current-time-container"> <span class="current-time"></span></div></div></div><div class="sticky_layout"><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2026/02/22/notes/reinforcement_learning/reinforcement-learning-Ch01/" title="reinforcement_learning Ch01">reinforcement_learning Ch01</a><time datetime="2026-02-22T09:17:33.552Z" title="更新于 2026-02-22 17:17:33">2026-02-22</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2026/02/14/notes/flow_matching/flow-matching-Ch02/" title="flow_matching Ch02">flow_matching Ch02</a><time datetime="2026-02-22T09:09:27.296Z" title="更新于 2026-02-22 17:09:27">2026-02-22</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2026/02/15/notes/diffusion/diffusion-Ch04/" title="diffusion Ch04">diffusion Ch04</a><time datetime="2026-02-15T15:08:41.405Z" title="更新于 2026-02-15 23:08:41">2026-02-15</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2026/02/12/notes/flow_matching/flow-matching-Ch01/" title="flow_matching Ch01">flow_matching Ch01</a><time datetime="2026-02-15T02:43:06.395Z" title="更新于 2026-02-15 10:43:06">2026-02-15</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2026/02/11/notes/diffusion/diffusion-Ch03/" title="diffusion Ch03">diffusion Ch03</a><time datetime="2026-02-15T02:42:57.148Z" title="更新于 2026-02-15 10:42:57">2026-02-15</time></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">&copy;2024 - 2026 By creat</div><div class="footer_custom_text">很高兴你能看到这里！</div></div></footer></div><div id="leftside-fps"><span id="leftside-fps-text"></span></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="日间和夜间模式切换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/instant.page/instantpage.min.js" type="module"></script><script src="https://cdn.jsdelivr.net/npm/vanilla-lazyload/dist/lazyload.iife.min.js"></script><script src="https://cdn.jsdelivr.net/npm/node-snackbar/dist/snackbar.min.js"></script><div class="js-pjax"><script>(() => {
+}</script><link rel="stylesheet" href="/css/font.css"><link rel="stylesheet" href="/css/cursor.css"><link rel="stylesheet" href="/css/custom.css"><link rel="stylesheet" href="//at.alicdn.com/t/c/font_4746832_eb25gdpzci6.css"><meta name="generator" content="Hexo 7.3.0"></head><body><div id="web_bg" style="background-image: url(/img/background.png);"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img text-center"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/img/avatar.gif" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="site-data text-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">38</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">9</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">6</div></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 主页</span></a></div><div class="menus_item"><a class="site-page" href="/categories"><i class="fa-fw fas fa-book"></i><span> 学习资料</span></a></div><div class="menus_item"><a class="site-page" href="/link"><i class="fa-fw fas fa-globe"></i><span> 常用网站</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header"><nav id="nav"><span id="blog-info"><a class="nav-site-title" href="/"><img class="site-icon" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/img/favicon.png" alt="Logo"><span class="site-name">creat's HomePage</span></a><a class="nav-page-title" href="/"><span class="site-name">reinforcement_learning Ch01</span></a></span><div id="music-bar"><div id="music-cover-container"><div id="music-cover"></div></div><div id="music-button-container"><div id="music-button-container-top"><span class="music-icon iconfont icon-shangyishou" id="music-prev"></span><span class="music-icon iconfont icon-bofang" id="music-playOrPause"></span><span class="music-icon iconfont icon-xiayishou" id="music-next"></span><span class="music-icon iconfont icon-liebiaoxunhuan" id="music-mode"></span></div><div id="music-button-container-bottom"><div id="music-progressBar"><span id="music-currentProgress"></span><span id="music-dot"></span></div><span id="music-progressText">00:00 / 00:00</span></div></div><div id="music-name-container"><span id="music-name"></span></div><div id="music-lyric-container"><span id="music-lyric"></span></div></div><div id="menus"><div id="toggle-menu"><span class="site-page"></span><i class="fas fa-bars fa-fw"></i></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 主页</span></a></div><div class="menus_item"><a class="site-page" href="/categories"><i class="fa-fw fas fa-book"></i><span> 学习资料</span></a></div><div class="menus_item"><a class="site-page" href="/link"><i class="fa-fw fas fa-globe"></i><span> 常用网站</span></a></div></div><div id="search-button"><span class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> 搜索</span></span></div></div></nav><div id="post-info"><h1 class="post-title">reinforcement_learning Ch01</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2026-02-22T08:50:08.000Z" title="发表于 2026-02-22 16:50:08">2026-02-22</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2026-03-11T04:05:30.097Z" title="更新于 2026-03-11 12:05:30">2026-03-11</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/notes/">notes</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/notes/flow-matching/">flow_matching</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-wordcount"><i class="far fa-file-word fa-fw post-meta-icon"></i><span class="post-meta-label">总字数:</span><span class="word-count">3k</span><span class="post-meta-separator">|</span><i class="far fa-clock fa-fw post-meta-icon"></i><span class="post-meta-label">阅读时长:</span><span>10分钟</span></span><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title=""><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">浏览量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="container post-content" id="article-container"><figure>
+<img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/img/rl/ppo_grpo.png" alt="alt text" />
+<figcaption aria-hidden="true">alt text</figcaption>
+</figure>
+<h2 id="ppoproximal-policy-optimization近端策略优化">PPO（Proximal
+Policy Optimization，近端策略优化）</h2>
+<h3 id="ppo-提出背景">PPO 提出背景</h3>
+<p><strong>PPO</strong> 是目前强化学习（Reinforcement Learning,
+RL）领域中最主流、最实用的一种算法。</p>
+<p>在 PPO 之前，策略梯度（Policy
+Gradient）算法面临一个进退两难的问题：步长（Learning
+Rate）极难设定。</p>
+<ul>
+<li>如果更新步长太大，新策略可能会彻底崩溃（因为强化学习的数据是策略自己采样出来的，策略一旦变差，采到的数据也会变差，导致恶性循环）。</li>
+<li>如果更新步长太小，学习速度又会如同龟速。</li>
+</ul>
+<h3 id="ppo-核心数学原理">PPO 核心数学原理</h3>
+<h4 id="策略比率">策略比率</h4>
+<p>我们定义新策略 <span class="math inline">\(\pi_\theta\)</span>
+和旧策略 <span class="math inline">\(\pi_{\theta_\text{old}}\)</span>
+在状态 <span class="math inline">\(s_t\)</span> 下采取动作 <span
+class="math inline">\(a_t\)</span> 的概率比值为<span
+class="math inline">\(r_t(\theta)\)</span>： <span
+class="math display">\[
+\begin{equation}
+r_t(\theta) =
+\frac{\pi_\theta(a_t|s_t)}{\pi_{\theta_\text{old}}(a_t|s_t)}
+\end{equation}
+\]</span> 如果 <span class="math inline">\(r_t(\theta) &gt;
+1\)</span>，说明新策略比旧策略更倾向于采取这个动作。如果 <span
+class="math inline">\(r_t(\theta) &lt;
+1\)</span>，说明新策略更不倾向于采取这个动作。</p>
+<div class="note warning flat"><p><strong>PPO 的“旧策略” <span
+class="math inline">\(\pi_{\theta_\text{old}}\)</span>
+是如何产生的？</strong></p>
+<hr />
+<p>PPO
+的训练过程是严格交替的两个阶段：<strong>数据采样（Rollout）</strong>和<strong>网络更新（Update）</strong>。</p>
+<ol type="1">
+<li><strong>数据采样阶段</strong>。在这个阶段，当前的主模型 <span
+class="math inline">\(\pi_\theta\)</span>
+控制智能体与环境交互，收集一批数据（比如 2048
+步）。在智能体每执行一个动作 <span class="math inline">\(a_t\)</span>
+时，网络不仅输出这个动作，还会计算出当前网络产生这个动作的对数概率（Log
+Probability），并把这个概率值和状态、动作、奖励一起存入经验回放池（Buffer）中。这些存在
+Buffer 里的固定概率值，其实就是 <span
+class="math inline">\(\pi_{\theta_\text{old}}\)</span>！因为它代表了“收集数据那一瞬间”的策略状态。</li>
+<li><strong>网络更新阶段</strong>。数据收集完毕后，交互暂停，进入纯更新阶段。PPO
+最大的特点是它会把刚刚收集到的这同一批数据，反复在主网络 <span
+class="math inline">\(\pi_\theta\)</span> 上训练多个轮次（Epochs，通常是
+4 到 10 轮）。在这个阶段中，主模型 <span
+class="math inline">\(\pi_\theta\)</span>
+的参数在每一轮反向传播中都在不断变化和更新。它每次都会对 Buffer 里的状态
+<span class="math inline">\(s_t\)</span>
+重新计算一个新的动作概率。旧策略 <span
+class="math inline">\(\pi_{\theta_\text{old}}\)</span> 就是直接从 Buffer
+中读取出来的、第一阶段存进去的那个固定概率值。<span
+class="math display">\[r_t(\theta) = \frac{\pi_\theta(a_t|s_t)
+\leftarrow
+\text{主网络当前算出的新概率（不断变化）}}{\pi_{\theta_{old}}(a_t|s_t)
+\leftarrow \text{Buffer里存好的旧概率（固定不变）}}\]</span></li>
+<li><strong>抛弃与循环（Discard &amp; Repeat）</strong>。当这几个 Epoch
+的更新完成后，主模型 <span class="math inline">\(\pi_\theta\)</span>
+已经脱胎换骨。此时，PPO 会清空整个
+Buffer（把旧数据连同那些旧概率全部扔掉）。然后，带着全新参数的主模型再次回到“数据采样阶段”，开始收集新一批数据。此时，这个更新后的
+<span class="math inline">\(\pi_\theta\)</span>
+就又成了下一轮更新时的“旧策略”。</li>
+</ol>
+</div>
+<h4 id="优势函数">优势函数</h4>
+<p><span class="math inline">\(\hat{A}_t\)</span> 衡量的是：在状态 <span
+class="math inline">\(s_t\)</span> 下采取动作 <span
+class="math inline">\(a_t\)</span>，比该状态下的平均表现好多少。</p>
+<ul>
+<li><span class="math inline">\(\hat{A}_t &gt;
+0\)</span>：这是一个好动作，我们应该提高它的发生概率。</li>
+<li><span class="math inline">\(\hat{A}_t &lt;
+0\)</span>：这是一个坏动作，我们应该降低它的发生概率。</li>
+</ul>
+<h5 id="价值函数">价值函数</h5>
+<p>在强化学习中，有两个非常基础的价值函数：</p>
+<ul>
+<li><strong>状态价值函数 <span
+class="math inline">\(V(s_t)\)</span>：</strong>衡量的是“当前状态本身有多好”。它假设智能体从状态
+<span class="math inline">\(s_t\)</span> 开始，完全按照当前策略 <span
+class="math inline">\(\pi\)</span>
+走下去，平均能获得的总奖励预期。这就是所谓的“基线（Baseline）”。</li>
+<li><strong>动作价值函数 <span class="math inline">\(Q(s_t,
+a_t)\)</span>：</strong>衡量的是“在当前状态下，采取某个特定动作有多好”。它假设智能体在状态
+<span class="math inline">\(s_t\)</span> 时，强制采取动作 <span
+class="math inline">\(a_t\)</span>，然后从下一步开始继续按照策略 <span
+class="math inline">\(\pi\)</span> 走下去，能获得的总奖励预期。</li>
+</ul>
+<div class="note warning flat"><p><strong>状态价值函数 <span class="math inline">\(V(s_t)\)</span> 和
+动作价值函数 <span class="math inline">\(Q(s_t, a_t)\)</span>
+的联系</strong></p>
+<hr />
+<p><span class="math inline">\(Q(s_t, a_t) \rightarrow
+V(s_t)\)</span></p>
+<p>假设智能体现在处于状态 <span
+class="math inline">\(s_t\)</span>。在这个状态下，它有很多个动作可以选择。策略函数
+<span class="math inline">\(\pi(a|s_t)\)</span>
+决定了它选择每个动作的概率。既然 <span class="math inline">\(Q(s_t,
+a_t)\)</span> 是选了特定动作 <span class="math inline">\(a_t\)</span>
+后的预期回报，那么把所有可能动作的 <span
+class="math inline">\(Q\)</span> 值，按照它们被策略 <span
+class="math inline">\(\pi\)</span>
+选中的概率进行<strong>加权平均</strong>，得到的就是这个状态本身的<strong>平均预期回报</strong>，也就是
+<span class="math inline">\(V(s_t)\)</span>。</p>
+<p>如果是<strong>离散动作空间</strong>（比如上下左右）： <span
+class="math display">\[
+\begin{equation}
+V^\pi(s_t) = \sum_{a} \pi(a|s_t) Q^\pi(s_t, a)
+\end{equation}
+\]</span>
+如果是<strong>连续动作空间</strong>（比如给电机的连续控制电压）： <span
+class="math display">\[
+\begin{equation}
+V^\pi(s_t) = \int \pi(a|s_t) Q^\pi(s_t, a) da
+\end{equation}
+\]</span></p>
+<hr />
+<p><span class="math inline">\(V(s_t) \rightarrow Q(s_t,
+a_t)\)</span></p>
+<p>反过来，如果我们知道了下一个状态的价值 <span
+class="math inline">\(V(s_{t+1})\)</span>，我们也能推导出当前动作的价值
+<span class="math inline">\(Q(s_t,
+a_t)\)</span>。这也是强化学习中最著名的<strong>贝尔曼方程（Bellman
+Equation）</strong>的核心思想。如果在状态 <span
+class="math inline">\(s_t\)</span> 执行了动作 <span
+class="math inline">\(a_t\)</span>，系统会产生两部分结果：</p>
+<ol type="1">
+<li>环境立刻给你一个即时奖励 <span
+class="math inline">\(r_t\)</span>。</li>
+<li>环境根据状态转移概率（物理世界的动力学规律）把你送到下一个状态 <span
+class="math inline">\(s_{t+1}\)</span>。</li>
+</ol>
+<p>那么，这个动作的价值 <span class="math inline">\(Q(s_t, a_t)\)</span>
+就等于即时奖励，加上打了折扣的下一个状态的平均价值： <span
+class="math display">\[
+\begin{equation}
+Q^\pi(s_t, a_t) = \mathbb{E}_{s_{t+1}} [r_t + \gamma V^\pi(s_{t+1})]
+\label{eq:bellman}
+\end{equation}
+\]</span> (其中 <span class="math inline">\(\gamma\)</span>
+是折扣因子，代表未来奖励在现在的折现率)</p>
+</div>
+<h5 id="优势函数定义">优势函数定义</h5>
+<p>优势函数的标准数学定义就是这两者之差： <span class="math display">\[
+\begin{equation}
+A(s_t, a_t) = Q(s_t, a_t) - V(s_t)
+\end{equation}
+\]</span></p>
+<p>使用优势函数进行相对评价的目的是为了降低策略更新的方差（Variance）。如果直接用
+<span class="math inline">\(Q(s_t, a_t)\)</span>
+来指导策略更新，可能会因为奖励的波动性而导致学习过程不稳定。引入 <span
+class="math inline">\(V(s_t)\)</span>
+作为基线，可以让我们关注于动作相对于平均水平的表现。这样一来，好动作的梯度方向向上，坏动作的梯度方向向下，信噪比大幅提升，策略网络的收敛速度和稳定性会因此得到质的飞跃。</p>
+<h5 id="广义优势函数">广义优势函数</h5>
+<p>在 PPO 的实际代码中，我们很难精确知道真实的 <span
+class="math inline">\(Q\)</span>
+值，因此需要去<strong>估计（Estimate）</strong>它。这就是 <span
+class="math inline">\(\hat{A}_t\)</span>
+中那个小帽子的来源。目前业界最通用的估计方法是 GAE (Generalized
+Advantage Estimation, 广义优势估计)。它的计算依赖于时序差分误差（TD
+Error, <span class="math inline">\(\delta_t\)</span>）。</p>
+<div class="note warning flat"><p><strong>TD Error 的定义</strong></p>
+<hr />
+<p>在前面讨论贝尔曼方程的时候，我们得到过 <span class="math display">\[
+\begin{equation}
+Q(s_t, a_t) \approx r_t + \gamma V(s_{t+1})
+\end{equation}
+\]</span> (这里的 <span class="math inline">\(r_t + \gamma
+V(s_{t+1})\)</span> 被称为 TD 目标 (TD
+Target)，即我们走了一步之后得到的“更准确的新估计”)。</p>
+<p>而我们在状态 <span class="math inline">\(s_t\)</span>
+时，旧的估计仅仅是 <span class="math inline">\(V(s_t)\)</span>。</p>
+<p>TD Error (<span class="math inline">\(\delta_t\)</span>)
+就是“新估计”减去“旧估计”： <span class="math display">\[
+\begin{equation}
+\delta_t = (r_t + \gamma V(s_{t+1})) - V(s_t)
+\end{equation}
+\]</span></p>
+</div>
+<p>Critic 网络（价值网络，在 PPO 中通常也是一个可以训练的模型）负责输出
+<span
+class="math inline">\(V(s)\)</span>，我们可以计算每一步的单步优势（即 TD
+Error）： <span class="math display">\[
+\begin{equation}
+\delta_t = r_t + \gamma V(s_{t+1}) - V(s_t)
+\end{equation}
+\]</span> (其中 <span class="math inline">\(r_t\)</span>
+是单步真实奖励，<span class="math inline">\(\gamma\)</span>
+是折扣因子，代表对未来奖励的看重程度)。GAE 巧妙地利用一个衰减系数 <span
+class="math inline">\(\lambda\)</span>（通常设为 0.95），将未来多步的
+<span class="math inline">\(\delta_t\)</span>
+累加起来，做指数滑动平均，从而在<strong>偏差（Bias）和方差（Variance）</strong>之间取得完美的平衡：
+<span class="math display">\[
+\begin{equation}
+\hat{A}_t^{GAE} = \sum_{l=0}^{\infty} (\gamma \lambda)^l \delta_{t+l}
+\end{equation}
+\]</span></p>
+<div class="note danger flat"><p>TD Error <span class="math inline">\(\delta_t\)</span>
+实际上就是单步优势函数 <span class="math inline">\(A(s_t, a_t)\)</span>
+的一个无偏估计值。</p>
+<p>如果 <span class="math inline">\(\delta_t &gt; 0\)</span>
+说明走了一步之后发现，实际情况（即时奖励 +
+新状态价值）比原来预期的好，这个动作是个好动作（优势为正）。如果 <span
+class="math inline">\(\delta_t &lt; 0\)</span>
+说明走了一步之后发现不如预期，这个动作是个差动作（优势为负）。</p>
+</div>
+<h4 id="目标函数">目标函数</h4>
+<p>如果没有约束，我们直接最大化 <span
+class="math inline">\(r_t(\theta)\hat{A}_t\)</span>
+会导致策略更新过猛。</p>
+<p>PPO 引入了一个超参数 <span
+class="math inline">\(\epsilon\)</span>（通常设为 0.2），并使用 clip
+函数对更新幅度进行暴力截断： <span class="math display">\[
+\begin{equation}
+L^{CLIP}(\theta) = \hat{\mathbb{E}}_t \left[ \min \left(
+r_t(\theta)\hat{A}_t, \text{clip}(r_t(\theta), 1-\epsilon,
+1+\epsilon)\hat{A}_t \right) \right]
+\end{equation}
+\]</span> 这个公式的物理意义非常直观：</p>
+<ul>
+<li>情况 A（动作好，<span class="math inline">\(\hat{A}_t &gt;
+0\)</span>）： 我们希望 <span class="math inline">\(r_t(\theta)\)</span>
+越大越好。但如果 <span class="math inline">\(r_t(\theta)\)</span> 超过了
+<span class="math inline">\(1+\epsilon\)</span>，公式中的 min
+操作就会触发，梯度变为
+0。含义：虽然动作好，但你不能一次性把概率提高太多，适可而止（防贪婪）。</li>
+<li>情况 B（动作差，<span class="math inline">\(\hat{A}_t &lt;
+0\)</span>）： 我们希望 <span class="math inline">\(r_t(\theta)\)</span>
+越小越好。但如果 <span class="math inline">\(r_t(\theta)\)</span> 跌破了
+<span class="math inline">\(1-\epsilon\)</span>，梯度再次变为
+0。含义：虽然动作差，但你也不能一次性把概率降到谷底，要给自己留余地（防崩溃）。</li>
+</ul>
+<p>这里解释两个重要的点，在我接触 PPO
+这个目标函数的时候所产生过的困惑。</p>
+<h5 id="为什么是乘积-r_tthetahata_t">为什么是乘积 <span
+class="math inline">\(r_t(\theta)\hat{A}_t\)</span></h5>
+<p>这其实是<strong>“重要性采样（Importance
+Sampling）”</strong>在强化学习中的应用。</p>
+<p>在标准的策略梯度中，我们想要优化的目标其实是：让优势函数 <span
+class="math inline">\(\hat{A}_t\)</span>
+大的动作，出现的概率变大。但是在 PPO
+中，我们是在用旧策略收集来的数据，去更新新策略。这就产生了一个偏差：数据是旧网络跑出来的，新网络怎么能直接用呢？</p>
+<p><span class="math inline">\(r_t(\theta) =
+\frac{\pi_\theta(a_t|s_t)}{\pi_{\theta_{old}}(a_t|s_t)}\)</span>
+就是用来修正这个偏差的权重：它衡量了新旧策略在对待同一个动作时的“分歧程度”。当我们最大化
+<span class="math inline">\(r_t(\theta)\hat{A}_t\)</span>
+时，物理意义是：</p>
+<ol type="1">
+<li>如果 <span class="math inline">\(\hat{A}_t &gt;
+0\)</span>（好动作），我们希望 <span
+class="math inline">\(r_t(\theta)\)</span>
+越大越好（新策略比旧策略更爱选这个动作）。</li>
+<li>如果 <span class="math inline">\(\hat{A}_t &lt;
+0\)</span>（坏动作），我们希望 <span
+class="math inline">\(r_t(\theta)\)</span> 越小越好，向 0
+靠拢（新策略比旧策略更嫌弃这个动作）。</li>
+</ol>
+<h5 id="为什么要用-min-操作">为什么要用 min 操作？</h5>
+<p>这是 PPO 的核心创新。它通过 min
+操作来实现对更新幅度的双向限制，既防止了过度提升好动作的概率，也防止了过度降低坏动作的概率。这种设计使得
+PPO
+在训练过程中表现出极高的稳定性和鲁棒性，成为了强化学习领域的里程碑式算法。</p>
+<h3 id="ppo-算法架构">PPO 算法架构</h3>
+<p>在实际工程落地（如 PyTorch 实现）中，PPO 通常采用
+<strong>Actor-Critic 架构</strong>：</p>
+<ul>
+<li><strong>Actor（演员/策略网络）：</strong>负责输出动作。它的目标是最大化上述的
+<span
+class="math inline">\(L^{CLIP}\)</span>。在机器人控制中，它的输出通常是连续的（例如给电机的电压信号、速度指令），此时网络输出的是高斯分布的均值和方差。</li>
+<li><strong>Critic（评论家/价值网络）：</strong>负责评估当前状态的好坏，计算状态价值
+<span
+class="math inline">\(V(s)\)</span>。它的目标是让预测的价值尽可能逼近真实的长期回报，通常使用均方误差（MSE）作为损失函数。它计算出的
+<span class="math inline">\(V(s)\)</span> 被用来估算前文提到的优势函数
+<span class="math inline">\(\hat{A}_t\)</span>。</li>
+</ul>
+<h2 id="grpo">GRPO</h2>
+<p>建设中ing……目前了解到的大体思想就是通过输出多个动作 <span
+class="math inline">\({a_1, a_2, \cdots,
+a_N}\)</span>，经奖励模型评估后，输出多个奖励 <span
+class="math inline">\({r_1, r_2, \cdots,
+r_N}\)</span>。然后通过对多个奖励进行平均，来近似获取 <span
+class="math inline">\(V\)</span>，从而取代掉了原先独立的需要训练的价值网络。</p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>文章作者: </span><span class="post-copyright-info"><a href="https://Ardbr.github.io">creat</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>文章链接: </span><span class="post-copyright-info"><a href="https://ardbr.github.io/2026/02/22/notes/reinforcement_learning/reinforcement-learning-Ch01/">https://ardbr.github.io/2026/02/22/notes/reinforcement_learning/reinforcement-learning-Ch01/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来源 <a href="https://Ardbr.github.io" target="_blank">creat's HomePage</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/Flow-Matching/">Flow Matching</a></div><div class="post-share"><div class="social-share" data-image="/img/avatar.gif" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><a class="pagination-related" href="/2026/03/11/notes/ros/ros-Ch01/" title="ros Ch01"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info"><div class="info-1"><div class="info-item-1">上一篇</div><div class="info-item-2">ros Ch01</div></div><div class="info-2"><div class="info-item-1">ROS 框架 ROS Master（节点管理器） 在 ROS 系统中，所有的功能模块都是以“节点”的形式存在的。当任何一个新节点被激活时，它要做的第一件事就是去向 Master “报到”。当 Master 收到注册信息，发现导航节点恰好需要雷达节点的数据时，它会把雷达节点的具体 IP 地址和端口号发送给导航节点。两个节点牵线成功后，Master 就会“退居二线”了。这两个节点会利用 Master 提供的信息，直接建立底层的 TCP 连接来传输实际的传感器数据和控制指令（Peer-to-Peer），而不需要再与 Master 进行通信了。 为什么这么设计？  如果所有的节点都通过 Master 来转发数据，Master 就会成为整个系统的瓶颈。无论是雷达点云数据、视频流还是高频电机控制信号，都需要经过 Master 转发，这样 Master 就会瞬间卡死。点对点直连极大地提高了通信效率，避免了单点数据拥堵。  roscore 是启动这一切的源头。在终端中输入这行命令，就是正式开张了这个 Master。在 ROS 1 中，如果不先运行 roscore...</div></div></div></a><a class="pagination-related" href="/2026/02/15/notes/diffusion/diffusion-Ch04/" title="diffusion Ch04"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-right"><div class="info-1"><div class="info-item-1">下一篇</div><div class="info-item-2">diffusion Ch04</div></div><div class="info-2"><div class="info-item-1">扩散模型中 reverse-time SDE 推导 待补充，参考  两类扩散模型了解 朗之万动力学去噪分数匹配（SMLD） 我们设定扰动核 \(p_{\sigma}(\tilde{x}|x) := \mathcal{N}(\tilde{x}; x, \sigma^2\mathbf{I})\)，以及扰动（加噪）后的数据边缘概率分布为 \(p_\sigma(\tilde{x}) := \int p_\sigma(\tilde{x}|x) p_\text{data}(x)\text{d}x\)。 考虑一个噪声序列 \(\sigma_\text{min} = \sigma_1 &lt; \sigma_2 &lt; \dots &lt; \sigma_N = \sigma_\text{max}\)，这也就是说每一步的加噪会越来越大。其中，\(\sigma_\text{min}\) 足够小，能够使得 \(p_{\sigma_\text{min}} \approx p_\text{data}(x)\)，\(\sigma_\text{max}\) 足够大，能够使得...</div></div></div></a></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><a class="pagination-related" href="/2026/02/12/notes/flow_matching/flow-matching-Ch01/" title="flow_matching Ch01"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2026-02-12</div><div class="info-item-2">flow_matching Ch01</div></div><div class="info-2"><div class="info-item-1">Flow Matching 总览 生成模型的目标 生成模型（GAN, VAE, Diffusion, Flow）的目标是已知样本 \(x_1 \sim q_1\) (未知)，用样本把未知分布估计出来。其中 \(x_1\) 代表真实数据（比如一张真实的狗的照片）。\(q_1\) 代表真实数据的分布（Data Distribution），这是上帝视角的分布，我们在数学上不知道它的解析式，但我们有从中采样出来的“样本”。 我们的目标就是通过有限的样本，训练一个模型去逼近这个未知的 \(q_1\)。 做法 为了达到这个目的，通常的做法是利用已知分布（通常为高斯分布/标准正态分布）来映射到未知分布 \(q_1\)，即： \[ q_0 \text{（已知分布）} \xrightarrow{\phi} q_1 \text{（待估计的未知分布）} \] 其中 \(\phi\) (Phi) 是一个映射函数（Mapping）。 💡生成模型的本质就是寻找一个映射 \(\phi\)，它能把简单的噪声 \(x_0\) “推”成复杂的图像 \(x_1\)。  两种求解路径 Normalizing...</div></div></div></a><a class="pagination-related" href="/2026/02/14/notes/flow_matching/flow-matching-Ch02/" title="flow_matching Ch02"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2026-02-14</div><div class="info-item-2">flow_matching Ch02</div></div><div class="info-2"><div class="info-item-1">条件流匹配（CFM） 在上一章节中，最后我们给出了边缘概率路径 \(\ref{eq:marginal_prob_path}\) 和边缘场向量 \(\ref{eq:marginal_vec_field}\) 的公式表达。 \[ \begin{align} p_t(x) &amp;= \int p_t(x | x_1)q(x_1) \text{d}x_1 \label{eq:marginal_prob_path} \\ u_t(x) &amp;= \int u_t(x | x_1) \frac{p_t(x | x_1)q(x_1)}{p_t(x)} \text{d} x_1 \label{eq:marginal_vec_field} \end{align} \] 然而，这两个公式都存在一个共同的问题：需要计算积分。积分是不好计算的，这也导致了计算原流匹配目标 \(\ref{eq:original_fm_objective}\)难以计算。 \[ \begin{equation} \mathcal{L}_\text{FM}(\theta) = \mathbb{E}_{t,...</div></div></div></a></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info text-center"><div class="avatar-img"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/img/avatar.gif" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info-name">creat</div><div class="author-info-description"></div><div class="site-data"><a href="/archives/"><div class="headline">文章</div><div class="length-num">38</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">9</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">6</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/ardbr"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons"><a class="social-icon" href="https://github.com/Ardbr" target="_blank" title="Github"><i class="fab fa-github" style="color: #24292e;"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">希望每天都能输出一点新知识😌</div></div><div class="card-widget card-countdown"><div class="countdown-mask"><div class="text-container"><p>2026 年已经过去</p><span class="countdown-number">xx</span><span class="countdown-unit">天</span></div><div class="current-time-container"> <span class="current-time"></span></div></div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#ppoproximal-policy-optimization%E8%BF%91%E7%AB%AF%E7%AD%96%E7%95%A5%E4%BC%98%E5%8C%96"><span class="toc-number">1.</span> <span class="toc-text">PPO（Proximal
+Policy Optimization，近端策略优化）</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#ppo-%E6%8F%90%E5%87%BA%E8%83%8C%E6%99%AF"><span class="toc-number">1.1.</span> <span class="toc-text">PPO 提出背景</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#ppo-%E6%A0%B8%E5%BF%83%E6%95%B0%E5%AD%A6%E5%8E%9F%E7%90%86"><span class="toc-number">1.2.</span> <span class="toc-text">PPO 核心数学原理</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%AD%96%E7%95%A5%E6%AF%94%E7%8E%87"><span class="toc-number">1.2.1.</span> <span class="toc-text">策略比率</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%BC%98%E5%8A%BF%E5%87%BD%E6%95%B0"><span class="toc-number">1.2.2.</span> <span class="toc-text">优势函数</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#%E4%BB%B7%E5%80%BC%E5%87%BD%E6%95%B0"><span class="toc-number">1.2.2.1.</span> <span class="toc-text">价值函数</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E4%BC%98%E5%8A%BF%E5%87%BD%E6%95%B0%E5%AE%9A%E4%B9%89"><span class="toc-number">1.2.2.2.</span> <span class="toc-text">优势函数定义</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E5%B9%BF%E4%B9%89%E4%BC%98%E5%8A%BF%E5%87%BD%E6%95%B0"><span class="toc-number">1.2.2.3.</span> <span class="toc-text">广义优势函数</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%9B%AE%E6%A0%87%E5%87%BD%E6%95%B0"><span class="toc-number">1.2.3.</span> <span class="toc-text">目标函数</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#%E4%B8%BA%E4%BB%80%E4%B9%88%E6%98%AF%E4%B9%98%E7%A7%AF-r_tthetahata_t"><span class="toc-number">1.2.3.1.</span> <span class="toc-text">为什么是乘积 \(r_t(\theta)\hat{A}_t\)</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E4%B8%BA%E4%BB%80%E4%B9%88%E8%A6%81%E7%94%A8-min-%E6%93%8D%E4%BD%9C"><span class="toc-number">1.2.3.2.</span> <span class="toc-text">为什么要用 min 操作？</span></a></li></ol></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#ppo-%E7%AE%97%E6%B3%95%E6%9E%B6%E6%9E%84"><span class="toc-number">1.3.</span> <span class="toc-text">PPO 算法架构</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#grpo"><span class="toc-number">2.</span> <span class="toc-text">GRPO</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2026/03/11/notes/ros/ros-Ch01/" title="ros Ch01">ros Ch01</a><time datetime="2026-03-17T12:09:08.897Z" title="更新于 2026-03-17 20:09:08">2026-03-17</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2026/02/22/notes/reinforcement_learning/reinforcement-learning-Ch01/" title="reinforcement_learning Ch01">reinforcement_learning Ch01</a><time datetime="2026-03-11T04:05:30.097Z" title="更新于 2026-03-11 12:05:30">2026-03-11</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2026/02/09/notes/diffusion/diffusion-Ch01/" title="diffusion Ch01">diffusion Ch01</a><time datetime="2026-03-09T06:13:01.279Z" title="更新于 2026-03-09 14:13:01">2026-03-09</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2026/02/14/notes/flow_matching/flow-matching-Ch02/" title="flow_matching Ch02">flow_matching Ch02</a><time datetime="2026-03-08T10:41:56.952Z" title="更新于 2026-03-08 18:41:56">2026-03-08</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2026/02/12/notes/flow_matching/flow-matching-Ch01/" title="flow_matching Ch01">flow_matching Ch01</a><time datetime="2026-03-06T05:37:07.568Z" title="更新于 2026-03-06 13:37:07">2026-03-06</time></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">&copy;2024 - 2026 By creat</div><div class="footer_custom_text">很高兴你能看到这里！</div></div></footer></div><div id="leftside-fps"><span id="leftside-fps-text"></span></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="日间和夜间模式切换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/instant.page/instantpage.min.js" type="module"></script><script src="https://cdn.jsdelivr.net/npm/vanilla-lazyload/dist/lazyload.iife.min.js"></script><script src="https://cdn.jsdelivr.net/npm/node-snackbar/dist/snackbar.min.js"></script><div class="js-pjax"><script>(() => {
   const loadMathjax = () => {
     if (!window.MathJax) {
       window.MathJax = {
